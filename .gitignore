@@ -1,0 +1,21 @@
+.venv/
+__pycache__/
+*.pyc
+# Virtual Environment
+.venv/
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# VS Code
+.vscode/
+
+# Environment Variables
+.env
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
