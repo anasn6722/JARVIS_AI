@@ -56,8 +56,18 @@ class DashboardPage(QWidget):
         self.timer.timeout.connect(self.update_system_info)
         self.timer.start(1000)
 
-    def update_system_info(self):
-        """Update CPU and RAM information every second."""
-        self.cpu_card.update_value(f"{System.cpu_usage()}%")
 
-        self.ram_card.update_value(f"{System.ram_used()} GB")
+    def update_system_info(self):
+        cpu = System.cpu_usage()
+        ram_used = System.ram_used()
+        ram_percent = System.ram_percent()
+
+        self.cpu_card.update_value(
+        f"{cpu}%",
+        cpu,
+         )
+
+        self.ram_card.update_value(
+        f"{ram_used} GB",
+        ram_percent,
+    )

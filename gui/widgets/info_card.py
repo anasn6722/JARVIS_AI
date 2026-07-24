@@ -67,15 +67,26 @@ class InfoCard(QFrame):
 
         self.setLayout(layout)
 
-    def update_value(self, new_value):
-        self.value.setText(str(new_value))
+    def update_value(self, new_value, progress=None):
+     """
+     Update the displayed text and optionally
+     set the progress bar value.
+     """
 
+     self.value.setText(str(new_value))
+
+     if progress is None:
         try:
-            number = float(str(new_value).replace("%", "").replace("GB", "").strip())
+            number = float(
+                str(new_value)
+                .replace("%", "")
+                .replace("GB", "")
+                .strip()
+            )
 
-            number = min(number, 100)
-
-            self.progress.setValue(int(number))
+            progress = min(int(number), 100)
 
         except ValueError:
-            pass
+            return
+
+     self.progress.setValue(progress)
