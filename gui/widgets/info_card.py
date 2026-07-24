@@ -31,10 +31,11 @@ class InfoCard(QFrame):
 
         self.value = QLabel(value)
         self.value.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
         self.value.setStyleSheet("""
-            font-size: 26px;
-            font-weight: bold;
-            color: #00D9FF;
+            font-size:26px;
+            font-weight:bold;
+            color:#00D9FF;
         """)
 
         layout.addWidget(self.title)
@@ -43,3 +44,9 @@ class InfoCard(QFrame):
         layout.addStretch()
 
         self.setLayout(layout)
+
+    def update_value(self, new_value):
+        """
+        Update the value displayed on the card.
+        """
+        self.value.setText(str(new_value))
