@@ -4,12 +4,13 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QPushButton,
-    QTextEdit,
+    QScrollArea,
     QVBoxLayout,
     QWidget,
 )
 
 from ai.brain import Brain
+from gui.widgets.chat_container import ChatContainer
 
 
 class ChatPage(QWidget):
@@ -31,18 +32,18 @@ class ChatPage(QWidget):
             color:white;
         """)
 
-        # Chat Area
-        self.chat_area = QTextEdit()
-        self.chat_area.setReadOnly(True)
+        # Chat Container
+        self.chat_container = ChatContainer()
 
-        self.chat_area.setStyleSheet("""
-        QTextEdit{
+        # Scroll Area
+        self.scroll = QScrollArea()
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setWidget(self.chat_container)
+
+        self.scroll.setStyleSheet("""
+        QScrollArea{
+        border:none;
         background:#1E1E1E;
-        color:white;
-        border:1px solid #3A3A3A;
-        border-radius:8px;
-        padding:10px;
-        font-size:14px;
         }
         """)
 
@@ -60,7 +61,7 @@ class ChatPage(QWidget):
 
         # Assemble Layout
         layout.addWidget(title)
-        layout.addWidget(self.chat_area)
+        layout.addWidget(self.scroll)
         layout.addLayout(bottom_layout)
 
         self.setLayout(layout)
@@ -74,60 +75,44 @@ class ChatPage(QWidget):
         command = self.input_box.text().strip()
 
         if not command:
-          return
+         return
 
         self.current_command = command
 
-        self.chat_area.append(
-          f"""
-          <p>
-             <span style="color:#4CAF50;">
-                <b>🧑 You</b>
-             </span><br>
-             {command}
-        </p>
-        """
+        self.chat_container.add_message(
+        "🧑 You",
+        command,
+        True,
         )
 
-        self.chat_area.append(
-            "<span style='color:gray;'><i>🤖 JARVIS is typing...</i></span>"
-     )
+        self.chat_container.add_message(
+        "🤖 JARVIS",
+        "Typing...",
+        False,
+        )
 
         self.input_box.clear()
 
         QTimer.singleShot(
-            1000,
-            self.generate_response
-    )
+        1000,
+        self.generate_response,
+        )
 
     def generate_response(self):
         response = self.brain.process(
         self.current_command
         )
 
-        cursor = self.chat_area.textCursor()
-
-        cursor.movePosition(cursor.MoveOperation.End)
-
-        self.chat_area.setTextCursor(cursor)
-
-        self.chat_area.undo()
-
-        self.chat_area.append(
-        f"""
-        <p>
-            <span style="color:#00D9FF;">
-                <b>🤖 JARVIS</b>
-            </span><br>
-            {response}
-        </p>
-        """
+        self.chat_container.add_message(
+        "🤖 JARVIS",
+        response,
+        False,
         )    
 
     def show_welcome_message(self):
-        self.chat_area.append(
-        "<b style='color:#00D9FF;'>🤖 JARVIS:</b> "
-        "Hello Anas! 👋<br>"
-        "Welcome back.<br>"
-        "How can I help you today?<br>"
-    )    
+        self.chat_container.add_message(
+        "🤖 JARVIS",
+        "Hello Anas! 👋\nWelcome back.\nHow can I help you today?",
+        False,
+        )
+    
