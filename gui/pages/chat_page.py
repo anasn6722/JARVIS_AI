@@ -57,6 +57,7 @@ class ChatPage(QWidget):
         # Events
         self.send_button.clicked.connect(self.send_message)
         self.input_box.returnPressed.connect(self.send_message)
+        self.show_welcome_message()
 
     def send_message(self):
         command = self.input_box.text().strip()
@@ -73,3 +74,11 @@ class ChatPage(QWidget):
         self.chat_area.append("")
 
         self.input_box.clear()
+
+    def show_welcome_message(self):
+        self.chat_area.append(
+        "<b style='color:#00D9FF;'>🤖 JARVIS:</b> "
+        "Hello Anas! 👋<br>"
+        "Welcome back.<br>"
+        "How can I help you today?<br>"
+    )    
