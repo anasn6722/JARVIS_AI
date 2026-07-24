@@ -42,6 +42,8 @@ class MessageBubble(QFrame):
         )
 
         layout = QVBoxLayout()
+        layout.setContentsMargins(12, 10, 12, 10)
+        layout.setSpacing(6)
 
         # Sender
         sender_label = QLabel(sender)
