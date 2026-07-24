@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout
+from PySide6.QtWidgets import QPushButton, QVBoxLayout, QWidget
 
 
 class Sidebar(QWidget):

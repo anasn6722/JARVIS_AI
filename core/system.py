@@ -1,10 +1,10 @@
 import platform
-import psutil
 import sys
+
+import psutil
 
 
 class System:
-
     @staticmethod
     def operating_system():
         return platform.system()
@@ -28,3 +28,12 @@ class System:
     @staticmethod
     def cpu_usage():
         return psutil.cpu_percent(interval=1)
+
+    @staticmethod
+    def ram_percent():
+        return psutil.virtual_memory().percent
+
+
+    @staticmethod
+    def disk_percent():
+        return psutil.disk_usage("/").percent

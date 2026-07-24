@@ -1,8 +1,8 @@
-from gui.theme import DARK_THEME
 import sys
 
 from PySide6.QtWidgets import QApplication
 
+from gui.theme import DARK_THEME
 from gui.window import MainWindow
 
 

@@ -1,13 +1,13 @@
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
-    QWidget,
+    QGridLayout,
     QLabel,
     QVBoxLayout,
-    QGridLayout,
+    QWidget,
 )
 
-from gui.widgets.info_card import InfoCard
 from core.system import System
+from gui.widgets.info_card import InfoCard
 
 
 class DashboardPage(QWidget):
@@ -29,25 +29,13 @@ class DashboardPage(QWidget):
         grid = QGridLayout()
 
         # Cards
-        self.cpu_card = InfoCard(
-            "💻 CPU Usage",
-            f"{System.cpu_usage()}%"
-        )
+        self.cpu_card = InfoCard("💻 CPU Usage", f"{System.cpu_usage()}%")
 
-        self.ram_card = InfoCard(
-            "🧠 RAM Used",
-            f"{System.ram_used()} GB"
-        )
+        self.ram_card = InfoCard("🧠 RAM Used", f"{System.ram_used()} GB")
 
-        self.ai_card = InfoCard(
-            "🤖 AI",
-            "Online"
-        )
+        self.ai_card = InfoCard("🤖 AI", "Online")
 
-        self.voice_card = InfoCard(
-            "🎤 Voice",
-            "Ready"
-        )
+        self.voice_card = InfoCard("🎤 Voice", "Ready")
 
         # Add Cards
         grid.addWidget(self.cpu_card, 0, 0)
@@ -70,10 +58,6 @@ class DashboardPage(QWidget):
 
     def update_system_info(self):
         """Update CPU and RAM information every second."""
-        self.cpu_card.update_value(
-            f"{System.cpu_usage()}%"
-        )
+        self.cpu_card.update_value(f"{System.cpu_usage()}%")
 
-        self.ram_card.update_value(
-            f"{System.ram_used()} GB"
-        )
+        self.ram_card.update_value(f"{System.ram_used()} GB")

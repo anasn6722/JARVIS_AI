@@ -1,21 +1,19 @@
 from PySide6.QtWidgets import (
-    QMainWindow,
-    QWidget,
     QHBoxLayout,
+    QMainWindow,
     QStackedWidget,
+    QWidget,
 )
 
-from gui.sidebar import Sidebar
-
-from gui.pages.dashboard_page import DashboardPage
 from gui.pages.chat_page import ChatPage
-from gui.pages.voice_page import VoicePage
+from gui.pages.dashboard_page import DashboardPage
 from gui.pages.memory_page import MemoryPage
 from gui.pages.settings_page import SettingsPage
+from gui.pages.voice_page import VoicePage
+from gui.sidebar import Sidebar
 
 
 class MainWindow(QMainWindow):
-
     def __init__(self):
         super().__init__()
 
@@ -70,25 +68,17 @@ class MainWindow(QMainWindow):
         # Show Dashboard First
         self.pages.setCurrentIndex(0)
         # -----------------------
-# Sidebar Navigation
-# -----------------------
+        # Sidebar Navigation
+        # -----------------------
 
         self.sidebar.dashboard_btn.clicked.connect(
-        lambda: self.pages.setCurrentIndex(0)
+            lambda: self.pages.setCurrentIndex(0)
         )
 
-        self.sidebar.chat_btn.clicked.connect(
-        lambda: self.pages.setCurrentIndex(1)
-        )
+        self.sidebar.chat_btn.clicked.connect(lambda: self.pages.setCurrentIndex(1))
 
-        self.sidebar.voice_btn.clicked.connect(
-        lambda: self.pages.setCurrentIndex(2)
-        )   
+        self.sidebar.voice_btn.clicked.connect(lambda: self.pages.setCurrentIndex(2))
 
-        self.sidebar.memory_btn.clicked.connect(
-         lambda: self.pages.setCurrentIndex(3)
-        )
+        self.sidebar.memory_btn.clicked.connect(lambda: self.pages.setCurrentIndex(3))
 
-        self.sidebar.settings_btn.clicked.connect(
-        lambda: self.pages.setCurrentIndex(4)
-        )
+        self.sidebar.settings_btn.clicked.connect(lambda: self.pages.setCurrentIndex(4))
