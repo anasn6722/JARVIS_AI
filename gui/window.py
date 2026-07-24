@@ -1,86 +1,71 @@
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QMainWindow,
     QWidget,
-    QLabel,
-    QPushButton,
-    QMessageBox,
-    QVBoxLayout,
     QHBoxLayout,
+    QStackedWidget,
 )
 
 from gui.sidebar import Sidebar
-from core.system import System
+
+from gui.pages.dashboard_page import DashboardPage
+from gui.pages.chat_page import ChatPage
+from gui.pages.voice_page import VoicePage
+from gui.pages.memory_page import MemoryPage
+from gui.pages.settings_page import SettingsPage
 
 
 class MainWindow(QMainWindow):
+
     def __init__(self):
         super().__init__()
 
-        # Window Settings
         self.setWindowTitle("JARVIS AI 4.0")
         self.resize(1200, 700)
 
+        # -----------------------
         # Central Widget
+        # -----------------------
+
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
 
-        # Main Horizontal Layout
+        # -----------------------
+        # Main Layout
+        # -----------------------
+
         main_layout = QHBoxLayout()
-
-        # Sidebar
-        sidebar = Sidebar()
-
-        # Content Area
-        content = QWidget()
-
-        content_layout = QVBoxLayout()
-        content_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        content_layout.setSpacing(20)
-
-        # Title
-        title = QLabel("🤖 JARVIS AI")
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        # Subtitle
-        subtitle = QLabel("Powered by Python & AI")
-        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        # Buttons
-        self.start_button = QPushButton("Start JARVIS")
-        self.exit_button = QPushButton("Exit")
-
-        self.start_button.setFixedWidth(220)
-        self.exit_button.setFixedWidth(220)
-
-        # Add widgets to content layout
-        content_layout.addWidget(title)
-        content_layout.addWidget(subtitle)
-        content_layout.addWidget(self.start_button)
-        content_layout.addWidget(self.exit_button)
-
-        content.setLayout(content_layout)
-
-        # Add sidebar and content to main layout
-        main_layout.addWidget(sidebar)
-        main_layout.addWidget(content)
-
         central_widget.setLayout(main_layout)
 
-        # Events
-        self.start_button.clicked.connect(self.start_jarvis)
-        self.exit_button.clicked.connect(self.close)
+        # -----------------------
+        # Sidebar
+        # -----------------------
 
-    def start_jarvis(self):
-        info = (
-            f"Operating System: {System.operating_system()}\n"
-            f"Processor: {System.processor()}\n"
-            f"Python Version: {System.python_version()}\n"
-            f"RAM: {System.total_ram()} GB"
-        )
+        self.sidebar = Sidebar()
 
-        QMessageBox.information(
-            self,
-            "System Information",
-            info,
-        )
+        # -----------------------
+        # Pages
+        # -----------------------
+
+        self.pages = QStackedWidget()
+
+        self.dashboard_page = DashboardPage()
+        self.chat_page = ChatPage()
+        self.voice_page = VoicePage()
+        self.memory_page = MemoryPage()
+        self.settings_page = SettingsPage()
+
+        self.pages.addWidget(self.dashboard_page)
+        self.pages.addWidget(self.chat_page)
+        self.pages.addWidget(self.voice_page)
+        self.pages.addWidget(self.memory_page)
+        self.pages.addWidget(self.settings_page)
+
+        # -----------------------
+        # Layout
+        # -----------------------
+
+        main_layout.addWidget(self.sidebar)
+        main_layout.addWidget(self.pages)
+
+        # Show Dashboard First
+        self.pages.setCurrentIndex(0)
