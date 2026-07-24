@@ -69,3 +69,26 @@ class MainWindow(QMainWindow):
 
         # Show Dashboard First
         self.pages.setCurrentIndex(0)
+        # -----------------------
+# Sidebar Navigation
+# -----------------------
+
+        self.sidebar.dashboard_btn.clicked.connect(
+        lambda: self.pages.setCurrentIndex(0)
+        )
+
+        self.sidebar.chat_btn.clicked.connect(
+        lambda: self.pages.setCurrentIndex(1)
+        )
+
+        self.sidebar.voice_btn.clicked.connect(
+        lambda: self.pages.setCurrentIndex(2)
+        )   
+
+        self.sidebar.memory_btn.clicked.connect(
+         lambda: self.pages.setCurrentIndex(3)
+        )
+
+        self.sidebar.settings_btn.clicked.connect(
+        lambda: self.pages.setCurrentIndex(4)
+        )
