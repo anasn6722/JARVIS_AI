@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
@@ -74,35 +74,55 @@ class ChatPage(QWidget):
         command = self.input_box.text().strip()
 
         if not command:
-            return
+          return
+
+        self.current_command = command
 
         self.chat_area.append(
-            f"""
-            <p>
-                <span style="color:#4CAF50;">
-                    <b>🧑 You</b>
-                 </span><br>
-                 {command}
-             </p>
-             """
-)
-
-        response = self.brain.process(command)
+          f"""
+          <p>
+             <span style="color:#4CAF50;">
+                <b>🧑 You</b>
+             </span><br>
+             {command}
+        </p>
+        """
+        )
 
         self.chat_area.append(
-            f"""
-            <p>
-                <span style="color:#00D9FF;">
-                    <b>🤖 JARVIS</b>
-                </span><br>
-                {response}
-            </p>
-            """
-)
-
-        self.chat_area.append("")
+            "<span style='color:gray;'><i>🤖 JARVIS is typing...</i></span>"
+     )
 
         self.input_box.clear()
+
+        QTimer.singleShot(
+            1000,
+            self.generate_response
+    )
+
+    def generate_response(self):
+        response = self.brain.process(
+        self.current_command
+        )
+
+        cursor = self.chat_area.textCursor()
+
+        cursor.movePosition(cursor.MoveOperation.End)
+
+        self.chat_area.setTextCursor(cursor)
+
+        self.chat_area.undo()
+
+        self.chat_area.append(
+        f"""
+        <p>
+            <span style="color:#00D9FF;">
+                <b>🤖 JARVIS</b>
+            </span><br>
+            {response}
+        </p>
+        """
+        )    
 
     def show_welcome_message(self):
         self.chat_area.append(
