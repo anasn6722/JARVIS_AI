@@ -35,6 +35,17 @@ class ChatPage(QWidget):
         self.chat_area = QTextEdit()
         self.chat_area.setReadOnly(True)
 
+        self.chat_area.setStyleSheet("""
+        QTextEdit{
+        background:#1E1E1E;
+        color:white;
+        border:1px solid #3A3A3A;
+        border-radius:8px;
+        padding:10px;
+        font-size:14px;
+        }
+        """)
+
         # Input Box
         self.input_box = QLineEdit()
         self.input_box.setPlaceholderText("Type your message here...")
@@ -65,11 +76,29 @@ class ChatPage(QWidget):
         if not command:
             return
 
-        self.chat_area.append(f"<b>You:</b> {command}")
+        self.chat_area.append(
+            f"""
+            <p>
+                <span style="color:#4CAF50;">
+                    <b>🧑 You</b>
+                 </span><br>
+                 {command}
+             </p>
+             """
+)
 
         response = self.brain.process(command)
 
-        self.chat_area.append(f"<b>JARVIS:</b> {response}")
+        self.chat_area.append(
+            f"""
+            <p>
+                <span style="color:#00D9FF;">
+                    <b>🤖 JARVIS</b>
+                </span><br>
+                {response}
+            </p>
+            """
+)
 
         self.chat_area.append("")
 
