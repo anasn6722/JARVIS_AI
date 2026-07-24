@@ -7,43 +7,54 @@ from PySide6.QtWidgets import (
 )
 
 from gui.widgets.info_card import InfoCard
+from core.system import System
 
 
 class DashboardPage(QWidget):
     def __init__(self):
         super().__init__()
 
-        main_layout = QVBoxLayout()
+        layout = QVBoxLayout()
 
-        # Dashboard Title
         title = QLabel("🏠 Dashboard")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
         title.setStyleSheet("""
             font-size:28px;
             font-weight:bold;
             color:white;
         """)
 
-        # Grid Layout for Cards
         grid = QGridLayout()
-        grid.setSpacing(20)
 
-        # Create Cards
-        cpu_card = InfoCard("💻 CPU Usage", "0%")
-        ram_card = InfoCard("🧠 RAM Usage", "0 GB")
-        ai_card = InfoCard("🤖 AI Status", "Ready")
-        voice_card = InfoCard("🎤 Voice", "Offline")
+        cpu = InfoCard(
+            "💻 CPU Usage",
+            f"{System.cpu_usage()}%"
+        )
 
-        # Add Cards
-        grid.addWidget(cpu_card, 0, 0)
-        grid.addWidget(ram_card, 0, 1)
-        grid.addWidget(ai_card, 1, 0)
-        grid.addWidget(voice_card, 1, 1)
+        ram = InfoCard(
+            "🧠 RAM Used",
+            f"{System.ram_used()} GB"
+        )
 
-        # Assemble Layout
-        main_layout.addWidget(title)
-        main_layout.addSpacing(20)
-        main_layout.addLayout(grid)
-        main_layout.addStretch()
+        ai = InfoCard(
+            "🤖 AI",
+            "Online"
+        )
 
-        self.setLayout(main_layout)
+        voice = InfoCard(
+            "🎤 Voice",
+            "Ready"
+        )
+
+        grid.addWidget(cpu, 0, 0)
+        grid.addWidget(ram, 0, 1)
+        grid.addWidget(ai, 1, 0)
+        grid.addWidget(voice, 1, 1)
+
+        layout.addWidget(title)
+        layout.addSpacing(20)
+        layout.addLayout(grid)
+        layout.addStretch()
+
+        self.setLayout(layout)

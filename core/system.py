@@ -1,5 +1,6 @@
 import platform
 import psutil
+import sys
 
 
 class System:
@@ -14,15 +15,16 @@ class System:
 
     @staticmethod
     def python_version():
-        return platform.python_version()
-
-    @staticmethod
-    def machine():
-        return platform.machine()
+        return sys.version.split()[0]
 
     @staticmethod
     def total_ram():
+        return round(psutil.virtual_memory().total / (1024**3), 2)
 
-        ram = psutil.virtual_memory().total
+    @staticmethod
+    def ram_used():
+        return round(psutil.virtual_memory().used / (1024**3), 2)
 
-        return round(ram / (1024 ** 3), 2)
+    @staticmethod
+    def cpu_usage():
+        return psutil.cpu_percent(interval=1)
