@@ -21,6 +21,13 @@ class ChatPage(QWidget):
 
         # Brain
         self.brain = Brain()
+        # Listening Animation
+        self.animation_timer = QTimer()
+        self.animation_timer.timeout.connect(
+        self.animate_listening
+        )
+
+        self.animation_step = 0
         
         
 
@@ -169,15 +176,10 @@ class ChatPage(QWidget):
 
     def listen_voice(self):
         self.voice_button.setEnabled(False)
-        self.voice_status.setText("🎙️ Listening...")
 
-        self.chat_container.add_message(
-        "🤖 JARVIS",
-        "Listening...",
-        False,
-        )
-
-        self.scroll_to_bottom()
+      # Start Listening Animation
+        self.animation_step = 0
+        self.animation_timer.start(400)
 
         self.voice_thread = ListenerThread()
         self.voice_thread.recognized.connect(self.voice_finished)
@@ -186,7 +188,7 @@ class ChatPage(QWidget):
 
     def voice_finished(self, text):
         
-
+        self.animation_timer.stop()
         self.voice_button.setEnabled(True)
         self.voice_status.setText("Ready")
 
@@ -206,3 +208,12 @@ class ChatPage(QWidget):
     def scroll_to_bottom(self):
         scrollbar = self.scroll.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum()) 
+
+    def animate_listening(self):
+        dots = "." * ((self.animation_step % 3) + 1)
+
+        self.voice_status.setText(
+        f"🎙️ Listening{dots}"
+        )
+
+        self.animation_step += 1    
