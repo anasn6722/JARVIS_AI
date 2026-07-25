@@ -7,21 +7,30 @@ class Listener:
 
     def listen(self):
         with sr.Microphone() as source:
-            print("Listening...")
+            print("🎤 Listening...")
 
             self.recognizer.adjust_for_ambient_noise(
                 source,
                 duration=0.5,
             )
 
-            audio = self.recognizer.listen(source)
+            print("🗣️ Speak now...")
+
+            audio = self.recognizer.listen(
+                source,
+                timeout=5,
+                phrase_time_limit=10,
+            )
 
         try:
             text = self.recognizer.recognize_google(audio)
+            print(f"✅ Recognized: {text}")
             return text
 
         except sr.UnknownValueError:
+            print("❌ Could not understand speech.")
             return ""
 
-        except sr.RequestError:
-            return "Internet connection required."
+        except sr.RequestError as error:
+            print(f"❌ Speech recognition service error: {error}")
+            return ""

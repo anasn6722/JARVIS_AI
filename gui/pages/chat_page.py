@@ -36,6 +36,18 @@ class ChatPage(QWidget):
             color:white;
         """)
 
+        # Voice Status
+        self.voice_status = QLabel("Ready")
+        self.voice_status.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        self.voice_status.setStyleSheet("""
+            QLabel{
+                color:#4CAF50;
+                font-size:14px;
+                font-weight:bold;
+        }
+        """)
+
         # Chat Container
         self.chat_container = ChatContainer()
 
@@ -58,6 +70,29 @@ class ChatPage(QWidget):
         # Send Button
         self.send_button = QPushButton("Send")
         self.voice_button = QPushButton("🎤")
+        self.voice_button.setFixedWidth(60)
+
+        self.voice_button.setStyleSheet("""
+        QPushButton{
+        background:#00BCD4;
+        color:white;
+        font-size:20px;
+        border-radius:10px;
+        padding:8px;
+        }
+
+        QPushButton:hover{
+        background:#00ACC1;
+        }
+
+        QPushButton:pressed{
+        background:#00838F;
+        }
+
+        QPushButton:disabled{
+        background:#555555;
+        }
+        """)
 
         # Bottom Layout
         bottom_layout = QHBoxLayout()
@@ -67,6 +102,7 @@ class ChatPage(QWidget):
 
         # Assemble Layout
         layout.addWidget(title)
+        layout.addWidget(self.voice_status)
         layout.addWidget(self.scroll)
         layout.addLayout(bottom_layout)
 
@@ -78,7 +114,10 @@ class ChatPage(QWidget):
         self.input_box.returnPressed.connect(self.send_message)
         self.show_welcome_message()
 
+        
+
     def send_message(self):
+        
         command = self.input_box.text().strip()
 
         if not command:
@@ -129,19 +168,28 @@ class ChatPage(QWidget):
         self.scroll_to_bottom()
 
     def listen_voice(self):
+        self.voice_button.setEnabled(False)
+        self.voice_status.setText("🎙️ Listening...")
+
         self.chat_container.add_message(
         "🤖 JARVIS",
-        "🎤 Listening...",
+        "Listening...",
         False,
         )
+
         self.scroll_to_bottom()
 
         self.voice_thread = ListenerThread()
-        self.voice_thread.finished.connect(self.voice_finished)
+        self.voice_thread.recognized.connect(self.voice_finished)
         self.voice_thread.start()
 
 
     def voice_finished(self, text):
+        
+
+        self.voice_button.setEnabled(True)
+        self.voice_status.setText("Ready")
+
         if not text:
             self.chat_container.add_message(
             "🤖 JARVIS",
@@ -150,6 +198,7 @@ class ChatPage(QWidget):
             )
             self.scroll_to_bottom()
             return
+
 
         self.input_box.setText(text)
         self.send_message()

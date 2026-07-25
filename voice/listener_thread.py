@@ -4,12 +4,16 @@ from voice.listener import Listener
 
 
 class ListenerThread(QThread):
-    finished = Signal(str)
+    recognized = Signal(str)
 
     def __init__(self):
         super().__init__()
+
         self.listener = Listener()
 
     def run(self):
         text = self.listener.listen()
-        self.finished.emit(text)
+
+        print(f"📡 Thread recognized: {text}")
+
+        self.recognized.emit(text)
