@@ -11,6 +11,8 @@ from PySide6.QtWidgets import (
 
 from ai.brain import Brain
 from gui.widgets.chat_container import ChatContainer
+from voice.speech_thread import SpeechThread
+from voice.listener_thread import ListenerThread
 
 
 class ChatPage(QWidget):
@@ -19,6 +21,8 @@ class ChatPage(QWidget):
 
         # Brain
         self.brain = Brain()
+        
+        
 
         # Main Layout
         layout = QVBoxLayout()
@@ -53,10 +57,12 @@ class ChatPage(QWidget):
 
         # Send Button
         self.send_button = QPushButton("Send")
+        self.voice_button = QPushButton("🎤")
 
         # Bottom Layout
         bottom_layout = QHBoxLayout()
         bottom_layout.addWidget(self.input_box)
+        bottom_layout.addWidget(self.voice_button)
         bottom_layout.addWidget(self.send_button)
 
         # Assemble Layout
@@ -68,6 +74,7 @@ class ChatPage(QWidget):
 
         # Events
         self.send_button.clicked.connect(self.send_message)
+        self.voice_button.clicked.connect(self.listen_voice)
         self.input_box.returnPressed.connect(self.send_message)
         self.show_welcome_message()
 
@@ -84,13 +91,14 @@ class ChatPage(QWidget):
         command,
         True,
         )
+        self.scroll_to_bottom()
 
         self.chat_container.add_message(
         "🤖 JARVIS",
         "Typing...",
         False,
         )
-
+        self.scroll_to_bottom()
         self.input_box.clear()
 
         QTimer.singleShot(
@@ -100,14 +108,17 @@ class ChatPage(QWidget):
 
     def generate_response(self):
         response = self.brain.process(
-        self.current_command
+            self.current_command
         )
 
         self.chat_container.add_message(
-        "🤖 JARVIS",
-        response,
-        False,
-        )    
+         "🤖 JARVIS",
+         response,
+         False,
+        )
+        self.scroll_to_bottom()
+        self.speech_thread = SpeechThread(response)
+        self.speech_thread.start()    
 
     def show_welcome_message(self):
         self.chat_container.add_message(
@@ -115,4 +126,34 @@ class ChatPage(QWidget):
         "Hello Anas! 👋\nWelcome back.\nHow can I help you today?",
         False,
         )
-    
+        self.scroll_to_bottom()
+
+    def listen_voice(self):
+        self.chat_container.add_message(
+        "🤖 JARVIS",
+        "🎤 Listening...",
+        False,
+        )
+        self.scroll_to_bottom()
+
+        self.voice_thread = ListenerThread()
+        self.voice_thread.finished.connect(self.voice_finished)
+        self.voice_thread.start()
+
+
+    def voice_finished(self, text):
+        if not text:
+            self.chat_container.add_message(
+            "🤖 JARVIS",
+            "Sorry, I couldn't hear you.",
+            False,
+            )
+            self.scroll_to_bottom()
+            return
+
+        self.input_box.setText(text)
+        self.send_message()
+
+    def scroll_to_bottom(self):
+        scrollbar = self.scroll.verticalScrollBar()
+        scrollbar.setValue(scrollbar.maximum()) 
