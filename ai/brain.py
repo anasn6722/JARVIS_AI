@@ -20,10 +20,17 @@ class Brain:
         self.registry.register("search", self.handle_search)
         self.registry.register("youtube", self.handle_youtube)
         self.registry.register("open", self.handle_open)
+
         self.registry.register(
-                "last_message",
-                self.handle_last_message,
-                )
+            "last_message",
+            self.handle_last_message,
+        )
+        
+        self.registry.register(
+            "history",
+            self.handle_history,
+        )
+        
         self.apps = {
             "notepad": "notepad.exe",
             "calculator": "calc.exe",
@@ -112,3 +119,19 @@ class Brain:
            return f"Your last message was: {history[-2]['message']}"
 
         return "I don't remember any previous message."
+
+    def handle_history(self, command):
+        history = self.memory.get_all()
+
+        if len(history) <= 1:
+            return "No previous conversation found."
+
+        response = "Conversation History:\n\n"
+
+        for i, item in enumerate(history[:-1], start=1):
+            response += (
+                f"{i}. {item['speaker']}: "
+                f"{item['message']}\n"
+            )
+
+        return response

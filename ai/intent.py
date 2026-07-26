@@ -25,4 +25,7 @@ class IntentRecognizer:
         if command in ("hello", "hi", "hey"):
             return "hello"
 
+        if command == "show history":
+            return "history"
+
         return "unknown"
