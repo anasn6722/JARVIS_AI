@@ -154,5 +154,29 @@
     {
         "speaker": "User",
         "message": "calculate hello"
+    },
+    {
+        "speaker": "User",
+        "message": "weather in lahore"
+    },
+    {
+        "speaker": "User",
+        "message": "temperature in baha"
+    },
+    {
+        "speaker": "User",
+        "message": "temperature in bahawalnagar"
+    },
+    {
+        "speaker": "User",
+        "message": "weather in lahore"
+    },
+    {
+        "speaker": "User",
+        "message": "temperature in karachi"
+    },
+    {
+        "speaker": "User",
+        "message": "is it cold in skardu"
     }
 ]
