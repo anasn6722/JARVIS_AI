@@ -1,9 +1,14 @@
 class IntentRecognizer:
+
     def recognize(self, command: str):
         command = command.lower().strip()
 
-        if command.startswith("open "):
-            return "open"
+        # Specific phrases first
+        if command == "last message":
+            return "last_message"
+
+        if command == "who are you":
+            return "identity"
 
         if command.startswith("search "):
             return "search"
@@ -11,13 +16,13 @@ class IntentRecognizer:
         if command.startswith("youtube "):
             return "youtube"
 
-        if command == "time":
+        if command.startswith(("open ", "launch ", "start ")):
+            return "open"
+
+        if command == "time" or "what is the time" in command:
             return "time"
 
-        if command == "hello":
+        if command in ("hello", "hi", "hey"):
             return "hello"
-
-        if command == "who are you":
-            return "identity"
 
         return "unknown"

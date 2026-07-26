@@ -1,8 +1,10 @@
 from datetime import datetime, timezone
 
+from ai.commands import CommandRegistry
 from ai.intent import IntentRecognizer
 from automation.system import SystemController
 from automation.web import WebController
+from memory.chat_memory import ChatMemory
 
 
 class Brain:
@@ -10,7 +12,18 @@ class Brain:
         self.system = SystemController()
         self.web = WebController()
         self.intent = IntentRecognizer()
-
+        self.registry = CommandRegistry()
+        self.memory = ChatMemory()
+        self.registry.register("hello", self.handle_hello)
+        self.registry.register("time", self.handle_time)
+        self.registry.register("identity", self.handle_identity)
+        self.registry.register("search", self.handle_search)
+        self.registry.register("youtube", self.handle_youtube)
+        self.registry.register("open", self.handle_open)
+        self.registry.register(
+                "last_message",
+                self.handle_last_message,
+                )
         self.apps = {
             "notepad": "notepad.exe",
             "calculator": "calc.exe",
@@ -37,52 +50,66 @@ class Brain:
         }
 
     def process(self, command: str) -> str:
-        intent = self.intent.recognize(command)
         command = command.lower().strip()
+        self.memory.add(
+            "User",
+            command,
+        )
+        
+        intent = self.intent.recognize(command)
+        print(f"Intent = {intent}")
 
-        # Greetings
-        if intent == "hello":
-            return "Hello Anas! 👋"
+        return self.registry.execute(
+            intent,
+            command,
+        )
+        
 
-        if intent == "identity":
-            return "I am JARVIS, your personal AI assistant."
+    def handle_hello(self, command):
+        return "Hello Anas! 👋"
 
-        # Time
-        if intent == "time":
-            return datetime.now(timezone.utc).astimezone().strftime(
-                "Current time: %I:%M:%S %p"
-            )
+    def handle_identity(self, command):
+        return "I am JARVIS, your personal AI assistant."
 
-        # Google Search
-        if intent == "search":
-            query = command.replace("search ", "", 1).strip()
+    def handle_time(self, command):
+        return datetime.now(timezone.utc).astimezone().strftime(
+        "Current time: %I:%M:%S %p"
+        )
 
-            self.web.google_search(query)
+    def handle_search(self, command):
+        query = command.replace("search ", "", 1).strip()
 
-            return f"Searching Google for {query}."
+        self.web.google_search(query)
 
-        # YouTube Search
-        if intent == "youtube":
-            query = command.replace("youtube ", "", 1).strip()
+        return f"Searching Google for {query}."
 
-            self.web.youtube_search(query)
+    def handle_youtube(self, command):
+        query = command.replace("youtube ", "", 1).strip()
 
-            return f"Searching YouTube for {query}."
+        self.web.youtube_search(query)
 
-        # Open websites and applications
-        if intent == "open":
-            name = command.replace("open ", "", 1).strip()
+        return f"Searching YouTube for {query}."
 
-            # Website
-            if name in self.websites:
-                self.web.open_url(self.websites[name])
-                return f"Opening {name.title()}."
+    def handle_open(self, command):
+        words = command.split()
+        name = words[-1].lower()
 
-            # Desktop application
-            if name in self.apps:
-                if self.system.open_program(self.apps[name]):
-                    return f"Opening {name.title()}."
+        if name in self.websites:
+            self.web.open_url(self.websites[name])
+            return f"Opening {name.title()}."
 
-                return f"I couldn't open {name}."
+        if name in self.apps:
+            if self.system.open_program(self.apps[name]):
+               return f"Opening {name.title()}."
 
-        return "Sorry, I don't understand that command yet."
+            return f"I couldn't open {name}."
+
+        return f"I don't know how to open {name}."
+
+    def handle_last_message(self, command):
+        history = self.memory.get_all()
+
+        if len(history) >= 2:
+           return f"Your last message was: {history[-2]['message']}"
+
+        return "I don't remember any previous message."
