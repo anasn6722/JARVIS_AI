@@ -57,7 +57,6 @@ class Brain:
         )
         
         intent = self.intent.recognize(command)
-        print(f"Intent = {intent}")
 
         return self.registry.execute(
             intent,
