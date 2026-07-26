@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from ai.intent import IntentRecognizer
 from automation.system import SystemController
 from automation.web import WebController
 
@@ -8,6 +9,7 @@ class Brain:
     def __init__(self):
         self.system = SystemController()
         self.web = WebController()
+        self.intent = IntentRecognizer()
 
         self.apps = {
             "notepad": "notepad.exe",
@@ -35,23 +37,24 @@ class Brain:
         }
 
     def process(self, command: str) -> str:
+        intent = self.intent.recognize(command)
         command = command.lower().strip()
 
         # Greetings
-        if command == "hello":
+        if intent == "hello":
             return "Hello Anas! 👋"
 
-        if command == "who are you":
+        if intent == "identity":
             return "I am JARVIS, your personal AI assistant."
 
         # Time
-        if command == "time":
+        if intent == "time":
             return datetime.now(timezone.utc).astimezone().strftime(
                 "Current time: %I:%M:%S %p"
             )
 
         # Google Search
-        if command.startswith("search "):
+        if intent == "search":
             query = command.replace("search ", "", 1).strip()
 
             self.web.google_search(query)
@@ -59,7 +62,7 @@ class Brain:
             return f"Searching Google for {query}."
 
         # YouTube Search
-        if command.startswith("youtube "):
+        if intent == "youtube":
             query = command.replace("youtube ", "", 1).strip()
 
             self.web.youtube_search(query)
@@ -67,7 +70,7 @@ class Brain:
             return f"Searching YouTube for {query}."
 
         # Open websites and applications
-        if command.startswith("open "):
+        if intent == "open":
             name = command.replace("open ", "", 1).strip()
 
             # Website
