@@ -18,5 +18,17 @@
     {
         "speaker": "User",
         "message": "show history"
+    },
+    {
+        "speaker": "User",
+        "message": "my name is anas"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
     }
 ]

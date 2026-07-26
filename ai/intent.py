@@ -16,7 +16,14 @@ class IntentRecognizer:
         if command.startswith("youtube "):
             return "youtube"
 
-        if command.startswith(("open ", "launch ", "start ")):
+        if any(
+            word in command
+            for word in (
+                "open",
+                "launch",
+                "start",
+            )
+        ):
             return "open"
 
         if command == "time" or "what is the time" in command:
@@ -27,5 +34,11 @@ class IntentRecognizer:
 
         if command == "show history":
             return "history"
+
+        if command.startswith("my name is "):
+            return "set_name"
+
+        if command == "what is my name":
+            return "get_name"
 
         return "unknown"

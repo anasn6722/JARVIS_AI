@@ -2,9 +2,11 @@ from datetime import datetime, timezone
 
 from ai.commands import CommandRegistry
 from ai.intent import IntentRecognizer
+from ai.text_utils import TextUtils
 from automation.system import SystemController
 from automation.web import WebController
 from memory.chat_memory import ChatMemory
+from memory.profile_memory import ProfileMemory
 
 
 class Brain:
@@ -14,6 +16,9 @@ class Brain:
         self.intent = IntentRecognizer()
         self.registry = CommandRegistry()
         self.memory = ChatMemory()
+        self.profile = ProfileMemory()
+        self.memory = ChatMemory()
+        self.profile = ProfileMemory()
         self.registry.register("hello", self.handle_hello)
         self.registry.register("time", self.handle_time)
         self.registry.register("identity", self.handle_identity)
@@ -29,6 +34,15 @@ class Brain:
         self.registry.register(
             "history",
             self.handle_history,
+        )
+        self.registry.register(
+            "set_name",
+            self.handle_set_name,
+        )
+
+        self.registry.register(
+            "get_name",
+            self.handle_get_name,
         )
         
         self.apps = {
@@ -57,7 +71,7 @@ class Brain:
         }
 
     def process(self, command: str) -> str:
-        command = command.lower().strip()
+        command = TextUtils.normalize(command)
         self.memory.add(
             "User",
             command,
@@ -135,3 +149,25 @@ class Brain:
             )
 
         return response
+
+    def handle_set_name(self, command):
+        name = command.replace(
+            "my name is",
+            "",
+            1,
+        ).strip()
+
+        if not name:
+            return "Please tell me your name."
+
+        self.profile.set("name", name)
+
+        return f"Nice to meet you, {name}! I'll remember your name."
+
+    def handle_get_name(self, command):
+        name = self.profile.get("name")
+
+        if name:
+            return f"Your name is {name}."
+
+        return "I don't know your name yet."
