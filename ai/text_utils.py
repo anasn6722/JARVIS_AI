@@ -6,8 +6,9 @@ class TextUtils:
     def normalize(command: str):
         command = command.lower()
 
+        # Keep math operators
         command = re.sub(
-            r"[^\w\s]",
+            r"[^\w\s+\-*/%.()]",
             "",
             command,
         )

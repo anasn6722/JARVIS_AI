@@ -7,6 +7,7 @@ from automation.system import SystemController
 from automation.web import WebController
 from memory.chat_memory import ChatMemory
 from memory.profile_memory import ProfileMemory
+from plugins.plugin_manager import PluginManager
 
 
 class Brain:
@@ -19,6 +20,8 @@ class Brain:
         self.profile = ProfileMemory()
         self.memory = ChatMemory()
         self.profile = ProfileMemory()
+        self.plugin_manager = PluginManager()
+        
         self.registry.register("hello", self.handle_hello)
         self.registry.register("time", self.handle_time)
         self.registry.register("identity", self.handle_identity)
@@ -77,6 +80,11 @@ class Brain:
             command,
         )
         
+        plugin_response = self.plugin_manager.execute(command)
+
+        if plugin_response is not None:
+            return plugin_response
+
         intent = self.intent.recognize(command)
 
         return self.registry.execute(

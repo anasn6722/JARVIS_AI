@@ -30,5 +30,129 @@
     {
         "speaker": "User",
         "message": "what is my name"
+    },
+    {
+        "speaker": "User",
+        "message": "open github"
+    },
+    {
+        "speaker": "User",
+        "message": "hello"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "hello"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "test"
+    },
+    {
+        "speaker": "User",
+        "message": "hello"
+    },
+    {
+        "speaker": "User",
+        "message": "test"
+    },
+    {
+        "speaker": "User",
+        "message": "test"
+    },
+    {
+        "speaker": "User",
+        "message": "test test"
+    },
+    {
+        "speaker": "User",
+        "message": "2 5"
+    },
+    {
+        "speaker": "User",
+        "message": "2 5"
+    },
+    {
+        "speaker": "User",
+        "message": "2 5"
+    },
+    {
+        "speaker": "User",
+        "message": "2 7"
+    },
+    {
+        "speaker": "User",
+        "message": "2 x 5"
+    },
+    {
+        "speaker": "User",
+        "message": "2 7"
+    },
+    {
+        "speaker": "User",
+        "message": "25"
+    },
+    {
+        "speaker": "User",
+        "message": "25"
+    },
+    {
+        "speaker": "User",
+        "message": "2+5"
+    },
+    {
+        "speaker": "User",
+        "message": "2 x 5"
+    },
+    {
+        "speaker": "User",
+        "message": "2*5"
+    },
+    {
+        "speaker": "User",
+        "message": "divide 1"
+    },
+    {
+        "speaker": "User",
+        "message": "4 - 2"
+    },
+    {
+        "speaker": "User",
+        "message": "4 / 2"
+    },
+    {
+        "speaker": "User",
+        "message": "2 + 5"
+    },
+    {
+        "speaker": "User",
+        "message": "what is 10 + 20"
+    },
+    {
+        "speaker": "User",
+        "message": "calculate 8 times"
+    },
+    {
+        "speaker": "User",
+        "message": "calculate 8 x 9"
+    },
+    {
+        "speaker": "User",
+        "message": "25 / 5"
+    },
+    {
+        "speaker": "User",
+        "message": "10 / 0"
+    },
+    {
+        "speaker": "User",
+        "message": "calculate hello"
     }
 ]
