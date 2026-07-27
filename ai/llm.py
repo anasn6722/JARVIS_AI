@@ -2,6 +2,7 @@ from google import genai
 from google.genai.errors import ClientError
 
 from config.settings import GEMINI_API_KEY
+from core.logger import logger
 
 
 class LLM:
@@ -20,5 +21,5 @@ class LLM:
             return response.text
 
         except ClientError as e:
-            print(f"Gemini API Error: {e}")
+            logger.error("Gemini API Error: %s", e)
             return None

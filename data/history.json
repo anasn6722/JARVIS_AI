@@ -178,5 +178,9 @@
     {
         "speaker": "User",
         "message": "is it cold in skardu"
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
     }
 ]

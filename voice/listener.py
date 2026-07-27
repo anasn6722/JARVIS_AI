@@ -1,5 +1,11 @@
 import speech_recognition as sr
 
+from config.constants import (
+    VOICE_PHRASE_LIMIT,
+    VOICE_TIMEOUT,
+)
+from core.logger import logger
+
 
 class Listener:
     def __init__(self):
@@ -8,39 +14,39 @@ class Listener:
     def listen(self):
         try:
             with sr.Microphone() as source:
-                print("🎤 Listening...")
+                logger.info("🎤 Listening...")
 
                 self.recognizer.adjust_for_ambient_noise(
                     source,
                     duration=0.5,
                 )
 
-                print("🗣️ Speak now...")
+                logger.info("🗣️ Speak now...")
 
                 audio = self.recognizer.listen(
                     source,
-                    timeout=5,
-                    phrase_time_limit=10,
+                    timeout=VOICE_TIMEOUT,
+                    phrase_time_limit=VOICE_PHRASE_LIMIT,
                 )
 
             text = self.recognizer.recognize_google(audio)
 
-            print(f"✅ Recognized: {text}")
+            logger.info("Recognized: %s", text)
 
             return text
 
         except sr.WaitTimeoutError:
-            print("⌛ No speech detected.")
+            logger.warning("No speech detected.")
             return ""
 
         except sr.UnknownValueError:
-            print("❌ Could not understand speech.")
+            logger.warning("Could not understand speech.")
             return ""
 
         except sr.RequestError as error:
-            print(f"❌ Speech recognition service error: {error}")
+            logger.error("Speech recognition service error: %s", error)
             return ""
 
-        except Exception as error:
-            print(f"❌ Unexpected error: {error}")
+        except OSError as error:
+            logger.exception("Microphone error: %s", error)
             return ""

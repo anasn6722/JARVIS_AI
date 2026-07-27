@@ -10,9 +10,10 @@ from PySide6.QtWidgets import (
 )
 
 from ai.brain import Brain
+from config.constants import CHAT_TYPING_DELAY
 from gui.widgets.chat_container import ChatContainer
-from voice.speech_thread import SpeechThread
 from voice.listener_thread import ListenerThread
+from voice.speech_thread import SpeechThread
 
 
 class ChatPage(QWidget):
@@ -139,32 +140,52 @@ class ChatPage(QWidget):
         )
         self.scroll_to_bottom()
 
-        self.chat_container.add_message(
-        "🤖 JARVIS",
-        "Typing...",
-        False,
-        )
+        if command != "__WAKE__":
+            self.chat_container.add_message(
+                "🤖 JARVIS",
+                "Typing...",
+                False,
+            )
         self.scroll_to_bottom()
         self.input_box.clear()
 
         QTimer.singleShot(
-        1000,
-        self.generate_response,
+            CHAT_TYPING_DELAY,
+            self.generate_response,
         )
 
     def generate_response(self):
+
+        if self.current_command == "__WAKE__":
+            self.speech_thread = SpeechThread("Yes?")
+            self.speech_thread.start()
+
+            self.chat_container.add_message(
+                "🤖 JARVIS",
+                "Yes?",
+                False,
+            )
+
+            self.scroll_to_bottom()
+            return
+
         response = self.brain.process(
             self.current_command
         )
 
+        if not response:
+            response = "Sorry, I couldn't process that request."
+
         self.chat_container.add_message(
-         "🤖 JARVIS",
-         response,
-         False,
+            "🤖 JARVIS",
+            response,
+            False,
         )
+
         self.scroll_to_bottom()
+
         self.speech_thread = SpeechThread(response)
-        self.speech_thread.start()    
+        self.speech_thread.start()  
 
     def show_welcome_message(self):
         self.chat_container.add_message(
