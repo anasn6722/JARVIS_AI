@@ -3,39 +3,29 @@ from pathlib import Path
 
 
 class ProfileMemory:
-    def __init__(self):
-        self.file = Path("data/profile.json")
-        self.profile = {}
+    FILE = Path("data/profile.json")
 
-        self.load()
+    def __init__(self):
+        self.data = {}
+
+        if self.FILE.exists():
+            self.load()
 
     def load(self):
-        if self.file.exists():
-            try:
-                with self.file.open(
-                    "r",
-                    encoding="utf-8",
-                ) as file:
-                    self.profile = json.load(file)
-
-            except json.JSONDecodeError:
-                self.profile = {}
+        with open(self.FILE, "r", encoding="utf-8") as file:
+            self.data = json.load(file)
 
     def save(self):
-        with self.file.open(
-            "w",
-            encoding="utf-8",
-        ) as file:
+        with open(self.FILE, "w", encoding="utf-8") as file:
             json.dump(
-                self.profile,
+                self.data,
                 file,
                 indent=4,
-                ensure_ascii=False,
             )
 
     def set(self, key, value):
-        self.profile[key] = value
+        self.data[key] = value
         self.save()
 
     def get(self, key):
-        return self.profile.get(key)
+        return self.data.get(key)

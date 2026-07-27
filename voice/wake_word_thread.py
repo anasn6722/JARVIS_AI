@@ -1,5 +1,9 @@
+import time
+
 from PySide6.QtCore import QThread, Signal
 
+from config.states import AssistantState
+from core import app_state
 from core.logger import logger
 from voice.listener import Listener
 from voice.wake_word import WakeWordDetector
@@ -19,19 +23,24 @@ class WakeWordThread(QThread):
         logger.info("Wake word thread started.")
 
         while self._running:
-            text = self.listener.listen()
 
-            if not self._running:
-                break
+            if app_state.assistant_state == AssistantState.SLEEPING:
+                text = self.listener.listen()
 
-            if not text:
-                continue
+                if not text:
+                    continue
 
-            detected, command = self.detector.detect(text)
+                detected, command = self.detector.detect(text)
 
-            if detected:
-                logger.info("Wake word detected.")
-                self.wake_detected.emit(command)
+                if detected:
+                    app_state.assistant_state = AssistantState.AWAKE
+
+                    app_state.last_active = time.time()
+
+                    self.wake_detected.emit(command)
+
+            else:
+                self.msleep(200)
 
     def stop(self):
         self._running = False

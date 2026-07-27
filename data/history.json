@@ -230,5 +230,29 @@
     {
         "speaker": "User",
         "message": "weather"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "go back to"
+    },
+    {
+        "speaker": "User",
+        "message": "go back to"
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "User",
+        "message": "go back to"
     }
 ]
