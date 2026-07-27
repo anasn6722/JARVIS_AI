@@ -202,5 +202,33 @@
     {
         "speaker": "User",
         "message": "open youtube"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "search youtube"
+    },
+    {
+        "speaker": "User",
+        "message": "search tabahi song on youtube"
+    },
+    {
+        "speaker": "User",
+        "message": "open karo"
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "User",
+        "message": "whats the weather"
+    },
+    {
+        "speaker": "User",
+        "message": "weather"
     }
 ]

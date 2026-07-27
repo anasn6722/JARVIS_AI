@@ -11,6 +11,8 @@ from PySide6.QtWidgets import (
 
 from ai.brain import Brain
 from config.constants import CHAT_TYPING_DELAY
+from config.states import AssistantState
+from core import app_state
 from core.app_state import speech_manager
 from gui.widgets.chat_container import ChatContainer
 from voice.listener_thread import ListenerThread
@@ -23,6 +25,8 @@ class ChatPage(QWidget):
 
         # Brain
         self.brain = Brain()
+        # Assistant State
+        self.state = AssistantState.SLEEPING
         # Listening Animation
         self.animation_timer = QTimer()
         self.animation_timer.timeout.connect(
@@ -191,7 +195,8 @@ class ChatPage(QWidget):
 
         self.scroll_to_bottom()
 
-        speech_manager.say(response) 
+        speech_manager.say(response)
+        self.state = AssistantState.SPEAKING 
 
     def show_welcome_message(self):
         self.chat_container.add_message(
@@ -231,6 +236,7 @@ class ChatPage(QWidget):
 
         self.input_box.setText(text)
         self.send_message()
+        self.state = AssistantState.SLEEPING
 
     def on_wake_detected(self, command):
         self.chat_container.add_message(
