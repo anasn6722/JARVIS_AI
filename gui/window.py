@@ -82,3 +82,11 @@ class MainWindow(QMainWindow):
         self.sidebar.memory_btn.clicked.connect(lambda: self.pages.setCurrentIndex(3))
 
         self.sidebar.settings_btn.clicked.connect(lambda: self.pages.setCurrentIndex(4))
+
+
+    def closeEvent(self, event):
+        if hasattr(self.chat_page, "wake_thread"):
+            self.chat_page.wake_thread.stop()
+            self.chat_page.wake_thread.wait()
+
+        event.accept()

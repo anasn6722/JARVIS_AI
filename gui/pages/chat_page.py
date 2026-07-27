@@ -11,9 +11,10 @@ from PySide6.QtWidgets import (
 
 from ai.brain import Brain
 from config.constants import CHAT_TYPING_DELAY
+from core.app_state import speech_manager
 from gui.widgets.chat_container import ChatContainer
 from voice.listener_thread import ListenerThread
-from voice.speech_thread import SpeechThread
+from voice.wake_word_thread import WakeWordThread
 
 
 class ChatPage(QWidget):
@@ -121,6 +122,13 @@ class ChatPage(QWidget):
         self.voice_button.clicked.connect(self.listen_voice)
         self.input_box.returnPressed.connect(self.send_message)
         self.show_welcome_message()
+        self.wake_thread = WakeWordThread()
+
+        self.wake_thread.wake_detected.connect(
+            self.on_wake_detected
+        )
+
+        self.wake_thread.start()
 
         
 
@@ -157,8 +165,7 @@ class ChatPage(QWidget):
     def generate_response(self):
 
         if self.current_command == "__WAKE__":
-            self.speech_thread = SpeechThread("Yes?")
-            self.speech_thread.start()
+            speech_manager.say("Yes?")
 
             self.chat_container.add_message(
                 "🤖 JARVIS",
@@ -184,8 +191,7 @@ class ChatPage(QWidget):
 
         self.scroll_to_bottom()
 
-        self.speech_thread = SpeechThread(response)
-        self.speech_thread.start()  
+        speech_manager.say(response) 
 
     def show_welcome_message(self):
         self.chat_container.add_message(
@@ -226,6 +232,21 @@ class ChatPage(QWidget):
         self.input_box.setText(text)
         self.send_message()
 
+    def on_wake_detected(self, command):
+        self.chat_container.add_message(
+            "🤖 JARVIS",
+            "Yes?",
+            False,
+        )
+
+        self.scroll_to_bottom()
+
+        speech_manager.say("Yes?")
+
+        if command:
+            self.input_box.setText(command)
+            self.send_message()    
+
     def scroll_to_bottom(self):
         scrollbar = self.scroll.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum()) 
@@ -238,3 +259,10 @@ class ChatPage(QWidget):
         )
 
         self.animation_step += 1    
+
+    def closeEvent(self, event):
+        if hasattr(self, "wake_thread"):
+            self.wake_thread.stop()
+            self.wake_thread.wait()
+
+        event.accept()    

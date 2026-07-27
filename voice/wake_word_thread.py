@@ -21,6 +21,9 @@ class WakeWordThread(QThread):
         while self._running:
             text = self.listener.listen()
 
+            if not self._running:
+                break
+
             if not text:
                 continue
 

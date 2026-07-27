@@ -182,5 +182,25 @@
     {
         "speaker": "User",
         "message": "open calculator"
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "User",
+        "message": "open youtube"
     }
 ]
