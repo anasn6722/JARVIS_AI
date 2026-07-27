@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 from ai.commands import CommandRegistry
 from ai.intent import IntentRecognizer
+from ai.llm import LLM
 from ai.text_utils import TextUtils
 from automation.system import SystemController
 from automation.web import WebController
@@ -17,6 +18,7 @@ class Brain:
         self.intent = IntentRecognizer()
         self.registry = CommandRegistry()
         self.memory = ChatMemory()
+        self.llm = LLM()
         self.profile = ProfileMemory()
         self.memory = ChatMemory()
         self.profile = ProfileMemory()
@@ -87,10 +89,20 @@ class Brain:
 
         intent = self.intent.recognize(command)
 
-        return self.registry.execute(
+        response = self.registry.execute(
             intent,
             command,
         )
+
+        if response != "Sorry, I don't understand that command yet.":
+            return response
+
+        ai_response = self.llm.ask(command)
+
+        if ai_response:
+            return ai_response
+
+        return response
         
 
     def handle_hello(self, command):
