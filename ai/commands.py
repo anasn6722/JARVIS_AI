@@ -9,4 +9,4 @@ class CommandRegistry:
         if intent in self.commands:
             return self.commands[intent](*args)
 
-        return "Sorry, I don't understand that command yet."
+        return None

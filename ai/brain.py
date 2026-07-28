@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
 
-from ai.command_router import CommandRouter
 from ai.commands import CommandRegistry
 from ai.context_manager import ContextManager
 from ai.intent_classifier import IntentClassifier
@@ -25,7 +24,6 @@ class Brain:
         self.profile = ProfileMemory()
         self.plugin_manager = PluginManager()
         self.intent_classifier = IntentClassifier()
-        self.router = CommandRouter()
         self.context = ContextManager()
         # Skill System
         self.skill_manager = SkillManager()
@@ -86,7 +84,7 @@ class Brain:
         }
 
     def process(self, command: str) -> str:
-
+        
         command = TextUtils.normalize(command)
 
         self.memory.add(
@@ -102,6 +100,10 @@ class Brain:
 
         destination = result["destination"]
         intent = result["intent"]
+        self.context.update(
+            intent=intent,
+            command=command,
+        )
 
         # -------------------------
         # Plugin Commands
@@ -116,6 +118,10 @@ class Brain:
             if plugin_response:
                 return plugin_response
 
+        print("=" * 50)
+        print("COMMAND:", command)
+        print("DESTINATION:", destination)
+        print("INTENT:", intent)
         # -------------------------
         # Built-in Skills
         # -------------------------
@@ -126,6 +132,7 @@ class Brain:
                 intent,
                 command,
             )
+            print("SKILL RESPONSE:", skill_response)
 
             if skill_response is not None:
                 return skill_response
@@ -155,6 +162,9 @@ class Brain:
 
     def handle_search(self, command):
         query = command.replace("search ", "", 1).strip()
+        self.context.update(
+            search=query
+        )
 
         self.web.google_search(query)
 
@@ -168,19 +178,36 @@ class Brain:
         return f"Searching YouTube for {query}."
 
     def handle_open(self, command):
+
+        print("===== HANDLE OPEN =====")
+
         words = command.split()
         name = words[-1].lower()
 
+        print("Requested:", name)
+
         if name in self.websites:
+            print("Website detected")
             self.web.open_url(self.websites[name])
             return f"Opening {name.title()}."
 
         if name in self.apps:
-            if self.system.open_program(self.apps[name]):
-               return f"Opening {name.title()}."
+            print("App detected")
+            print("Executable:", self.apps[name])
+
+            success = self.system.open_program(
+                self.apps[name]
+            )
+
+            print("Returned:", success)
+
+            if success:
+                self.context.update(app=name)
+                return f"Opening {name.title()}."
 
             return f"I couldn't open {name}."
 
+        print("Unknown app")
         return f"I don't know how to open {name}."
 
     def handle_last_message(self, command):

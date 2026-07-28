@@ -1,5 +1,8 @@
+def starts_with_any(text, words):
+    return any(text.startswith(word) for word in words)
 class IntentClassifier:
 
+    
     def classify(self, text: str) -> dict:
         text = text.lower().strip()
 
@@ -57,7 +60,16 @@ class IntentClassifier:
         # -----------------------
         # Google Search
         # -----------------------
-        if text.startswith("search "):
+
+        search_words = (
+            "search",
+            "google",
+            "find",
+            "look up",
+            "lookup",
+        )
+
+        if starts_with_any(text, search_words):
             return {
                 "destination": "BRAIN",
                 "intent": "search",
@@ -66,7 +78,13 @@ class IntentClassifier:
         # -----------------------
         # YouTube
         # -----------------------
-        if text.startswith("youtube "):
+        youtube_words = (
+            "youtube",
+            "play",
+            "watch",
+        )   
+
+        if starts_with_any(text, youtube_words):
             return {
                 "destination": "BRAIN",
                 "intent": "youtube",

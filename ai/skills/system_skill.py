@@ -13,6 +13,12 @@ class SystemSkill(BaseSkill):
             "identity",
             "time",
             "open",
+            "search",
+            "youtube",
+            "set_name",
+            "get_name",
+            "history",
+            "last_message",
         )
 
     def execute(self, intent, command):
