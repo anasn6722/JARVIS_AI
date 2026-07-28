@@ -610,5 +610,197 @@
     {
         "speaker": "User",
         "message": "can you play leave for music"
+    },
+    {
+        "speaker": "User",
+        "message": "open song"
+    },
+    {
+        "speaker": "User",
+        "message": "launch chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "run chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "whats the weather today"
+    },
+    {
+        "speaker": "User",
+        "message": "weather"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "what is python"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "tell me a joke"
+    },
+    {
+        "speaker": "User",
+        "message": "what is py"
+    },
+    {
+        "speaker": "User",
+        "message": "what is python"
+    },
+    {
+        "speaker": "User",
+        "message": "what is python"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "The AI service is temporarily unavailable."
+    },
+    {
+        "speaker": "User",
+        "message": "what is python"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "The AI service is temporarily unavailable."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "open"
+    },
+    {
+        "speaker": "User",
+        "message": "open google"
+    },
+    {
+        "speaker": "User",
+        "message": "what is python"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "The AI service is temporarily unavailable."
+    },
+    {
+        "speaker": "User",
+        "message": "launch youtube"
+    },
+    {
+        "speaker": "User",
+        "message": "python"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "The AI service is temporarily unavailable."
+    },
+    {
+        "speaker": "User",
+        "message": "hello"
+    },
+    {
+        "speaker": "User",
+        "message": "who are you"
+    },
+    {
+        "speaker": "User",
+        "message": "open google"
+    },
+    {
+        "speaker": "User",
+        "message": "what is python"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "The AI service is temporarily unavailable."
+    },
+    {
+        "speaker": "User",
+        "message": "search python on youtube"
+    },
+    {
+        "speaker": "User",
+        "message": "youtube search python"
+    },
+    {
+        "speaker": "User",
+        "message": "what is python"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "The AI service is temporarily unavailable."
+    },
+    {
+        "speaker": "User",
+        "message": "what is python"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "The AI service is temporarily unavailable."
+    },
+    {
+        "speaker": "User",
+        "message": "what is python"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "The AI service is temporarily unavailable."
+    },
+    {
+        "speaker": "User",
+        "message": "what is py"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "The AI service is temporarily unavailable."
+    },
+    {
+        "speaker": "User",
+        "message": "what is python"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "The AI service is temporarily unavailable."
+    },
+    {
+        "speaker": "User",
+        "message": "mass of py"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "The AI service is temporarily unavailable."
+    },
+    {
+        "speaker": "User",
+        "message": "what is python"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Python is a high-level, interpreted programming language known for its readability and versatility. It is widely used in web development, data science, artificial intelligence, and automation. \n\nHow may I assist you with it today, Anas?"
+    },
+    {
+        "speaker": "User",
+        "message": "what is python"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Python is a high-level, interpreted programming language widely utilized for software development, data analysis, artificial intelligence, and automation. \n\nIs there a specific aspect of Python you would like to explore, Anas?"
+    },
+    {
+        "speaker": "User",
+        "message": "google"
+    },
+    {
+        "speaker": "User",
+        "message": "search python"
     }
 ]

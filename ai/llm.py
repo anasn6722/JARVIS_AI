@@ -1,6 +1,8 @@
 from google import genai
 from google.genai.errors import APIError, ClientError
 
+from ai.model_manager import ModelManager
+from ai.prompt import build_prompt
 from config.settings import GEMINI_API_KEY
 from core.logger import logger
 
@@ -11,21 +13,58 @@ class LLM:
             api_key=GEMINI_API_KEY,
         )
 
-    def ask(self, prompt: str):
-        try:
-            response = self.client.models.generate_content(
-                model="gemini-3.5-flash",
-                contents=prompt,
-            )
+        self.model_manager = ModelManager()
 
-            return response.text
+    def ask(
+        self,
+        prompt,
+        history=None,
+        name="User",
+    ):
+        system_prompt = build_prompt(name)
 
-        # Server errors (503), temporary outages, etc.
-        except APIError as e:
-            logger.error("Gemini API Error: %s", e)
-            return "The AI service is temporarily unavailable."
+        conversation = [system_prompt]
 
-        # Authentication, quota, invalid request, etc.
-        except ClientError as e:
-            logger.error("Gemini Client Error: %s", e)
-            return "I couldn't contact the AI service right now."
+        if history:
+            for item in history:
+                conversation.append(
+                    f"{item['speaker']}: {item['message']}"
+                )
+
+        conversation.append(f"User: {prompt}")
+
+        # Try every model
+        for _ in range(len(self.model_manager.models)):
+            try:
+                logger.info(
+                    "Using AI model: %s",
+                    self.model_manager.current,
+                )
+
+                response = self.client.models.generate_content(
+                    model=self.model_manager.current,
+                    contents=conversation,
+                )
+
+                self.model_manager.reset()
+                return response.text
+
+            except APIError as e:
+                logger.warning(
+                    "Model %s failed: %s",
+                    self.model_manager.current,
+                    e,
+                )
+                self.model_manager.next_model()
+
+            except ClientError as e:
+                logger.error(
+                    "Client Error: %s",
+                    e,
+                )
+                return "I couldn't connect to the AI service."
+
+        logger.error("All AI models failed.")
+        self.model_manager.reset()
+
+        return "I'm unable to contact my AI brain right now."

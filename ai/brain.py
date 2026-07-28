@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from ai.command_parser import CommandParser
 from ai.commands import CommandRegistry
 from ai.context_manager import ContextManager
 from ai.intent_classifier import IntentClassifier
@@ -7,8 +8,11 @@ from ai.llm import LLM
 from ai.skills.skill_manager import SkillManager
 from ai.skills.system_skill import SystemSkill
 from ai.text_utils import TextUtils
+from ai.tools.tool_executor import ToolExecutor
+from ai.tools.tool_registry import ToolRegistry
 from automation.system import SystemController
 from automation.web import WebController
+from brain.services import APPS, WEBSITES
 from memory.chat_memory import ChatMemory
 from memory.profile_memory import ProfileMemory
 from plugins.plugin_manager import PluginManager
@@ -16,6 +20,8 @@ from plugins.plugin_manager import PluginManager
 
 class Brain:
     def __init__(self):
+        
+
         self.system = SystemController()
         self.web = WebController()
         self.registry = CommandRegistry()
@@ -31,6 +37,10 @@ class Brain:
         self.skill_manager.register(
             SystemSkill(self)
         )
+        self.tool_registry = ToolRegistry()
+        self.tool_executor = ToolExecutor(
+            self.tool_registry
+        )
         
         self.registry.register("hello", self.handle_hello)
         self.registry.register("time", self.handle_time)
@@ -38,6 +48,36 @@ class Brain:
         self.registry.register("search", self.handle_search)
         self.registry.register("youtube", self.handle_youtube)
         self.registry.register("open", self.handle_open)
+
+        self.tool_registry.register(
+            "open_app",
+            "Open any application",
+            self.handle_open,
+        )
+
+        self.tool_registry.register(
+            "google_search",
+            "Search Google",
+            self.handle_search,
+        )
+
+        self.tool_registry.register(
+            "youtube_search",
+            "Search YouTube",
+            self.handle_youtube,
+        )
+
+        self.tool_registry.register(
+            "get_time",
+            "Get current time",
+            self.handle_time,
+        )
+
+        self.tool_registry.register(
+            "identity",
+            "Who is JARVIS",
+            self.handle_identity,
+        )
 
         self.registry.register(
             "last_message",
@@ -57,20 +97,26 @@ class Brain:
             "get_name",
             self.handle_get_name,
         )
-        
+
         self.apps = {
             "notepad": "notepad.exe",
             "calculator": "calc.exe",
             "explorer": "explorer.exe",
+
             "chrome": r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+
             "edge": r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+
             "paint": "mspaint.exe",
-            "camera": "microsoft.windows.camera:",
+
             "spotify": "spotify.exe",
+
             "discord": "Discord.exe",
+
             "code": "Code.exe",
             "vscode": "Code.exe",
         }
+
 
         self.websites = {
             "google": "https://www.google.com",
@@ -82,7 +128,8 @@ class Brain:
             "instagram": "https://www.instagram.com",
             "facebook": "https://www.facebook.com",
         }
-
+        
+        
     def process(self, command: str) -> str:
         
         command = TextUtils.normalize(command)
@@ -141,9 +188,22 @@ class Brain:
         # AI Conversation
         # -------------------------
 
-        ai_response = self.llm.ask(command)
+
+        history = self.memory.recent(8)
+
+        name = self.profile.get("name") or "User"
+
+        ai_response = self.llm.ask(
+            prompt=command,
+            history=history,
+            name=name,
+        )
 
         if ai_response:
+            self.memory.add(
+                "Assistant",
+                ai_response,
+            )
             return ai_response
 
         return "Sorry, I don't understand that command."
@@ -161,7 +221,7 @@ class Brain:
         )
 
     def handle_search(self, command):
-        query = command.replace("search ", "", 1).strip()
+        query = CommandParser.search_query(command)
         self.context.update(
             search=query
         )
@@ -171,7 +231,7 @@ class Brain:
         return f"Searching Google for {query}."
 
     def handle_youtube(self, command):
-        query = command.replace("youtube ", "", 1).strip()
+        query = CommandParser.youtube_query(command)
 
         self.web.youtube_search(query)
 
@@ -181,23 +241,22 @@ class Brain:
 
         print("===== HANDLE OPEN =====")
 
-        words = command.split()
-        name = words[-1].lower()
+        name = CommandParser.app_name(command)
 
         print("Requested:", name)
 
-        if name in self.websites:
+        if name in WEBSITES:
             print("Website detected")
-            self.web.open_url(self.websites[name])
+            self.web.open_url(WEBSITES[name])
             return f"Opening {name.title()}."
 
-        if name in self.apps:
+        if name in APPS:
             print("App detected")
             print("Executable:", self.apps[name])
 
             success = self.system.open_program(
-                self.apps[name]
-            )
+                        APPS[name]
+                    )
 
             print("Returned:", success)
 
@@ -255,3 +314,27 @@ class Brain:
             return f"Your name is {name}."
 
         return "I don't know your name yet."
+
+    
+
+    def available_tools(self):
+        return [
+            {
+                "name": tool.name,
+                "description": tool.description,
+            }
+        for tool in self.tool_registry.all()
+        ]
+
+
+
+
+if __name__ == "__main__":
+        brain = Brain()
+    
+        print(
+            brain.tool_executor.execute(
+                "get_time",
+                "",
+            )
+        )

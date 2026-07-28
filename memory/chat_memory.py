@@ -19,6 +19,9 @@ class ChatMemory:
 
         self.save()
 
+    def recent(self, limit=10):
+        return self.history[-limit:]
+
     def last(self):
         if self.history:
             return self.history[-1]
