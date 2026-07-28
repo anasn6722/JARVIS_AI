@@ -1,8 +1,12 @@
 from datetime import datetime, timezone
 
+from ai.command_router import CommandRouter
 from ai.commands import CommandRegistry
-from ai.intent import IntentRecognizer
+from ai.context_manager import ContextManager
+from ai.intent_classifier import IntentClassifier
 from ai.llm import LLM
+from ai.skills.skill_manager import SkillManager
+from ai.skills.system_skill import SystemSkill
 from ai.text_utils import TextUtils
 from automation.system import SystemController
 from automation.web import WebController
@@ -15,14 +19,20 @@ class Brain:
     def __init__(self):
         self.system = SystemController()
         self.web = WebController()
-        self.intent = IntentRecognizer()
         self.registry = CommandRegistry()
         self.memory = ChatMemory()
         self.llm = LLM()
         self.profile = ProfileMemory()
-        self.memory = ChatMemory()
-        self.profile = ProfileMemory()
         self.plugin_manager = PluginManager()
+        self.intent_classifier = IntentClassifier()
+        self.router = CommandRouter()
+        self.context = ContextManager()
+        # Skill System
+        self.skill_manager = SkillManager()
+
+        self.skill_manager.register(
+            SystemSkill(self)
+        )
         
         self.registry.register("hello", self.handle_hello)
         self.registry.register("time", self.handle_time)
@@ -76,33 +86,60 @@ class Brain:
         }
 
     def process(self, command: str) -> str:
+
         command = TextUtils.normalize(command)
+
         self.memory.add(
             "User",
             command,
         )
-        
-        plugin_response = self.plugin_manager.execute(command)
 
-        if plugin_response is not None:
-            return plugin_response
+        # -------------------------
+        # Intent Classification
+        # -------------------------
 
-        intent = self.intent.recognize(command)
+        result = self.intent_classifier.classify(command)
 
-        response = self.registry.execute(
-            intent,
-            command,
-        )
+        destination = result["destination"]
+        intent = result["intent"]
 
-        if response != "Sorry, I don't understand that command yet.":
-            return response
+        # -------------------------
+        # Plugin Commands
+        # -------------------------
+
+        if destination == "PLUGIN":
+
+            plugin_response = self.plugin_manager.execute(
+                intent,
+                command,
+            )
+            if plugin_response:
+                return plugin_response
+
+        # -------------------------
+        # Built-in Skills
+        # -------------------------
+
+        if destination == "BRAIN":
+
+            skill_response = self.skill_manager.execute(
+                intent,
+                command,
+            )
+
+            if skill_response is not None:
+                return skill_response
+
+        # -------------------------
+        # AI Conversation
+        # -------------------------
 
         ai_response = self.llm.ask(command)
 
         if ai_response:
             return ai_response
 
-        return response
+        return "Sorry, I don't understand that command."
         
 
     def handle_hello(self, command):

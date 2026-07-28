@@ -20,8 +20,7 @@ from config.states import AssistantState
 from core import app_state
 from core.app_state import speech_manager
 from gui.widgets.chat_container import ChatContainer
-from voice.listener_thread import ListenerThread
-from voice.wake_word_thread import WakeWordThread
+from voice.voice_manager import VoiceManager
 
 
 class ChatPage(QWidget):
@@ -33,7 +32,9 @@ class ChatPage(QWidget):
         self.brain = Brain()
 
         # Assistant State
-        app_state.assistant_state = AssistantState.SLEEPING
+        app_state.state_machine.change(
+            AssistantState.SLEEPING
+        )
 
         # Listening Animation
         self.animation_timer = QTimer()
@@ -182,10 +183,6 @@ class ChatPage(QWidget):
             self.send_message
         )
 
-        self.voice_button.clicked.connect(
-            self.listen_voice
-        )
-
         self.input_box.returnPressed.connect(
             self.send_message
         )
@@ -195,13 +192,17 @@ class ChatPage(QWidget):
 
 
         # Wake Word Thread
-        self.wake_thread = WakeWordThread()
+        self.voice_manager = VoiceManager()
 
-        self.wake_thread.wake_detected.connect(
+        self.voice_manager.wake_detected.connect(
             self.on_wake_detected
         )
 
-        self.wake_thread.start()
+        self.voice_manager.command_detected.connect(
+            self.voice_finished
+        )
+
+        self.voice_manager.start()
 
 
 
@@ -256,10 +257,9 @@ class ChatPage(QWidget):
             )
 
 
-            app_state.assistant_state = (
+            app_state.state_machine.change(
                 AssistantState.AWAKE
             )
-
 
             app_state.last_active = time.time()
 
@@ -277,7 +277,7 @@ class ChatPage(QWidget):
 
 
         # Thinking
-        app_state.assistant_state = (
+        app_state.state_machine.change(
             AssistantState.THINKING
         )
 
@@ -306,22 +306,11 @@ class ChatPage(QWidget):
 
 
         # Speaking
-        app_state.assistant_state = (
+        app_state.state_machine.change(
             AssistantState.SPEAKING
         )
-
-
-        speech_manager.say(
-            response
-        )
-
-
-        # Back Awake
-        app_state.assistant_state = (
-            AssistantState.AWAKE
-        )
-
-
+        
+        speech_manager.say(response)
         app_state.last_active = time.time()
 
 
@@ -337,33 +326,9 @@ class ChatPage(QWidget):
         self.scroll_to_bottom()
 
 
-
-    def listen_voice(self):
-
-        self.voice_button.setEnabled(
-            False
-        )
-
-
-        self.animation_step = 0
-
-        self.animation_timer.start(
-            400
-        )
-
-
-        self.voice_thread = ListenerThread()
-
-        self.voice_thread.recognized.connect(
-            self.voice_finished
-        )
-
-        self.voice_thread.start()
-
-
-
     def voice_finished(self, text):
 
+        app_state.last_active = time.time()
         self.animation_timer.stop()
 
         self.voice_button.setEnabled(
@@ -398,18 +363,18 @@ class ChatPage(QWidget):
         self.send_message()
 
 
-        app_state.assistant_state = (
+        app_state.state_machine.change(
             AssistantState.AWAKE
         )
 
 
-        app_state.last_active = time.time()
+        
 
 
 
     def on_wake_detected(self, command):
 
-        app_state.assistant_state = (
+        app_state.state_machine.change(
             AssistantState.AWAKE
         )
 
@@ -479,9 +444,7 @@ class ChatPage(QWidget):
         )
 
 
-        if app_state.assistant_state != (
-            AssistantState.AWAKE
-        ):
+        if not app_state.state_machine.is_awake():
             return
 
 
@@ -489,7 +452,7 @@ class ChatPage(QWidget):
         if elapsed > AWAKE_TIMEOUT:
 
 
-            app_state.assistant_state = (
+            app_state.state_machine.change(
                 AssistantState.SLEEPING
             )
 
@@ -507,3 +470,12 @@ class ChatPage(QWidget):
 
 
             self.scroll_to_bottom()
+
+    
+    def closeEvent(self, event):
+
+        if hasattr(self, "voice_manager"):
+            self.voice_manager.stop()
+            self.voice_manager.wait()
+
+        event.accept()

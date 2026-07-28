@@ -85,8 +85,9 @@ class MainWindow(QMainWindow):
 
 
     def closeEvent(self, event):
-        if hasattr(self.chat_page, "wake_thread"):
-            self.chat_page.wake_thread.stop()
-            self.chat_page.wake_thread.wait()
+
+        if hasattr(self.chat_page, "voice_manager"):
+            self.chat_page.voice_manager.stop()
+            self.chat_page.voice_manager.wait()
 
         event.accept()

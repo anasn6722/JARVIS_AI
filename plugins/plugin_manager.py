@@ -16,11 +16,12 @@ class PluginManager:
         print(f"✅ Loaded plugin: {plugin.name}")
         self.plugins.append(plugin)
 
-    def execute(self, command):
+    def execute(self, intent, command):
 
         for plugin in self.plugins:
 
-            if plugin.can_handle(command):
+            if intent in plugin.SUPPORTED_INTENTS:
+
                 return plugin.execute(command)
 
         return None

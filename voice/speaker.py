@@ -2,11 +2,18 @@ import pyttsx3
 
 
 class Speaker:
-    def __init__(self):
-        self.engine = pyttsx3.init()
 
-        self.engine.setProperty("rate", 175)
-        self.engine.setProperty("volume", 1.0)
+    _engine = None
+
+    def __init__(self):
+
+        if Speaker._engine is None:
+            Speaker._engine = pyttsx3.init()
+
+            Speaker._engine.setProperty("rate",175)
+            Speaker._engine.setProperty("volume",1.0)
+
+        self.engine = Speaker._engine
 
     def speak(self, text: str):
         self.engine.say(text)

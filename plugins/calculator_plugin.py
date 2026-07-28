@@ -4,6 +4,12 @@ from typing import ClassVar
 
 from plugins.base_plugin import BasePlugin
 
+PLUGIN_NAME = "Calculator"
+
+SUPPORTED_INTENTS = [
+    "open",
+]
+
 
 class CalculatorPlugin(BasePlugin):
 

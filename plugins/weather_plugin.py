@@ -1,6 +1,12 @@
 from automation.weather import WeatherController
 from plugins.base_plugin import BasePlugin
 
+PLUGIN_NAME = "Weather"
+
+SUPPORTED_INTENTS = [
+    "weather",
+]
+
 
 class WeatherPlugin(BasePlugin):
 
@@ -26,6 +32,7 @@ class WeatherPlugin(BasePlugin):
             keyword in command.lower()
             for keyword in keywords
         )
+    
 
     def execute(self, command: str):
         city = self.extract_city(command)

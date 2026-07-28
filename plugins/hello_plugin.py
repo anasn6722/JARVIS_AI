@@ -1,5 +1,10 @@
 from plugins.base_plugin import BasePlugin
 
+PLUGIN_NAME = "Hello"
+
+SUPPORTED_INTENTS = [
+    "hello",
+]
 
 class HelloPlugin(BasePlugin):
 

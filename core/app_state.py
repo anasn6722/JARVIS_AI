@@ -1,11 +1,10 @@
 import time
 
-from config.states import AssistantState
+from core.state_machine import StateMachine
 from voice.speech_manager import SpeechManager
 
 speech_manager = SpeechManager()
 
-
-assistant_state = AssistantState.SLEEPING
+state_machine = StateMachine()
 
 last_active = time.time()
