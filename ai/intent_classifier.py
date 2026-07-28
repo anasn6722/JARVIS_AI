@@ -1,6 +1,34 @@
-def starts_with_any(text, words):
-    return any(text.startswith(word) for word in words)
+from ai.intent_utils import IntentUtils
+
+
 class IntentClassifier:
+
+    OPEN_WORDS = (
+        "open",
+        "launch",
+        "start",
+        "run",
+    )
+
+    SEARCH_WORDS = (
+        "search",
+        "google",
+        "find",
+        "look up",
+        "lookup",
+    )
+
+    YOUTUBE_WORDS = (
+        "youtube",
+        "watch",
+        "play",
+    )
+
+    HELLO_WORDS = (
+        "hello",
+        "hi",
+        "hey",
+    )
 
     
     def classify(self, text: str) -> dict:
@@ -9,12 +37,10 @@ class IntentClassifier:
         # -----------------------
         # Open Applications
         # -----------------------
-        if any(word in text for word in (
-            "open",
-            "launch",
-            "start",
-            "run",
-            )):
+        if IntentUtils.contains_any(
+            text,
+            self.OPEN_WORDS,
+        ):
             return {
                 "destination": "BRAIN",
                 "intent": "open",
@@ -35,11 +61,10 @@ class IntentClassifier:
         # -----------------------
         # Greeting
         # -----------------------
-        if any(word in text for word in (
-            "hello",
-            "hi",
-            "hey",
-        )):
+        if IntentUtils.contains_any(
+            text,
+            self.HELLO_WORDS,
+        ):
             return {
                 "destination": "BRAIN",
                 "intent": "hello",
@@ -61,15 +86,10 @@ class IntentClassifier:
         # Google Search
         # -----------------------
 
-        search_words = (
-            "search",
-            "google",
-            "find",
-            "look up",
-            "lookup",
-        )
-
-        if starts_with_any(text, search_words):
+        if IntentUtils.contains_any(
+            text,
+            self.SEARCH_WORDS,
+        ):
             return {
                 "destination": "BRAIN",
                 "intent": "search",
@@ -78,13 +98,10 @@ class IntentClassifier:
         # -----------------------
         # YouTube
         # -----------------------
-        youtube_words = (
-            "youtube",
-            "play",
-            "watch",
-        )   
-
-        if starts_with_any(text, youtube_words):
+        if IntentUtils.contains_any(
+            text,
+            self.YOUTUBE_WORDS,
+        ):
             return {
                 "destination": "BRAIN",
                 "intent": "youtube",

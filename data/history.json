@@ -558,5 +558,57 @@
     {
         "speaker": "User",
         "message": "run first video"
+    },
+    {
+        "speaker": "User",
+        "message": "open github"
+    },
+    {
+        "speaker": "User",
+        "message": "can you open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "can you search python"
+    },
+    {
+        "speaker": "User",
+        "message": "can you open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "yaar paisa baki bahut"
+    },
+    {
+        "speaker": "User",
+        "message": "please open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "can you search python"
+    },
+    {
+        "speaker": "User",
+        "message": "python tutorial"
+    },
+    {
+        "speaker": "User",
+        "message": "python tutorial"
+    },
+    {
+        "speaker": "User",
+        "message": "watch python"
+    },
+    {
+        "speaker": "User",
+        "message": "can you play first"
+    },
+    {
+        "speaker": "User",
+        "message": "youtube music"
+    },
+    {
+        "speaker": "User",
+        "message": "can you play leave for music"
     }
 ]
