@@ -1,4 +1,3 @@
-
 class ToolExecutor:
 
     def __init__(self, registry):
@@ -9,9 +8,12 @@ class ToolExecutor:
         tool_name,
         argument,
     ):
+        print(f"Executing tool: {tool_name} ({argument})")
+
         tool = self.registry.get(tool_name)
 
         if tool is None:
+            print("Tool not found!")
             return None
 
         return tool.callback(argument)

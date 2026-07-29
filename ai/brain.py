@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
 
+from ai.agent.executor import AgentExecutor
+from ai.agent.planner import Planner
 from ai.command_parser import CommandParser
 from ai.commands import CommandRegistry
 from ai.context_manager import ContextManager
@@ -33,6 +35,8 @@ class Brain:
         self.context = ContextManager()
         # Skill System
         self.skill_manager = SkillManager()
+        self.planner = Planner()
+        self.agent_executor = AgentExecutor(self)
 
         self.skill_manager.register(
             SystemSkill(self)
@@ -50,13 +54,13 @@ class Brain:
         self.registry.register("open", self.handle_open)
 
         self.tool_registry.register(
-            "open_app",
+            "open",
             "Open any application",
             self.handle_open,
         )
 
         self.tool_registry.register(
-            "google_search",
+            "search",
             "Search Google",
             self.handle_search,
         )
@@ -175,14 +179,23 @@ class Brain:
 
         if destination == "BRAIN":
 
-            skill_response = self.skill_manager.execute(
-                intent,
-                command,
-            )
-            print("SKILL RESPONSE:", skill_response)
+            tasks = self.planner.plan(command)
 
-            if skill_response is not None:
-                return skill_response
+            responses = []
+
+            for task in tasks:
+
+                response = self.tool_executor.execute(
+                    task.action,
+                    task.target,
+                )
+
+                if response:
+                    responses.append(response)
+
+            if responses:
+                print("TASK RESPONSES:", responses)
+                return "\n".join(responses)
 
         # -------------------------
         # AI Conversation
@@ -326,15 +339,21 @@ class Brain:
         for tool in self.tool_registry.all()
         ]
 
+    def process_agent(self, command: str):
+        tasks = self.planner.plan(command)
+
+        responses = self.agent_executor.execute(tasks)
+
+        return " ".join(responses)
+
 
 
 
 if __name__ == "__main__":
         brain = Brain()
-    
+
         print(
-            brain.tool_executor.execute(
-                "get_time",
-                "",
+            brain.process_agent(
+                "open chrome then search python classes and tell me the time"
             )
         )

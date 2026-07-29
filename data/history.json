@@ -802,5 +802,93 @@
     {
         "speaker": "User",
         "message": "search python"
+    },
+    {
+        "speaker": "User",
+        "message": "launched home"
+    },
+    {
+        "speaker": "User",
+        "message": "launch chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "search python classes"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "search google for python"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome then search python classes and tell"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome and"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome and search python class"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome then search python"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome then search python process"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Right away, Anas. Opening Google Chrome and executing a search for \"Python process.\"\n\nFor your immediate reference: in Python, a process represents an independent instance of a program running on your system, operating with its own dedicated memory space. The `multiprocessing` module is typically used to create and manage these processes for parallel execution. \n\nLet me know if you need me to analyze any specific code, sir."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome then search python"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Right away, Anas. Opening Google Chrome and initiating a search for \"Python.\"\n\nFor your quick reference: Python is a high-level, interpreted programming language celebrated for its readability and versatility. It is currently one of the most popular languages in the world, widely utilized for web development, data science, artificial intelligence, and automation.\n\nThe search results are now on your screen. Let me know if you need help with any specific libraries or scripts, sir."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome then search python classes"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Right away, Anas. Opening Google Chrome and searching for \"Python classes.\"\n\nFor your quick reference: in Python, classes serve as the blueprint for creating objects, encapsulating data and functionality together. You define them using the `class` keyword.\n\nThe search results are now displayed on your screen. Let me know if you need any further assistance, sir."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome then search python"
+    },
+    {
+        "speaker": "User",
+        "message": "amazing mera naam bataiye"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is Anas, sir. How may I assist you further today?"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome then search python classes then"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome then search python classes"
     }
 ]
