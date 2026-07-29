@@ -898,5 +898,165 @@
     {
         "speaker": "Assistant",
         "message": "Understood, Anas. Initiating Google Chrome to search for Python tutorials and learning resources. \n\nFor your reference, Python is an excellent, beginner-friendly language to start with. We can begin with the fundamentals like variables, loops, and functions whenever you are ready.\n\nThe search results are now on your screen. Shall I compile a structured learning path for you, sir?"
+    },
+    {
+        "speaker": "User",
+        "message": "engineer"
+    },
+    {
+        "speaker": "User",
+        "message": "my goal is become an"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "An admirable aspiration, Anas. Engineering requires a robust analytical foundation, and mastering programming languages like Python is an excellent first step. \n\nWould you like me to tailor your Python learning path toward software engineering principles, or perhaps data engineering and automation, sir?"
+    },
+    {
+        "speaker": "User",
+        "message": "my goal is become an ai engineer"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "An AI engineer, Anas. A formidable and highly rewarding trajectory. \n\nTo reach that objective, your learning roadmap will need to extend beyond standard Python into mathematics, machine learning libraries like TensorFlow and PyTorch, and neural network architectures. \n\nShall I outline the primary milestones required to transition from your current level to an AI engineer, sir?"
+    },
+    {
+        "speaker": "User",
+        "message": "open google then search python"
+    },
+    {
+        "speaker": "User",
+        "message": "abe yaar"
+    },
+    {
+        "speaker": "User",
+        "message": "my goal is becoming"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "It appears your sentence was cut short, Anas. What is your goal?"
+    },
+    {
+        "speaker": "User",
+        "message": "my goal is become an ai engineer"
+    },
+    {
+        "speaker": "User",
+        "message": "my goal is become"
+    },
+    {
+        "speaker": "User",
+        "message": "my goal is become an"
+    },
+    {
+        "speaker": "User",
+        "message": "my goal is become an ai"
+    },
+    {
+        "speaker": "User",
+        "message": "my goal is became an ai"
+    },
+    {
+        "speaker": "User",
+        "message": "my goal is becoming"
+    },
+    {
+        "speaker": "User",
+        "message": "mike"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Understood, Anas. Whether you are aiming to become an AI engineer or testing my system parameters with the name Mike, I am here to assist. \n\nHow may I help you today?"
+    },
+    {
+        "speaker": "User",
+        "message": "my goal is become an ai"
+    },
+    {
+        "speaker": "User",
+        "message": "my goal is become"
+    },
+    {
+        "speaker": "User",
+        "message": "my goal is become an ai engineer"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my call"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Anas, your stated goal is to become an AI engineer. \n\nAs for \"your call,\" it appears you are referring to your primary objective. If you mean something else, please clarify. How shall we proceed with your training today?"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my goal"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Anas, your goal is to become an AI engineer. \n\nShall we outline a study plan for machine learning, Python, or neural networks to help you achieve this?"
+    },
+    {
+        "speaker": "User",
+        "message": "my goal is becoming a engineer"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my call"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Anas, your goal has been updated to becoming an engineer. \n\nRegarding \"your call,\" it means the decision is entirely yours. How would you like to proceed?"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my goal"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Anas, your goal is currently set to becoming an engineer. \n\nHow may I assist you further with this objective?"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my goal"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Anas, your goal is currently set to becoming an engineer. \n\nShall we focus on a specific branch of engineering, such as software, mechanical, or electrical?"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my goal"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Anas, your goal remains set to becoming an engineer. How may I assist you with it today?"
+    },
+    {
+        "speaker": "User",
+        "message": "my goal"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Anas, your goal is to become an engineer. How would you like to proceed with it today?"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my goal"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Anas, your goal is to become an engineer. \n\nHow would you like to advance toward it today?"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my goal"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Anas, your goal is to become an engineer. \n\nShall we review your study plan or focus on a specific technical subject today?"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my goal"
     }
 ]

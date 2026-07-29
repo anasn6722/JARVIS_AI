@@ -6,6 +6,7 @@ from ai.agent.planner import Planner
 from ai.command_parser import CommandParser
 from ai.commands import CommandRegistry
 from ai.context_manager import ContextManager
+from ai.goal_manager import GoalManager
 from ai.intent_classifier import IntentClassifier
 from ai.llm import LLM
 from ai.skills.skill_manager import SkillManager
@@ -39,6 +40,7 @@ class Brain:
         self.planner = Planner()
         self.agent_executor = AgentExecutor(self)
         self.goal_classifier = GoalClassifier()
+        self.goal_manager = GoalManager()
 
         self.skill_manager.register(
             SystemSkill(self)
@@ -102,6 +104,15 @@ class Brain:
         self.registry.register(
             "get_name",
             self.handle_get_name,
+        )
+        self.registry.register(
+            "add_goal",
+            self.handle_add_goal,
+        )
+
+        self.registry.register(
+            "show_goals",
+            self.handle_show_goals,
         )
 
         self.apps = {
@@ -189,11 +200,25 @@ class Brain:
 
         if destination == "BRAIN":
 
+            # First, let built-in skills handle the command.
+            skill_response = self.skill_manager.execute(
+                intent,
+                command,
+            )   
+
+            if skill_response is not None:
+                print("SKILL RESPONSE:", skill_response)
+                return skill_response
+
+            # If no skill handled it, use the planner.
             tasks = self.planner.plan(command)
 
             responses = []
 
             for task in tasks:
+                print(
+                    f"Executing tool: {task.action} ({task.target})"
+                )
 
                 response = self.tool_executor.execute(
                     task.action,
@@ -356,6 +381,35 @@ class Brain:
 
         return " ".join(responses)
 
+    def handle_add_goal(self, command):
+        goal = (
+            command
+            .replace("my goal is", "", 1)
+            .replace("remember that i want to", "", 1)
+            .replace("i want to", "", 1)
+            .strip()
+        )
+
+        if not goal:
+            return "Please tell me your goal."
+
+        self.goal_manager.add(goal)
+
+        return f"I'll remember your goal: {goal}."
+
+
+    def handle_show_goals(self, command):
+        goals = self.goal_manager.all()
+
+        if not goals:
+            return "You don't have any saved goals."
+
+        response = "Your goals are:\n"
+
+        for i, goal in enumerate(goals, start=1):
+            response += f"{i}. {goal}\n"
+
+        return response.strip()
 
 
 

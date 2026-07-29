@@ -7,6 +7,7 @@ class SystemSkill(BaseSkill):
         self.brain = brain
 
     def can_handle(self, intent):
+        print("SystemSkill checking:", intent)
 
         return intent in (
             "hello",
@@ -19,6 +20,8 @@ class SystemSkill(BaseSkill):
             "get_name",
             "history",
             "last_message",
+            "add_goal",
+            "show_goals",
         )
 
     def execute(self, intent, command):

@@ -126,6 +126,38 @@ class IntentClassifier:
             }
 
         # -----------------------
+        # Add Goal
+        # -----------------------
+        if text.startswith(
+            (
+                "my goal is",
+                "i want to",
+                "remember that i want to",
+            )
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "add_goal",
+            }
+           
+
+        # -----------------------
+        # Show Goals
+        # -----------------------
+        if (
+            "what are my goals" in text
+            or"what is my goal" in text
+            or "show my goals" in text
+            or"show my goal" in text
+            or "show goals" in text
+            or "my goals" == text
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "show_goals",
+            }
+
+        # -----------------------
         # Default
         # -----------------------
         return {
