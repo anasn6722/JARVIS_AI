@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from ai.agent.executor import AgentExecutor
+from ai.agent.goal_classifier import GoalClassifier
 from ai.agent.planner import Planner
 from ai.command_parser import CommandParser
 from ai.commands import CommandRegistry
@@ -37,6 +38,7 @@ class Brain:
         self.skill_manager = SkillManager()
         self.planner = Planner()
         self.agent_executor = AgentExecutor(self)
+        self.goal_classifier = GoalClassifier()
 
         self.skill_manager.register(
             SystemSkill(self)
@@ -142,6 +144,14 @@ class Brain:
             "User",
             command,
         )
+
+        # -------------------------
+        # Goal Classification
+        # -------------------------
+        goal = self.goal_classifier.classify(command)
+
+        print("=" * 50)
+        print("GOAL:", goal)
 
         # -------------------------
         # Intent Classification

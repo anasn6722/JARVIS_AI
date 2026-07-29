@@ -890,5 +890,13 @@
     {
         "speaker": "User",
         "message": "open chrome then search python classes"
+    },
+    {
+        "speaker": "User",
+        "message": "i want to learn python"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Understood, Anas. Initiating Google Chrome to search for Python tutorials and learning resources. \n\nFor your reference, Python is an excellent, beginner-friendly language to start with. We can begin with the fundamentals like variables, loops, and functions whenever you are ready.\n\nThe search results are now on your screen. Shall I compile a structured learning path for you, sir?"
     }
 ]
