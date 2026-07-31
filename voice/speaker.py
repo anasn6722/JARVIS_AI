@@ -3,18 +3,22 @@ import pyttsx3
 
 class Speaker:
 
-    _engine = None
+    def speak(self, text):
 
-    def __init__(self):
+        print("Creating engine...")
 
-        if Speaker._engine is None:
-            Speaker._engine = pyttsx3.init()
+        engine = pyttsx3.init("sapi5")
 
-            Speaker._engine.setProperty("rate",175)
-            Speaker._engine.setProperty("volume",1.0)
+        voices = engine.getProperty("voices")
+        engine.setProperty("voice", voices[0].id)
+        engine.setProperty("rate", 175)
+        engine.setProperty("volume", 1.0)
 
-        self.engine = Speaker._engine
+        print("Speaking:", text)
 
-    def speak(self, text: str):
-        self.engine.say(text)
-        self.engine.runAndWait()
+        engine.say(text)
+        engine.runAndWait()
+
+        engine.stop()
+
+        print("Finished")

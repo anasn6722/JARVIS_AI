@@ -2,50 +2,70 @@ from ai.agent.task import Task
 
 
 class Planner:
-    def plan(self, command: str):
-        command = command.lower()
 
-        separators = [
-            " then ",
-            " and ",
-            ",",
-        ]
-
-        commands = [command]
-
-        for separator in separators:
-            new_commands = []
-
-            for cmd in commands:
-                new_commands.extend(cmd.split(separator))
-
-            commands = new_commands
+    def plan(self, command):
 
         tasks = []
 
-        for cmd in commands:
-            cmd = cmd.strip()
+        intent = command.intent
 
-            if not cmd:
-                continue
+        if intent == "open":
 
-            if cmd.startswith(("open ", "launch ")):
-                target = (
-                    cmd.replace("open ", "", 1)
-                    .replace("launch ", "", 1)
-                    .strip()
-                )
+            apps = command.entities.get("apps", [])
 
-                tasks.append(Task("open", target))
+            for app in apps:
+                tasks.append(Task("open", app))
 
-            elif cmd.startswith("search "):
-                target = cmd.replace("search ", "", 1).strip()
-                tasks.append(Task("search", target))
+        elif intent == "search":
 
-            elif "time" in cmd:
-                tasks.append(Task("get_time"))
+            searches = command.entities.get("searches", [])
 
+            if searches:
+                tasks.append(Task("search", searches[0]))
+
+        elif intent == "youtube_search":
+
+            searches = command.entities.get("searches", [])
+
+            if searches:
+                tasks.append(Task("youtube_search", searches[0]))
             else:
-                tasks.append(Task("chat", cmd))
+                tasks.append(Task("youtube_search", ""))
+
+        elif intent == "time":
+
+            tasks.append(Task("time", ""))
+
+        elif intent == "identity":
+
+            tasks.append(Task("identity", ""))
+
+        elif intent == "set_name":
+
+            tasks.append(Task("set_name", command.original))
+
+        elif intent == "get_name":
+
+            tasks.append(Task("get_name", ""))
+
+        elif intent == "history":
+
+            tasks.append(Task("history", ""))
+
+        elif intent == "last_message":
+
+            tasks.append(Task("last_message", ""))
+
+        elif intent == "add_goal":
+
+            tasks.append(Task("add_goal", command.original))
+
+        elif intent == "show_goals":
+
+            tasks.append(Task("show_goals", ""))
+
+        else:
+
+            tasks.append(Task("chat", command.original))
 
         return tasks

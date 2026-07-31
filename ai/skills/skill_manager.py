@@ -6,15 +6,11 @@ class SkillManager:
     def register(self, skill):
         self.skills.append(skill)
 
-    def execute(self, intent, command):
-        print("SkillManager received:", intent)
+    def execute(self, command):
 
         for skill in self.skills:
-            print("Checking:", type(skill).__name__)
 
-            if skill.can_handle(intent):
-                print("Handled by:", type(skill).__name__)
-                return skill.execute(intent, command)
+            if skill.can_handle(command.intent):
+                return skill.execute(command)
 
-        print("No skill handled:", intent)
         return None

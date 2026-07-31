@@ -1,36 +1,57 @@
 class AgentExecutor:
+
     def __init__(self, brain):
         self.brain = brain
 
     def execute(self, tasks):
+
+        print("EXECUTOR RECEIVED:", tasks)
         responses = []
 
         for task in tasks:
-            print(task)
 
-            if task.action == "open":
-                responses.append(
-                    self.brain.handle_open(task.target)
+            # -------------------------
+            # Normalize AI Planner output
+            # -------------------------
+
+            if (
+                task.action == "search"
+                and "youtube" in task.target.lower()
+            ):
+                task.action = "youtube_search"
+                task.target = (
+                    task.target
+                    .replace("youtube", "")
+                    .strip()
                 )
 
-            elif task.action == "search":
-                responses.append(
-                    self.brain.handle_search(task.target)
-                )
+            if (
+                task.action == "open"
+                and task.target.lower() in self.brain.websites
+            ):
+                task.target = task.target.lower()
 
-            elif task.action == "get_time":
-                responses.append(
-                    self.brain.tool_executor.execute(
-                    "get_time",
-                    "",
-                    )
-                )
+            print(
+                f"Executing tool: {task.action} ({task.target})"
+            )
 
-            elif task.action == "chat":
-                responses.append(
-                    self.brain.llm.ask(task.target)
-                )
+            response = self.brain.tool_executor.execute(
+                task.action,
+                task.target,
+            )
+            print("TOOL RESPONSE:", response)
+            
+            success = self.brain.agent_verifier.verify(
+                task,
+                response,
+            )
+            
+            task.completed = success
+
+
+            if response:
+                responses.append(response)
 
             task.completed = True
 
-        return responses
+        return "\n".join(responses)

@@ -1058,5 +1058,865 @@
     {
         "speaker": "User",
         "message": "what is my goal"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "search python"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome search python decorator"
+    },
+    {
+        "speaker": "User",
+        "message": "chala"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Right away, Anas. Launching Chrome and searching for Python decorators now. \n\nLet me know if you need me to explain the concept once it's up."
+    },
+    {
+        "speaker": "User",
+        "message": "open python search"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome search python decorator"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome search python decorator and then save"
+    },
+    {
+        "speaker": "User",
+        "message": "home"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Returning to the home screen, Anas. Standing by for your next command."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome search python decorator then save"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome then search python decorator and"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome and search pyth"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome and vs code"
+    },
+    {
+        "speaker": "User",
+        "message": "tu meri"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I am at your service, Anas. How can I assist you today?"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome and code"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome and vs code"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome and vs"
+    },
+    {
+        "speaker": "User",
+        "message": "nvs code"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Right away, Anas. Launching Google Chrome and Visual Studio Code now. Let me know if you need anything else."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome and"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome and"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome and vs"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome and vs code"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome and calculator"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome then search python"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome then search python classes"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome then search pyth"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome then search pyth"
+    },
+    {
+        "speaker": "User",
+        "message": "open song and search python classes"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know song.\nSearching Google for python classes."
+    },
+    {
+        "speaker": "User",
+        "message": "open google"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "open google"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Google."
+    },
+    {
+        "speaker": "User",
+        "message": "open vs code"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know vs code."
+    },
+    {
+        "speaker": "User",
+        "message": "search youtube"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Searching Google for youtube."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open vs code"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know vs code."
+    },
+    {
+        "speaker": "User",
+        "message": "search python"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Searching Google for python."
+    },
+    {
+        "speaker": "User",
+        "message": "youtube search"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Searching YouTube for ."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "User",
+        "message": "search naat"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Searching YouTube for naat."
+    },
+    {
+        "speaker": "User",
+        "message": "open google"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open vs code"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know vs code."
+    },
+    {
+        "speaker": "User",
+        "message": "open camera"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Camera."
+    },
+    {
+        "speaker": "User",
+        "message": "close chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "User",
+        "message": "close chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "close chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "what time is it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Current time: 09:58:33 PM"
+    },
+    {
+        "speaker": "User",
+        "message": "hu r u"
+    },
+    {
+        "speaker": "User",
+        "message": "who are you"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I am JARVIS, your personal AI assistant."
+    },
+    {
+        "speaker": "User",
+        "message": "search python on youtube"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Searching YouTube for python."
+    },
+    {
+        "speaker": "User",
+        "message": "open google"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Google."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "search naat"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Searching YouTube for naat."
+    },
+    {
+        "speaker": "User",
+        "message": "close google"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Google."
+    },
+    {
+        "speaker": "User",
+        "message": "hu r u"
+    },
+    {
+        "speaker": "User",
+        "message": "who are you"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I am JARVIS, your personal AI assistant."
+    },
+    {
+        "speaker": "User",
+        "message": "open vs code"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know vs code."
+    },
+    {
+        "speaker": "User",
+        "message": "my name is ana"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I am JARVIS, your personal AI assistant."
+    },
+    {
+        "speaker": "User",
+        "message": "tell me a joke"
+    },
+    {
+        "speaker": "User",
+        "message": "my name is"
+    },
+    {
+        "speaker": "User",
+        "message": "my name is anas"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "User",
+        "message": "my name is ana"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "User",
+        "message": "my name is anas"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I am JARVIS, your personal AI assistant."
+    },
+    {
+        "speaker": "User",
+        "message": "jarvis"
+    },
+    {
+        "speaker": "User",
+        "message": "my name is ana"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Nice to meet you, Ana! I'll remember your name."
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is Ana."
+    },
+    {
+        "speaker": "User",
+        "message": "my name is anas"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Nice to meet you, Anas! I'll remember your name."
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is Anas."
+    },
+    {
+        "speaker": "User",
+        "message": "jarvis"
+    },
+    {
+        "speaker": "User",
+        "message": "my name is"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Please tell me your name."
+    },
+    {
+        "speaker": "User",
+        "message": "my name is"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Please tell me your name."
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is Anas."
+    },
+    {
+        "speaker": "User",
+        "message": "my name is ana"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Nice to meet you, Ana! I'll remember your name."
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is Ana."
+    },
+    {
+        "speaker": "User",
+        "message": "jar"
+    },
+    {
+        "speaker": "User",
+        "message": "my name is"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Please tell me your name."
+    },
+    {
+        "speaker": "User",
+        "message": "my name is anas"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Nice to meet you, Anas! I'll remember your name."
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is Anas."
+    },
+    {
+        "speaker": "User",
+        "message": "my name"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is Anas."
+    },
+    {
+        "speaker": "User",
+        "message": "my name is anas"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Nice to meet you, Anas! I'll remember your name."
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is Anas."
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is Anas."
+    },
+    {
+        "speaker": "User",
+        "message": "name is anas"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is Anas."
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is Anas."
+    },
+    {
+        "speaker": "User",
+        "message": "my name is anas"
+    },
+    {
+        "speaker": "User",
+        "message": "my name is anas"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Nice to meet you, anas! I'll remember your name."
+    },
+    {
+        "speaker": "User",
+        "message": "my name"
+    },
+    {
+        "speaker": "User",
+        "message": "what ise my name"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is anas."
+    },
+    {
+        "speaker": "User",
+        "message": "my name is"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Please tell me your name."
+    },
+    {
+        "speaker": "User",
+        "message": "my name is anas"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Nice to meet you, anas! I'll remember your name."
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is anas."
+    },
+    {
+        "speaker": "User",
+        "message": "my name is"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Please tell me your name."
+    },
+    {
+        "speaker": "User",
+        "message": "my name is ana"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Nice to meet you, ana!"
+    },
+    {
+        "speaker": "User",
+        "message": "my name is"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Please tell me your name."
+    },
+    {
+        "speaker": "User",
+        "message": "my name is anas"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Nice to meet you, anas!"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is anas."
+    },
+    {
+        "speaker": "User",
+        "message": "my name is ana"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Nice to meet you, ana!"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is ana."
+    },
+    {
+        "speaker": "User",
+        "message": "my name is anas"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Nice to meet you, anas!"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is anas."
+    },
+    {
+        "speaker": "User",
+        "message": "jarvis"
+    },
+    {
+        "speaker": "User",
+        "message": "my name is anas"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Nice to meet you, anas!"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is anas."
+    },
+    {
+        "speaker": "User",
+        "message": "my name is anas"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Nice to meet you, anas!"
+    },
+    {
+        "speaker": "User",
+        "message": "what"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is anas."
+    },
+    {
+        "speaker": "User",
+        "message": "my name is rs"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Nice to meet you, rs!"
+    },
+    {
+        "speaker": "User",
+        "message": "my name is anas"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Nice to meet you, anas!"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is anas."
+    },
+    {
+        "speaker": "User",
+        "message": "my name is anas"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Nice to meet you, anas!"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is anas."
+    },
+    {
+        "speaker": "User",
+        "message": "my name is ana"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Nice to meet you, ana!"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is ana."
+    },
+    {
+        "speaker": "User",
+        "message": "my name is anas"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Nice to meet you, anas!"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is anas."
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is anas."
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is anas."
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is anas."
+    },
+    {
+        "speaker": "User",
+        "message": "what is my name"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is anas."
     }
 ]

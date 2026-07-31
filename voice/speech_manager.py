@@ -13,7 +13,7 @@ class SpeechManager:
         self.thread = None
 
     def say(self, text: str):
-
+        print("🔊 SpeechManager received:", text)
         app_state.state_machine.change(
             AssistantState.SPEAKING
         )

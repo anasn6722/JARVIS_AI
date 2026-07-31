@@ -24,9 +24,9 @@ class SystemSkill(BaseSkill):
             "show_goals",
         )
 
-    def execute(self, intent, command):
+    def execute(self, command):
 
         return self.brain.registry.execute(
-            intent,
+            command.intent,
             command,
         )

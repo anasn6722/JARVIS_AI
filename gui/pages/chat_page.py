@@ -30,6 +30,7 @@ class ChatPage(QWidget):
 
         # Brain
         self.brain = Brain()
+        
 
         # Assistant State
         app_state.state_machine.change(
@@ -285,6 +286,7 @@ class ChatPage(QWidget):
         response = self.brain.process(
             self.current_command
         )
+        print("Brain response:", response)
 
 
         if not response:
@@ -306,9 +308,6 @@ class ChatPage(QWidget):
 
 
         # Speaking
-        app_state.state_machine.change(
-            AssistantState.SPEAKING
-        )
         
         speech_manager.say(response)
         app_state.last_active = time.time()
@@ -377,34 +376,14 @@ class ChatPage(QWidget):
         app_state.state_machine.change(
             AssistantState.AWAKE
         )
-
-
+    
         app_state.last_active = time.time()
-
-
-        self.chat_container.add_message(
-            "🤖 JARVIS",
-            "Yes?",
-            False
-        )
-
-
-        self.scroll_to_bottom()
-
-
-        speech_manager.say(
-            "Yes?"
-        )
-
-
+    
+        speech_manager.say("Yes?")
+    
         if command:
-
-            self.input_box.setText(
-                command
-            )
-
+            self.input_box.setText(command)
             self.send_message()
-
 
 
     def scroll_to_bottom(self):

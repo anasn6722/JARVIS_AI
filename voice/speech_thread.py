@@ -10,10 +10,7 @@ class SpeechThread(QThread):
     def __init__(self, text):
         super().__init__()
         self.text = text
+        self.speaker = Speaker()
 
     def run(self):
-
-        speaker = Speaker()
-        speaker.speak(self.text)
-
-        
+        self.speaker.speak(self.text)

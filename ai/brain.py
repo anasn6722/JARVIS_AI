@@ -1,14 +1,21 @@
 from datetime import datetime, timezone
 
+from ai.agent.ai_planner import AIPlanner
 from ai.agent.executor import AgentExecutor
 from ai.agent.goal_classifier import GoalClassifier
 from ai.agent.planner import Planner
+from ai.agent.verifier import AgentVerifier
+from ai.command import Command
 from ai.command_parser import CommandParser
 from ai.commands import CommandRegistry
 from ai.context_manager import ContextManager
+from ai.context_resolver import ContextResolver
+from ai.entity_extractor import EntityExtractor
 from ai.goal_manager import GoalManager
 from ai.intent_classifier import IntentClassifier
 from ai.llm import LLM
+from ai.managers.command_manager import CommandManager
+from ai.planner import Planner
 from ai.skills.skill_manager import SkillManager
 from ai.skills.system_skill import SystemSkill
 from ai.text_utils import TextUtils
@@ -18,6 +25,7 @@ from automation.system import SystemController
 from automation.web import WebController
 from brain.services import APPS, WEBSITES
 from memory.chat_memory import ChatMemory
+from memory.memory_manager import MemoryManager
 from memory.profile_memory import ProfileMemory
 from plugins.plugin_manager import PluginManager
 
@@ -41,13 +49,36 @@ class Brain:
         self.agent_executor = AgentExecutor(self)
         self.goal_classifier = GoalClassifier()
         self.goal_manager = GoalManager()
-
+        self.entity_extractor = EntityExtractor()
+        self.long_memory = MemoryManager()
+        
+        self.agent_verifier = AgentVerifier()
         self.skill_manager.register(
             SystemSkill(self)
         )
+        self.planner = Planner()
+        self.ai_planner = AIPlanner(self.llm)
+        from ai.managers.planning_manager import PlanningManager
+        self.planning_manager = PlanningManager(
+            self.ai_planner,
+            self.planner,
+            self,
+        )
+
+        
+
         self.tool_registry = ToolRegistry()
         self.tool_executor = ToolExecutor(
             self.tool_registry
+        )
+        self.context_resolver = ContextResolver(
+            self.context
+        )
+        self.command_manager = CommandManager(
+            self.context,
+            self.intent_classifier,
+            self.entity_extractor,
+            self.goal_classifier,
         )
         
         self.registry.register("hello", self.handle_hello)
@@ -71,13 +102,13 @@ class Brain:
 
         self.tool_registry.register(
             "youtube_search",
-            "Search YouTube",
+            "Search videos on YouTube",
             self.handle_youtube,
         )
 
         self.tool_registry.register(
-            "get_time",
-            "Get current time",
+            "time",
+            "current time",
             self.handle_time,
         )
 
@@ -149,32 +180,20 @@ class Brain:
         
     def process(self, command: str) -> str:
         
-        command = TextUtils.normalize(command)
-
         self.memory.add(
             "User",
             command,
         )
 
-        # -------------------------
-        # Goal Classification
-        # -------------------------
-        goal = self.goal_classifier.classify(command)
-
-        print("=" * 50)
-        print("GOAL:", goal)
-
-        # -------------------------
-        # Intent Classification
-        # -------------------------
-
-        result = self.intent_classifier.classify(command)
-
-        destination = result["destination"]
-        intent = result["intent"]
+        command_data, goal = self.command_manager.process(
+            command,
+        )
+        
+        destination = command_data.destination
+        intent = command_data.intent
         self.context.update(
-            intent=intent,
-            command=command,
+            intent=command_data.intent,
+            command=command_data.original,
         )
 
         # -------------------------
@@ -191,70 +210,74 @@ class Brain:
                 return plugin_response
 
         print("=" * 50)
-        print("COMMAND:", command)
-        print("DESTINATION:", destination)
-        print("INTENT:", intent)
+        print("ENTITIES:", command_data.entities)
+
+        print("=" * 50)
+        print("GOAL:", goal)
+
+        print("=" * 50)
+        print(command_data)
+
+        print("=" * 50)
+        print("COMMAND:", command_data.original)
+        print("DESTINATION:", command_data.destination)
+        print("INTENT:", command_data.intent)
+
+
         # -------------------------
-        # Built-in Skills
+        # Built-in Commands
+        # -------------------------
+
+        builtin_intents = {
+            "set_name",
+            "get_name",
+            "last_message",
+            "history",
+            "add_goal",
+            "show_goals",
+        }
+
+        if intent in builtin_intents:
+        
+            response = self.registry.execute(
+                intent,
+                command_data.original,
+            )
+            print("Registry returned:", response)
+
+            if response:
+            
+                self.memory.add(
+                    "Assistant",
+                    response,
+                )
+
+                return response
+
+
+        # -------------------------
+        # AI Planner
         # -------------------------
 
         if destination == "BRAIN":
+        
+            tasks = self.planning_manager.plan(command_data)
+            print("Brain received tasks:", tasks)
 
-            # First, let built-in skills handle the command.
-            skill_response = self.skill_manager.execute(
-                intent,
-                command,
-            )   
+            if tasks:
+            
+                response = self.agent_executor.execute(tasks)
 
-            if skill_response is not None:
-                print("SKILL RESPONSE:", skill_response)
-                return skill_response
-
-            # If no skill handled it, use the planner.
-            tasks = self.planner.plan(command)
-
-            responses = []
-
-            for task in tasks:
-                print(
-                    f"Executing tool: {task.action} ({task.target})"
-                )
-
-                response = self.tool_executor.execute(
-                    task.action,
-                    task.target,
-                )
+                self.context.last_tasks = tasks
 
                 if response:
-                    responses.append(response)
+                
+                    self.memory.add(
+                        "Assistant",
+                        response,
+                    )
 
-            if responses:
-                print("TASK RESPONSES:", responses)
-                return "\n".join(responses)
-
-        # -------------------------
-        # AI Conversation
-        # -------------------------
-
-
-        history = self.memory.recent(8)
-
-        name = self.profile.get("name") or "User"
-
-        ai_response = self.llm.ask(
-            prompt=command,
-            history=history,
-            name=name,
-        )
-
-        if ai_response:
-            self.memory.add(
-                "Assistant",
-                ai_response,
-            )
-            return ai_response
-
-        return "Sorry, I don't understand that command."
+                    return response
         
 
     def handle_hello(self, command):
@@ -270,6 +293,7 @@ class Brain:
 
     def handle_search(self, command):
         query = CommandParser.search_query(command)
+        self.context.last_search = query
         self.context.update(
             search=query
         )
@@ -284,39 +308,52 @@ class Brain:
         self.web.youtube_search(query)
 
         return f"Searching YouTube for {query}."
-
+    
     def handle_open(self, command):
 
-        print("===== HANDLE OPEN =====")
+        # Called by ToolExecutor
+        if isinstance(command, str):
+            apps = [command.lower().strip()]
 
-        name = CommandParser.app_name(command)
+            # Called directly from Brain
+        else:
+            apps = command.entities.get("apps", [])
+            websites = command.entities.get("websites", [])
 
-        print("Requested:", name)
+            # Allow websites too
+            apps.extend(websites)
 
-        if name in WEBSITES:
-            print("Website detected")
-            self.web.open_url(WEBSITES[name])
-            return f"Opening {name.title()}."
+        if not apps:
+            return "I couldn't find anything to open."
 
-        if name in APPS:
-            print("App detected")
-            print("Executable:", self.apps[name])
+        responses = []
 
-            success = self.system.open_program(
-                        APPS[name]
-                    )
+        for app in apps:
 
-            print("Returned:", success)
+            # Website
+            if app in WEBSITES:
+                self.web.open_url(WEBSITES[app])
+                self.context.last_website = app
+                responses.append(f"Opened {app.title()}.")
+                continue
 
-            if success:
-                self.context.update(app=name)
-                return f"Opening {name.title()}."
+            # Application
+            if app in APPS:
 
-            return f"I couldn't open {name}."
+                success = self.system.open_program(APPS[app])
 
-        print("Unknown app")
-        return f"I don't know how to open {name}."
+                if success:
+                    self.context.last_app = app
+                    responses.append(f"Opened {app.title()}.")
+                else:
+                    responses.append(f"Couldn't open {app.title()}.")
 
+                continue
+
+            responses.append(f"I don't know {app}.")
+
+        return "\n".join(responses)
+    
     def handle_last_message(self, command):
         history = self.memory.get_all()
 
@@ -341,28 +378,31 @@ class Brain:
 
         return response
 
+
+
     def handle_set_name(self, command):
-        name = command.replace(
-            "my name is",
-            "",
-            1,
-        ).strip()
+        name = command.replace("my name is", "", 1).strip()
+
+        print("Saving:", name)
 
         if not name:
             return "Please tell me your name."
 
         self.profile.set("name", name)
 
-        return f"Nice to meet you, {name}! I'll remember your name."
+        print("Database now contains:", self.profile.get("name"))
 
+        return f"Nice to meet you, {name}!"
+    
     def handle_get_name(self, command):
         name = self.profile.get("name")
+
+        print("Retrieved:", name)
 
         if name:
             return f"Your name is {name}."
 
         return "I don't know your name yet."
-
     
 
     def available_tools(self):
@@ -375,7 +415,10 @@ class Brain:
         ]
 
     def process_agent(self, command: str):
-        tasks = self.planner.plan(command)
+        tasks = self.ai_planner.plan(command)
+
+        if not tasks:
+            tasks = self.planner.plan(command)
 
         responses = self.agent_executor.execute(tasks)
 
@@ -394,6 +437,9 @@ class Brain:
             return "Please tell me your goal."
 
         self.goal_manager.add(goal)
+        self.context.update(
+            goal=goal,
+        )
 
         return f"I'll remember your goal: {goal}."
 
@@ -410,6 +456,41 @@ class Brain:
             response += f"{i}. {goal}\n"
 
         return response.strip()
+
+    def handle_open_task(self, app):
+
+        if app in WEBSITES:
+            self.web.open_url(WEBSITES[app])
+            return f"Opened {app}."
+
+        if app in APPS:
+
+            if self.system.open_program(APPS[app]):
+                return f"Opened {app}."
+
+            return f"Couldn't open {app}."
+
+        return f"I don't know {app}."
+
+    def planner_context(self):
+
+        last_tasks = getattr(
+            self.context,
+            "last_tasks",
+            [],
+        )
+
+        return f"""
+     Last App: {self.context.last_app}
+     
+     Last Search: {self.context.last_search}
+     
+     Current Goal: {self.context.current_goal}
+     
+     Previous Tasks:
+     
+     {last_tasks}
+     """
 
 
 
