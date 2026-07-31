@@ -32,26 +32,20 @@ class CommandManager:
         command: str,
     ):
 
+        original = command
+
         command = TextUtils.normalize(command)
-
-        command = self.context_resolver.resolve(
-            command,
-        )
-
-        entities = self.entity_extractor.extract(
-            command,
-        )
-
-        goal = self.goal_classifier.classify(
-            command,
-        )
-
-        result = self.intent_classifier.classify(
-            command,
-        )
-
+        
+        command = self.context_resolver.resolve(command)
+        
+        entities = self.entity_extractor.extract(command)
+        
+        goal = self.goal_classifier.classify(command)
+        
+        result = self.intent_classifier.classify(command)
+        
         command_data = Command(
-            original=command,
+            original=original,      # Original speech
             intent=result["intent"],
             destination=result["destination"],
             entities=entities,

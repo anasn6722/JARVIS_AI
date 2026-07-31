@@ -1,10 +1,9 @@
 import re
 
 
-class TextUtils:
+class TextNormalizer:
 
-    @staticmethod
-    def normalize(text: str):
+    def normalize(self, text: str) -> str:
 
         text = text.lower().strip()
 
