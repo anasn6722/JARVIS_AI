@@ -21,9 +21,7 @@ class EntityExtractor:
             if alias in text:
                 entities["apps"].append(app)
 
-        # Remove duplicates
-        entities["apps"] = list(set(entities["apps"]))
-
+        
         # ------------------------
         # Apps
         # ------------------------
@@ -69,5 +67,9 @@ class EntityExtractor:
 
             if goal:
                 entities["goals"].append(goal)
+
+        # Remove duplicates
+                
+        entities["apps"] = list(set(entities["apps"]))
 
         return entities

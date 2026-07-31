@@ -38,3 +38,27 @@ class SystemController:
             PermissionError,
         ):
             return False
+
+    import subprocess
+
+    def close(self, app):
+
+        processes = {
+            "chrome": "chrome.exe",
+            "edge": "msedge.exe",
+            "firefox": "firefox.exe",
+            "notepad": "notepad.exe",
+            "calculator": "CalculatorApp.exe",
+        }
+    
+        process = processes.get(app)
+    
+        if not process:
+            return f"I don't know how to close {app}."
+    
+        subprocess.run(
+            ["taskkill", "/IM", process, "/F"],
+            capture_output=True,
+        )
+    
+        return f"Closed {app.title()}."

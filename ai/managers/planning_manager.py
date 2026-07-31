@@ -20,6 +20,7 @@ class PlanningManager:
     
         simple = {
             "open",
+            "close",
             "search",
             "youtube_search",
             "time",
@@ -56,3 +57,5 @@ class PlanningManager:
         print("Final tasks:", tasks)
     
         return tasks
+
+        

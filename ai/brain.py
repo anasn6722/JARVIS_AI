@@ -9,6 +9,7 @@ from ai.agent.verifier import AgentVerifier
 from ai.command import Command
 from ai.command_parser import CommandParser
 from ai.commands import CommandRegistry
+from ai.context.session_context import SessionContext
 from ai.context_manager import ContextManager
 from ai.context_resolver import ContextResolver
 from ai.entity_extractor import EntityExtractor
@@ -54,6 +55,7 @@ class Brain:
         self.entity_extractor = EntityExtractor()
         self.long_memory = MemoryManager()
         self.memory_extractor = MemoryExtractor()
+        self.session = SessionContext()
         
         self.agent_verifier = AgentVerifier()
         self.skill_manager.register(
@@ -104,6 +106,11 @@ class Brain:
             "open",
             "Open any application",
             self.handle_open,
+        )
+        self.tool_registry.register(
+            "close",
+            "Close any application",
+            self.system.close,
         )
 
         self.tool_registry.register(
@@ -157,6 +164,7 @@ class Brain:
             "show_goals",
             self.handle_show_goals,
         )
+
 
         self.apps = {
             "notepad": "notepad.exe",
@@ -552,6 +560,21 @@ class Brain:
             return f"Your {key.replace('_', ' ')} is {value}."
 
         return f"I don't know your {key.replace('_', ' ')} yet."
+
+    def handle_close_last(self):
+
+        app = self.session.last_app
+
+        if not app:
+            return "Nothing is open."
+
+        return self.system.close(app)
+
+    def close(self, app):
+        return self.app_manager.close(app)
+
+
+
 if __name__ == "__main__":
         brain = Brain()
 

@@ -3,6 +3,7 @@ class AgentExecutor:
     def __init__(self, brain):
         self.brain = brain
 
+        
     def execute(self, tasks):
 
         print("EXECUTOR RECEIVED:", tasks)
@@ -31,6 +32,7 @@ class AgentExecutor:
             ):
                 task.target = task.target.lower()
 
+
             print(
                 f"Executing tool: {task.action} ({task.target})"
             )
@@ -39,8 +41,12 @@ class AgentExecutor:
                 task.action,
                 task.target,
             )
+
             print("TOOL RESPONSE:", response)
-            
+
+            if task.action == "open":
+                self.brain.session.remember_app(task.target)
+                
             success = self.brain.agent_verifier.verify(
                 task,
                 response,

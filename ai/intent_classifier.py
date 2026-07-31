@@ -12,6 +12,13 @@ class IntentClassifier:
         "run",
     )
 
+    CLOSE_WORDS = (
+    "close",
+    "exit",
+    "quit",
+    "terminate",
+    )
+
     SEARCH_WORDS = (
         "search",
         "google",
@@ -46,6 +53,19 @@ class IntentClassifier:
             return {
                 "destination": "BRAIN",
                 "intent": "open",
+            }
+
+        # -----------------------
+        # Close Applications
+        # -----------------------
+        
+        if IntentUtils.contains_any(
+            text,
+            self.CLOSE_WORDS,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "close",
             }
 
         # -----------------------
@@ -190,7 +210,14 @@ class IntentClassifier:
             }
         
        
-
+        if text in (
+            "close it",
+            "close",
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "close_last",
+            }
         
 
         # -----------------------
