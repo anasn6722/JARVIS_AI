@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timezone
 
 from ai.agent.ai_planner import AIPlanner
@@ -15,6 +16,7 @@ from ai.goal_manager import GoalManager
 from ai.intent_classifier import IntentClassifier
 from ai.llm import LLM
 from ai.managers.command_manager import CommandManager
+from ai.memory_extractor import MemoryExtractor
 from ai.planner import Planner
 from ai.skills.skill_manager import SkillManager
 from ai.skills.system_skill import SystemSkill
@@ -45,18 +47,18 @@ class Brain:
         self.context = ContextManager()
         # Skill System
         self.skill_manager = SkillManager()
-        self.planner = Planner()
+        self.planner = Planner(self)
         self.agent_executor = AgentExecutor(self)
         self.goal_classifier = GoalClassifier()
         self.goal_manager = GoalManager()
         self.entity_extractor = EntityExtractor()
         self.long_memory = MemoryManager()
+        self.memory_extractor = MemoryExtractor()
         
         self.agent_verifier = AgentVerifier()
         self.skill_manager.register(
             SystemSkill(self)
         )
-        self.planner = Planner()
         self.ai_planner = AIPlanner(self.llm)
         from ai.managers.planning_manager import PlanningManager
         self.planning_manager = PlanningManager(
@@ -87,6 +89,16 @@ class Brain:
         self.registry.register("search", self.handle_search)
         self.registry.register("youtube", self.handle_youtube)
         self.registry.register("open", self.handle_open)
+
+        self.registry.register(
+            "set_preference",
+            self.handle_set_preference,
+        )
+
+        self.registry.register(
+            "get_preference",
+            self.handle_get_preference,
+        )
 
         self.tool_registry.register(
             "open",
@@ -231,6 +243,8 @@ class Brain:
         builtin_intents = {
             "set_name",
             "get_name",
+            "set_preference",
+            "get_preference",
             "last_message",
             "history",
             "add_goal",
@@ -492,8 +506,52 @@ class Brain:
      {last_tasks}
      """
 
+    
 
 
+    def handle_set_preference(self, command):
+
+        key, value = self.memory_extractor.extract(command)
+
+        if key:
+
+            self.long_memory.profile.set(
+                key,
+                value,
+            )
+            self.long_memory.profile.db.cursor.execute("SELECT * FROM profile")
+            print("Saved:", self.long_memory.profile.db.cursor.fetchall())
+
+            return f"I'll remember that your {key.replace('_', ' ')} is {value}."
+
+    def handle_get_preference(self, command):
+
+        text = command.lower()
+        text = text.replace("favourite", "favorite")
+
+        match = re.search(r"what is my (.+)", text)
+
+        if not match:
+            return "I don't know what you're asking."
+
+        key = match.group(1).strip().replace(" ", "_")
+
+        print("Searching for key:", key)
+
+        self.long_memory.profile.db.cursor.execute(
+            "SELECT * FROM profile"
+        )
+
+        print("Database:", self.long_memory.profile.db.cursor.fetchall())
+
+        value = self.long_memory.profile.get(key)
+
+        print("Returned value:", value)
+
+        if value:
+            return f"Your {key.replace('_', ' ')} is {value}."
+
+        return f"I don't know your {key.replace('_', ' ')} yet."
 if __name__ == "__main__":
         brain = Brain()
 

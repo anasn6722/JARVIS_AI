@@ -1918,5 +1918,269 @@
     {
         "speaker": "Assistant",
         "message": "Your name is anas."
+    },
+    {
+        "speaker": "User",
+        "message": "hello"
+    },
+    {
+        "speaker": "User",
+        "message": "who are you"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "afridi kumar ke new"
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite browser is chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite browser is chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite browser is chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "to draw jordan ke jo pahle"
+    },
+    {
+        "speaker": "User",
+        "message": "market grocery"
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite browser is chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my favourite browser"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Searching Google for what is my favourite browser."
+    },
+    {
+        "speaker": "User",
+        "message": "uske"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my favourite browser"
+    },
+    {
+        "speaker": "User",
+        "message": "yes my favourite browser is chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite browser is chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I'll remember that your favorite browser is chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "pixel.com"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my favourite browser"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know what preference you're asking about."
+    },
+    {
+        "speaker": "User",
+        "message": "open my favourite browser"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my favourite browser"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know what preference you're asking about."
+    },
+    {
+        "speaker": "User",
+        "message": "what is my favourite browser"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your favorite browser is chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open"
+    },
+    {
+        "speaker": "User",
+        "message": "open my favourite browser"
+    },
+    {
+        "speaker": "User",
+        "message": "open my favourite browser"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite game is free fire"
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite game is free fire"
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite game is free fire"
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite game is free fire"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I'll remember that your favourite is game."
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite game is free fire"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I'll remember that your favourite is game."
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite"
+    },
+    {
+        "speaker": "User",
+        "message": "favourite game free fire"
+    },
+    {
+        "speaker": "User",
+        "message": "favourite game is free fire"
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite game"
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite game is free fire"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I'll remember that your favorite game is free fire."
+    },
+    {
+        "speaker": "User",
+        "message": "what is my favourite game"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know your favourite game yet."
+    },
+    {
+        "speaker": "User",
+        "message": "favourite"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my favourite game"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know your favourite game yet."
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite game is free fire"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I'll remember that your favorite game is free fire."
+    },
+    {
+        "speaker": "User",
+        "message": "what is my favourite game"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know your favourite game yet."
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite game is free fire"
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite game is free fire"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I'll remember that your favorite game is free fire."
+    },
+    {
+        "speaker": "User",
+        "message": "what is my favourite game"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your favorite game is free fire."
+    },
+    {
+        "speaker": "User",
+        "message": "your favourite game is free fire"
+    },
+    {
+        "speaker": "User",
+        "message": "tum"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my favourite game"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your favorite game is free fire."
     }
 ]

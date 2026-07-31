@@ -8,6 +8,7 @@ class ProfileMemory:
         self.db = Database()
 
     def set(self, key, value):
+        print("Saving:", key, value)
 
         self.db.cursor.execute(
 
@@ -23,6 +24,7 @@ class ProfileMemory:
         self.db.conn.commit()
 
     def get(self, key):
+        print("Looking for:", key)
 
         self.db.cursor.execute(
 
@@ -42,3 +44,26 @@ class ProfileMemory:
             return row[0]
 
         return None
+
+    # NEW
+    def all(self):
+        self.db.cursor.execute(
+            """
+            SELECT key, value
+            FROM profile
+            """
+        )
+
+        return self.db.cursor.fetchall()
+
+    # NEW
+    def delete(self, key):
+        self.db.cursor.execute(
+            """
+            DELETE FROM profile
+            WHERE key = ?
+            """,
+            (key,),
+        )
+
+        self.db.conn.commit()

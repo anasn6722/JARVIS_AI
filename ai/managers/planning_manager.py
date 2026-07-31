@@ -26,6 +26,8 @@ class PlanningManager:
             "identity",
             "set_name",
             "get_name",
+            "set_preference",
+            "get_preference",
             "history",
             "last_message",
             "add_goal",

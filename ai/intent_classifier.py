@@ -1,3 +1,5 @@
+import re
+
 from ai.intent_utils import IntentUtils
 
 
@@ -158,9 +160,38 @@ class IntentClassifier:
             }
 
         # -----------------------
+        # Preferences
+        # -----------------------
+        
+       
+
+        # Generic memory setter
+        if re.match(r"my .+ is .+", text):
+            return {
+                "destination": "BRAIN",
+                "intent": "set_preference",
+            }
+
+        # I live in...
+        if text.startswith("i live in "):
+            return {
+                "destination": "BRAIN",
+                "intent": "set_preference",
+            }
+
+        # Generic memory getter
+        if re.match(r"what is my .+", text):
+            return {
+                "destination": "BRAIN",
+                "intent": "get_preference",
+            }
+
+        # -----------------------
         # Default
         # -----------------------
         return {
             "destination": "AI",
             "intent": "chat",
         }
+
+        
