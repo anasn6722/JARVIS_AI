@@ -1,3 +1,4 @@
+from ai.aliases import APP_ALIASES
 from brain.services import APPS, WEBSITES
 
 
@@ -6,13 +7,22 @@ class EntityExtractor:
     def extract(self, command: str):
 
         command = command.lower()
-
+        text = command
         entities = {
             "apps": [],
             "websites": [],
             "searches": [],
             "goals": [],
         }
+
+        # ---------- APP ALIASES ----------
+        for alias, app in APP_ALIASES.items():
+
+            if alias in text:
+                entities["apps"].append(app)
+
+        # Remove duplicates
+        entities["apps"] = list(set(entities["apps"]))
 
         # ------------------------
         # Apps

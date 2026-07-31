@@ -160,31 +160,38 @@ class IntentClassifier:
             }
 
         # -----------------------
-        # Preferences
+        # Memory Preferences
         # -----------------------
-        
-       
 
-        # Generic memory setter
-        if re.match(r"my .+ is .+", text):
+        # Set preference
+        if (
+            re.match(r"my .+ is .+", text)
+            or text.startswith((
+                "i live in ",
+                "remember that my ",
+            ))
+        ):
             return {
                 "destination": "BRAIN",
                 "intent": "set_preference",
             }
 
-        # I live in...
-        if text.startswith("i live in "):
-            return {
-                "destination": "BRAIN",
-                "intent": "set_preference",
-            }
-
-        # Generic memory getter
-        if re.match(r"what is my .+", text):
+        # Get preference
+        if (
+            re.match(r"what is my .+", text)
+            or text.startswith((
+                "tell me my ",
+                "do you remember my ",
+            ))
+        ):
             return {
                 "destination": "BRAIN",
                 "intent": "get_preference",
             }
+        
+       
+
+        
 
         # -----------------------
         # Default

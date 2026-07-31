@@ -2290,5 +2290,77 @@
     {
         "speaker": "User",
         "message": "my favourite city"
+    },
+    {
+        "speaker": "User",
+        "message": "open my favourite browser"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open my favourite browser"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "what is my favourite game"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your favorite game is free fire."
+    },
+    {
+        "speaker": "User",
+        "message": "rani re badtameez chamatkar"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my favourite game"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your favorite game is free fire."
+    },
+    {
+        "speaker": "User",
+        "message": "search youtube"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Searching YouTube for ."
+    },
+    {
+        "speaker": "User",
+        "message": "indian movie lingaa"
+    },
+    {
+        "speaker": "User",
+        "message": "youtube search indian movie linga"
+    },
+    {
+        "speaker": "User",
+        "message": "har har mahadev"
+    },
+    {
+        "speaker": "User",
+        "message": "vah baten sunkar piche wali"
+    },
+    {
+        "speaker": "User",
+        "message": "search youtube indian movie linga"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Searching YouTube for indian movie linga."
+    },
+    {
+        "speaker": "User",
+        "message": "kya hai"
     }
 ]
