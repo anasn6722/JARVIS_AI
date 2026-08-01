@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 
 from ai.agent.ai_planner import AIPlanner
 from ai.agent.executor import AgentExecutor
+from ai.agent.goal_ai_planner import GoalAIPlanner
 from ai.agent.goal_classifier import GoalClassifier
 from ai.agent.planner import Planner
 from ai.agent.verifier import AgentVerifier
@@ -59,6 +60,9 @@ class Brain:
         self.agent_executor = AgentExecutor(self)
         self.goal_classifier = GoalClassifier()
         self.goal_manager = GoalManager()
+        self.goal_ai_planner = GoalAIPlanner(
+            self.llm
+        )
         self.entity_extractor = EntityExtractor()
         self.long_memory = MemoryManager()
         self.memory_extractor = MemoryExtractor()
@@ -486,23 +490,53 @@ class Brain:
         return " ".join(responses)
 
     def handle_add_goal(self, command):
-        goal = (
-            command
-            .replace("my goal is", "", 1)
-            .replace("remember that i want to", "", 1)
-            .replace("i want to", "", 1)
-            .strip()
+
+        if hasattr(command, "entities"):
+
+            goals = command.entities.get("goals", [])
+
+            if not goals:
+                return "Please tell me your goal."
+
+            goal = goals[0]
+
+        else:
+        
+            goal = command.strip()
+
+        existing = [
+            g["title"].lower()
+            for g in self.goal_manager.all()
+        ]
+
+        if goal.lower() not in existing:
+            self.goal_manager.add(goal)
+    
+        # Generate AI plan
+        try:
+
+            tasks = self.goal_ai_planner.create_plan(goal)
+
+        except Exception as e:
+        
+            print("Goal planner error:", e)
+
+            tasks = []
+    
+    
+        # Save generated tasks
+        for task in tasks:
+        
+            self.goal_manager.add_task(
+                goal,
+                task
+            )
+    
+    
+        return (
+            f"I created a plan for {goal}. "
+            f"It contains {len(tasks)} tasks."
         )
-
-        if not goal:
-            return "Please tell me your goal."
-
-        self.goal_manager.add(goal)
-        self.context.update(
-            goal=goal,
-        )
-
-        return f"I'll remember your goal: {goal}."
 
 
     def handle_show_goals(self, command):

@@ -1,11 +1,198 @@
 [
-    "Learn Python",
-    "Become AI Engineer",
-    "become",
-    "become an",
-    "become an ai",
-    "became an ai",
-    "becoming",
-    "become an ai engineer",
-    "becoming a engineer"
+    {
+        "title": "Learn Python",
+        "created": "",
+        "deadline": "",
+        "progress": 0,
+        "completed": false,
+        "tasks": []
+    },
+    {
+        "title": "Become AI Engineer",
+        "created": "",
+        "deadline": "",
+        "progress": 0,
+        "completed": false,
+        "tasks": []
+    },
+    {
+        "title": "new goal learn django",
+        "created": "2026-08-01 19:47",
+        "deadline": "",
+        "progress": 0,
+        "completed": false,
+        "tasks": []
+    },
+    {
+        "title": "add goal learn python",
+        "created": "2026-08-01 19:51",
+        "deadline": "",
+        "progress": 0,
+        "completed": false,
+        "tasks": [
+            {
+                "task": "Install Python and a code editor like VS Code",
+                "done": false
+            },
+            {
+                "task": "Learn basic syntax, variables, and data types",
+                "done": false
+            },
+            {
+                "task": "Understand control flow, including If-Else statements and loops",
+                "done": false
+            },
+            {
+                "task": "Master functions and variable scope",
+                "done": false
+            },
+            {
+                "task": "Study core data structures like lists, dictionaries, and tuples",
+                "done": false
+            },
+            {
+                "task": "Explore Object-Oriented Programming basics",
+                "done": false
+            },
+            {
+                "task": "Practice file handling and exception handling",
+                "done": false
+            },
+            {
+                "task": "Build a simple command-line project",
+                "done": false
+            }
+        ]
+    },
+    {
+        "title": "add goal learn djan",
+        "created": "2026-08-01 20:01",
+        "deadline": "",
+        "progress": 0,
+        "completed": false,
+        "tasks": [
+            {
+                "task": "Install Python and set up a virtual environment",
+                "done": false
+            },
+            {
+                "task": "Install Django using pip",
+                "done": false
+            },
+            {
+                "task": "Create a new Django project and application",
+                "done": false
+            },
+            {
+                "task": "Understand Django MVT architecture",
+                "done": false
+            },
+            {
+                "task": "Configure URLs and create basic Views",
+                "done": false
+            },
+            {
+                "task": "Create Models and run database migrations",
+                "done": false
+            },
+            {
+                "task": "Build HTML Templates with Django Template Language",
+                "done": false
+            },
+            {
+                "task": "Implement Django Forms for user input",
+                "done": false
+            },
+            {
+                "task": "Set up User Authentication",
+                "done": false
+            },
+            {
+                "task": "Build and deploy a simple CRUD application",
+                "done": false
+            }
+        ]
+    },
+    {
+        "title": "new goal learn",
+        "created": "2026-08-01 20:04",
+        "deadline": "",
+        "progress": 0,
+        "completed": false,
+        "tasks": [
+            {
+                "task": "Define the specific learning objective using SMART criteria",
+                "done": false
+            },
+            {
+                "task": "Identify and gather high-quality learning resources",
+                "done": false
+            },
+            {
+                "task": "Break the topic down into core sub-skills or modules",
+                "done": false
+            },
+            {
+                "task": "Create a realistic daily study schedule",
+                "done": false
+            },
+            {
+                "task": "Set up a dedicated learning workspace or environment",
+                "done": false
+            },
+            {
+                "task": "Establish a system for active practice and self-testing",
+                "done": false
+            },
+            {
+                "task": "Define weekly milestones to track and review progress",
+                "done": false
+            }
+        ]
+    },
+    {
+        "title": "new goal learn html",
+        "created": "2026-08-01 20:05",
+        "deadline": "",
+        "progress": 0,
+        "completed": false,
+        "tasks": [
+            {
+                "task": "Understand HTML basics and web document structure",
+                "done": false
+            },
+            {
+                "task": "Set up a code editor, such as VS Code",
+                "done": false
+            },
+            {
+                "task": "Create and run a basic 'Hello World' HTML file",
+                "done": false
+            },
+            {
+                "task": "Learn core HTML tags for text formatting, links, and images",
+                "done": false
+            },
+            {
+                "task": "Learn how to construct lists and tables",
+                "done": false
+            },
+            {
+                "task": "Master HTML forms, inputs, and validations",
+                "done": false
+            },
+            {
+                "task": "Study semantic HTML elements for layout and accessibility",
+                "done": false
+            },
+            {
+                "task": "Build a simple personal portfolio webpage",
+                "done": false
+            },
+            {
+                "task": "Validate the HTML code using the W3C Markup Validation Service",
+                "done": false
+            }
+        ]
+    }
 ]

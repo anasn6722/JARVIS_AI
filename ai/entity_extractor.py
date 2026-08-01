@@ -1,4 +1,5 @@
 import re
+
 from ai.aliases import APP_ALIASES
 from brain.services import APPS, WEBSITES
 
@@ -73,17 +74,43 @@ class EntityExtractor:
         # ------------------------
         # Goals
         # ------------------------
-
+        
+        goal = ""
+        
         if command.startswith("my goal is"):
-
-            goal = (
-                text
-                .replace("my goal is", "", 1)
-                .strip()
-            )
-
-            if goal:
-                entities["goals"].append(goal)
+        
+            goal = command.replace(
+                "my goal is",
+                "",
+                1,
+            ).strip()
+        
+        elif command.startswith("add goal"):
+        
+            goal = command.replace(
+                "add goal",
+                "",
+                1,
+            ).strip()
+        
+        elif command.startswith("create goal"):
+        
+            goal = command.replace(
+                "create goal",
+                "",
+                1,
+            ).strip()
+        
+        elif command.startswith("new goal"):
+        
+            goal = command.replace(
+                "new goal",
+                "",
+                1,
+            ).strip()
+        
+        if goal:
+            entities["goals"].append(goal)
 
         # Remove duplicates
                 

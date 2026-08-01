@@ -155,6 +155,9 @@ class IntentClassifier:
                 "my goal is",
                 "i want to",
                 "remember that i want to",
+                "add goal",
+                "create goal",
+                "new goal",
             )
         ):
             return {

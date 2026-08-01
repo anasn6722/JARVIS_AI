@@ -3486,5 +3486,169 @@
     {
         "speaker": "User",
         "message": "learn django"
+    },
+    {
+        "speaker": "User",
+        "message": "add gold lunch"
+    },
+    {
+        "speaker": "User",
+        "message": "add gold learn django"
+    },
+    {
+        "speaker": "User",
+        "message": "add golden"
+    },
+    {
+        "speaker": "User",
+        "message": "head goal"
+    },
+    {
+        "speaker": "User",
+        "message": "add goal"
+    },
+    {
+        "speaker": "User",
+        "message": "add gold learn jan"
+    },
+    {
+        "speaker": "User",
+        "message": "add goal learn"
+    },
+    {
+        "speaker": "User",
+        "message": "add gold learn django"
+    },
+    {
+        "speaker": "User",
+        "message": "add goal learn djan"
+    },
+    {
+        "speaker": "User",
+        "message": "add goal learn django"
+    },
+    {
+        "speaker": "User",
+        "message": "online jango"
+    },
+    {
+        "speaker": "User",
+        "message": "add gold learn django"
+    },
+    {
+        "speaker": "User",
+        "message": "add gold lunch mango"
+    },
+    {
+        "speaker": "User",
+        "message": "create google"
+    },
+    {
+        "speaker": "User",
+        "message": "new goal learn django"
+    },
+    {
+        "speaker": "User",
+        "message": "add goal learn python"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I created a plan for add goal learn python. It contains 8 tasks."
+    },
+    {
+        "speaker": "User",
+        "message": "4000 mein kitni film"
+    },
+    {
+        "speaker": "User",
+        "message": "add gold learn python"
+    },
+    {
+        "speaker": "User",
+        "message": "add"
+    },
+    {
+        "speaker": "User",
+        "message": "add golden djan"
+    },
+    {
+        "speaker": "User",
+        "message": "add goal learn djan"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I created a plan for add goal learn djan. It contains 10 tasks."
+    },
+    {
+        "speaker": "User",
+        "message": "remove last goal"
+    },
+    {
+        "speaker": "User",
+        "message": "add"
+    },
+    {
+        "speaker": "User",
+        "message": "new gold learn html"
+    },
+    {
+        "speaker": "User",
+        "message": "new"
+    },
+    {
+        "speaker": "User",
+        "message": "new goal learn"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I created a plan for new goal learn. It contains 7 tasks."
+    },
+    {
+        "speaker": "User",
+        "message": "delete last goal"
+    },
+    {
+        "speaker": "User",
+        "message": "new gaur learn html"
+    },
+    {
+        "speaker": "User",
+        "message": "new goal learn html"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I created a plan for new goal learn html. It contains 9 tasks."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome youtube and"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome.\nOpened Youtube."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome search chat gpt and"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "chacha iska naam kya"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome then search chat"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "yah aise tha mera aur"
     }
 ]

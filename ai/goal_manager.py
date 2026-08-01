@@ -20,15 +20,42 @@ class GoalManager:
         self.goals = self.load()
 
     def load(self):
-
         with open(
             self.FILE,
             "r",
             encoding="utf-8",
         ) as f:
-
-            return json.load(f)
-
+    
+            goals = json.load(f)
+    
+        migrated = []
+    
+        for goal in goals:
+        
+            # Old format
+            if isinstance(goal, str):
+            
+                migrated.append(
+                    {
+                        "title": goal,
+                        "created": "",
+                        "deadline": "",
+                        "progress": 0,
+                        "completed": False,
+                        "tasks": [],
+                    }
+                )
+    
+            # New format
+            else:
+            
+                migrated.append(goal)
+    
+        # Save migrated version automatically
+        self.goals = migrated
+        self.save()
+    
+        return migrated
     def save(self):
 
         with open(
