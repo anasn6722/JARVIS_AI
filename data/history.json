@@ -3474,5 +3474,13 @@
     {
         "speaker": "Assistant",
         "message": "Opened Chrome.\nOpened Camera.\nOpened Youtube."
+    },
+    {
+        "speaker": "User",
+        "message": "open github"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Github."
     }
 ]
