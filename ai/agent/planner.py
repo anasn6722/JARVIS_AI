@@ -9,28 +9,50 @@ class Planner:
 
         intent = command.intent
 
+        entities = command.entities
+
         if intent == "open":
 
-            apps = command.entities.get("apps", [])
+            apps = entities.get("apps", [])
+            websites = entities.get("websites", [])
 
             for app in apps:
                 tasks.append(Task("open", app))
 
+            for website in websites:
+                tasks.append(Task("open", website))
+
+        elif intent == "close":
+
+            apps = entities.get("apps", [])
+
+            for app in apps:
+                tasks.append(Task("close", app))
+
         elif intent == "search":
 
-            searches = command.entities.get("searches", [])
-
-            if searches:
-                tasks.append(Task("search", searches[0]))
+            for query in entities.get("searches", []):
+                tasks.append(Task("search", query))
 
         elif intent == "youtube_search":
 
-            searches = command.entities.get("searches", [])
+            searches = entities.get("searches", [])
 
             if searches:
-                tasks.append(Task("youtube_search", searches[0]))
+                for query in searches:
+                    tasks.append(
+                        Task(
+                            "youtube_search",
+                            query,
+                        )
+                    )
             else:
-                tasks.append(Task("youtube_search", ""))
+                tasks.append(
+                    Task(
+                        "youtube_search",
+                        "",
+                    )
+                )
 
         elif intent == "time":
 
@@ -42,7 +64,12 @@ class Planner:
 
         elif intent == "set_name":
 
-            tasks.append(Task("set_name", command.original))
+            tasks.append(
+                Task(
+                    "set_name",
+                    command.original,
+                )
+            )
 
         elif intent == "get_name":
 
@@ -58,7 +85,12 @@ class Planner:
 
         elif intent == "add_goal":
 
-            tasks.append(Task("add_goal", command.original))
+            tasks.append(
+                Task(
+                    "add_goal",
+                    command.original,
+                )
+            )
 
         elif intent == "show_goals":
 
@@ -66,6 +98,19 @@ class Planner:
 
         else:
 
-            tasks.append(Task("chat", command.original))
+            tasks.append(
+                Task(
+                    "chat",
+                    command.original,
+                )
+            )
+
+        print("=" * 50)
+        print("RULE PLANNER TASKS")
+
+        for task in tasks:
+            print(task)
+
+        print("=" * 50)
 
         return tasks
