@@ -38,6 +38,12 @@ class AIPlanner:
         5. Web questions → search.
         6. Greetings → chat.
         7. Return ONLY valid JSON.
+        Every task must contain:
+
+        action
+        target
+        
+        Never leave target empty.
         8. Do NOT explain anything.
         
         Example 1
@@ -87,20 +93,13 @@ class AIPlanner:
         try:
             data = json.loads(response)
 
-            tasks = []
+        except json.JSONDecodeError:
+        
+            response = (
+                response
+                .replace("```json", "")
+                .replace("```", "")
+                .strip()
+            )
 
-            for item in data:
-                tasks.append(
-                    Task(
-                        action=item["action"],
-                        target=item.get("target", ""),
-                    )
-                )
-
-            return tasks
-
-        except Exception as e:
-            print("Planner Error:", e)
-            print("Planner Response:")
-            print(response)
-            return []
+            data = json.loads(response)

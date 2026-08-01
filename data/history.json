@@ -3410,5 +3410,33 @@
     {
         "speaker": "Assistant",
         "message": "Closed chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "close"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "There is no previously opened application."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed chrome."
     }
 ]
