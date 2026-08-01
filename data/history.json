@@ -3438,5 +3438,41 @@
     {
         "speaker": "Assistant",
         "message": "Closed chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome and notepad"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome.\nOpened Notepad."
+    },
+    {
+        "speaker": "User",
+        "message": "search python in django"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Searching Google for python in django."
+    },
+    {
+        "speaker": "User",
+        "message": "india se bhi chhoti official"
+    },
+    {
+        "speaker": "User",
+        "message": "search python and django"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Searching Google for python.\nSearching Google for django."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome youtube and camera"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome.\nOpened Camera.\nOpened Youtube."
     }
 ]
