@@ -5,20 +5,31 @@ class AgentVerifier:
         if response is None:
             return False
 
-        if response == "":
+        if not isinstance(response, str):
             return False
 
-        if isinstance(response, str):
+        response = response.strip()
 
-            lower = response.lower()
+        if not response:
+            return False
 
-            if "couldn't" in lower:
-                return False
+        lower = response.lower()
 
-            if "not found" in lower:
-                return False
+        failure_keywords = (
+            "failed",
+            "error",
+            "exception",
+            "not found",
+            "couldn't",
+            "cannot",
+            "can't",
+            "unable",
+            "invalid",
+            "no application",
+            "no website",
+        )
 
-            if "failed" in lower:
-                return False
+        if any(word in lower for word in failure_keywords):
+            return False
 
         return True
