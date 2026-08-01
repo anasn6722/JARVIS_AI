@@ -1,4 +1,5 @@
 import re
+import subprocess
 from datetime import datetime, timezone
 
 from ai.agent.ai_planner import AIPlanner
@@ -12,6 +13,9 @@ from ai.commands import CommandRegistry
 from ai.context.session_context import SessionContext
 from ai.context_manager import ContextManager
 from ai.context_resolver import ContextResolver
+from ai.conversation.conversation_manager import ConversationManager
+from ai.conversation.conversation_memory import ConversationMemory
+from ai.conversation.reference_resolver import ReferenceResolver
 from ai.entity_extractor import EntityExtractor
 from ai.goal_manager import GoalManager
 from ai.intent_classifier import IntentClassifier
@@ -19,6 +23,7 @@ from ai.llm import LLM
 from ai.managers.command_manager import CommandManager
 from ai.memory_extractor import MemoryExtractor
 from ai.planner import Planner
+from ai.reasoning.reasoning_engine import ReasoningEngine
 from ai.skills.skill_manager import SkillManager
 from ai.skills.system_skill import SystemSkill
 from ai.text_utils import TextUtils
@@ -26,6 +31,8 @@ from ai.tools.tool_executor import ToolExecutor
 from ai.tools.tool_registry import ToolRegistry
 from automation.system import SystemController
 from automation.web import WebController
+from brain.context_rules import ContextRules
+from brain.conversation import Conversation
 from brain.services import APPS, WEBSITES
 from memory.chat_memory import ChatMemory
 from memory.memory_manager import MemoryManager
@@ -40,7 +47,7 @@ class Brain:
         self.system = SystemController()
         self.web = WebController()
         self.registry = CommandRegistry()
-        self.memory = ChatMemory()
+        self.chat_memory = ChatMemory()
         self.llm = LLM()
         self.profile = ProfileMemory()
         self.plugin_manager = PluginManager()
@@ -56,11 +63,15 @@ class Brain:
         self.long_memory = MemoryManager()
         self.memory_extractor = MemoryExtractor()
         self.session = SessionContext()
-        
+        self.conversation_manager = ConversationManager()
+        self.reasoning = ReasoningEngine(self)
         self.agent_verifier = AgentVerifier()
+        self.conversation_memory = ConversationMemory()
         self.skill_manager.register(
             SystemSkill(self)
         )
+
+        self.reference_resolver = ReferenceResolver(self.conversation_memory)
         self.ai_planner = AIPlanner(self.llm)
         from ai.managers.planning_manager import PlanningManager
         self.planning_manager = PlanningManager(
@@ -107,10 +118,16 @@ class Brain:
             "Open any application",
             self.handle_open,
         )
+
         self.tool_registry.register(
             "close",
             "Close any application",
-            self.system.close,
+            self.handle_close,
+        )
+        self.tool_registry.register(
+            "close_last",
+            "Close previously opened application",
+            self.handle_close_last,
         )
 
         self.tool_registry.register(
@@ -168,7 +185,7 @@ class Brain:
 
         self.apps = {
             "notepad": "notepad.exe",
-            "calculator": "calc.exe",
+            "calculator": "CalculatorApp.exe",
             "explorer": "explorer.exe",
 
             "chrome": r"C:\Program Files\Google\Chrome\Application\chrome.exe",
@@ -200,7 +217,7 @@ class Brain:
         
     def process(self, command: str) -> str:
         
-        self.memory.add(
+        self.chat_memory.add(
             "User",
             command,
         )
@@ -208,7 +225,17 @@ class Brain:
         command_data, goal = self.command_manager.process(
             command,
         )
-        
+        # NEW
+        self.conversation_manager.update(command_data)
+        command_data = self.reference_resolver.resolve(
+            command_data
+        )
+        reasoning = self.reasoning.analyze(command_data)
+
+        print("=" * 50)
+        print("REASONING")
+        print(reasoning)
+
         destination = command_data.destination
         intent = command_data.intent
         self.context.update(
@@ -268,8 +295,9 @@ class Brain:
             print("Registry returned:", response)
 
             if response:
-            
-                self.memory.add(
+
+                self.conversation_manager.remember_response(response)
+                self.chat_memory.add(
                     "Assistant",
                     response,
                 )
@@ -289,15 +317,26 @@ class Brain:
             if tasks:
             
                 response = self.agent_executor.execute(tasks)
+                for task in tasks:
+
+                    if task.action == "open":
+                        self.conversation_memory.remember_app(task.target)
+
+                    elif task.action == "open_website":
+                        self.conversation_memory.remember_website(task.target)
+
+                
 
                 self.context.last_tasks = tasks
 
                 if response:
                 
-                    self.memory.add(
+                    self.chat_memory.add(
                         "Assistant",
                         response,
                     )
+                    # NEW
+                    self.conversation_manager.remember_response(response)
 
                     return response
         
@@ -355,17 +394,17 @@ class Brain:
             # Website
             if app in WEBSITES:
                 self.web.open_url(WEBSITES[app])
-                self.context.last_website = app
+                self.conversation_memory.remember_website(app)
                 responses.append(f"Opened {app.title()}.")
                 continue
 
             # Application
             if app in APPS:
 
-                success = self.system.open_program(APPS[app])
+                success = self.system.open_program(APPS[app]["open"])
 
                 if success:
-                    self.context.last_app = app
+                    self.conversation_memory.remember_app(app)
                     responses.append(f"Opened {app.title()}.")
                 else:
                     responses.append(f"Couldn't open {app.title()}.")
@@ -377,7 +416,7 @@ class Brain:
         return "\n".join(responses)
     
     def handle_last_message(self, command):
-        history = self.memory.get_all()
+        history = self.chat_memory.get_all()
 
         if len(history) >= 2:
            return f"Your last message was: {history[-2]['message']}"
@@ -385,7 +424,7 @@ class Brain:
         return "I don't remember any previous message."
 
     def handle_history(self, command):
-        history = self.memory.get_all()
+        history = self.chat_memory.get_all()
 
         if len(history) <= 1:
             return "No previous conversation found."
@@ -561,17 +600,49 @@ class Brain:
 
         return f"I don't know your {key.replace('_', ' ')} yet."
 
-    def handle_close_last(self):
+    def handle_close(self, app):
 
+        print("=" * 50)
+        print("HANDLE_CLOSE")
+        print("Received app:", repr(app))
+        print("Available keys:", APPS.keys())
+
+        program = APPS.get(app.lower())
+
+        print("Program:", program)
+
+        if not program:
+            return f"I don't know how to close {app}."
+
+        process = program["process"]
+
+        print("Process:", process)
+
+        try:
+            subprocess.run(
+                ["taskkill", "/F", "/IM", process],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=False,
+            )
+
+            return f"Closed {app}."
+
+        except Exception as e:
+            return str(e)
+
+    def handle_close_last(self, _=None):
         app = self.session.last_app
-
+    
         if not app:
-            return "Nothing is open."
-
-        return self.system.close(app)
+            return "There is no previously opened application."
+    
+        return self.handle_close(app)
+        
 
     def close(self, app):
         return self.app_manager.close(app)
+        
 
 
 

@@ -20,6 +20,10 @@ class VoiceManager(QThread):
         self.detector = WakeWordDetector()
         self.running = True
 
+        # Prevent repeated commands
+        self.last_command = ""
+        self.last_command_time = 0
+
     def stop(self):
         self.running = False
 
@@ -28,38 +32,73 @@ class VoiceManager(QThread):
 
         while self.running:
 
-            # Don't listen while speaking or thinking
+            # -------------------------------------------------
+            # Never listen while Jarvis is speaking/thinking
+            # -------------------------------------------------
             while (
                 app_state.state_machine.is_speaking()
                 or app_state.state_machine.is_thinking()
-            ):            
-                self.msleep(200)
+            ):
+                self.msleep(600)
                 continue
 
+            # -------------------------------------------------
+            # Small delay after speaking
+            # Prevents hearing its own voice
+            # -------------------------------------------------
             if app_state.state_machine.is_awake():
-                self.msleep(300)             
+                self.msleep(900)
 
             text = self.listener.listen()
 
             if not text:
                 continue
 
-            # Ignore commands shorter than 2 characters
-            if len(text.strip()) < 2:
+            text = text.strip().lower()
+
+            if len(text) < 2:
                 continue
 
+            # -------------------------------------------------
+            # Ignore duplicate commands
+            # -------------------------------------------------
+            now = time.time()
+
+            if (
+                text == self.last_command
+                and (now - self.last_command_time) < 3
+            ):
+                logger.info(
+                    "Duplicate command ignored: %s",
+                    text,
+                )
+                continue
+
+            self.last_command = text
+            self.last_command_time = now
+
+            # -------------------------------------------------
+            # Sleeping state
+            # -------------------------------------------------
             if app_state.state_machine.is_sleeping():
 
                 detected, command = self.detector.detect(text)
 
                 if detected:
+
                     app_state.state_machine.change(
                         AssistantState.AWAKE
                     )
+
                     app_state.last_active = time.time()
+
                     self.wake_detected.emit(command)
 
+            # -------------------------------------------------
+            # Awake state
+            # -------------------------------------------------
             elif app_state.state_machine.is_awake():
 
                 app_state.last_active = time.time()
+
                 self.command_detected.emit(text)

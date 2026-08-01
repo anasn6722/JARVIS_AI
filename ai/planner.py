@@ -62,7 +62,16 @@ class Planner:
             # "close chrome"
             if entities.get("apps"):
 
-                for app in entities["apps"]:
+                seen = set()
+
+                for app in entities.get("apps", []):
+                
+                    process = self.brain.apps.get(app, app)
+
+                    if process in seen:
+                        continue
+                    
+                    seen.add(process)
                     tasks.append(Task("close", app))
 
             # "close it"

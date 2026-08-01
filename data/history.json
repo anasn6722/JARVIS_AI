@@ -2454,5 +2454,961 @@
     {
         "speaker": "Assistant",
         "message": "Closed Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open vs code"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Code.\nOpened Vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know how to close code.\nI don't know how to close vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know how to close code.\nI don't know how to close vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "open karo"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open vs code"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know how to close vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "close vs"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open vs"
+    },
+    {
+        "speaker": "User",
+        "message": "vs code"
+    },
+    {
+        "speaker": "User",
+        "message": "vs"
+    },
+    {
+        "speaker": "User",
+        "message": "vs code"
+    },
+    {
+        "speaker": "User",
+        "message": "start vs code"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know how to close vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "close chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "close vs"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "open vs code"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "last"
+    },
+    {
+        "speaker": "User",
+        "message": "last close last"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "open vs code"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know how to close vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "open camera"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Camera."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know how to close camera."
+    },
+    {
+        "speaker": "User",
+        "message": "open"
+    },
+    {
+        "speaker": "User",
+        "message": "open vs"
+    },
+    {
+        "speaker": "User",
+        "message": "open vs code"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know how to close vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "open vs"
+    },
+    {
+        "speaker": "User",
+        "message": "open vs code"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "close"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "open vs"
+    },
+    {
+        "speaker": "User",
+        "message": "vs code"
+    },
+    {
+        "speaker": "User",
+        "message": "open vs"
+    },
+    {
+        "speaker": "User",
+        "message": "open vs code"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "search python classes"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Searching Google for python classes."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open again"
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "restore it"
+    },
+    {
+        "speaker": "User",
+        "message": "minimise"
+    },
+    {
+        "speaker": "User",
+        "message": "you are looser"
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "open a game"
+    },
+    {
+        "speaker": "User",
+        "message": "open it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "open it again"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "close it again"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "hello"
+    },
+    {
+        "speaker": "User",
+        "message": "jarvis"
+    },
+    {
+        "speaker": "User",
+        "message": "jarvis"
+    },
+    {
+        "speaker": "User",
+        "message": "jarvis"
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "open youtube"
+    },
+    {
+        "speaker": "User",
+        "message": "open google"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "17 july open youtube"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Youtube."
+    },
+    {
+        "speaker": "User",
+        "message": "play music"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Searching YouTube for music."
+    },
+    {
+        "speaker": "User",
+        "message": "play first video"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Searching YouTube for first video."
+    },
+    {
+        "speaker": "User",
+        "message": "open youtube"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Youtube."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know how to close youtube."
+    },
+    {
+        "speaker": "User",
+        "message": "i don't know how to close youtube"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know how to close youtube."
+    },
+    {
+        "speaker": "User",
+        "message": "chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "start chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "jitni marji"
+    },
+    {
+        "speaker": "User",
+        "message": "open vs code"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "open notepad"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Notepad."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed notepad."
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "open google"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Google."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open vs code"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed vscode."
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Couldn't open Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Couldn't open Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "open"
+    },
+    {
+        "speaker": "User",
+        "message": "calculator open calculator"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open notepad"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Notepad."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed notepad."
+    },
+    {
+        "speaker": "User",
+        "message": "open youtube"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Youtube."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed notepad."
+    },
+    {
+        "speaker": "User",
+        "message": "open camera"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Camera."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed camera."
+    },
+    {
+        "speaker": "User",
+        "message": "calculator"
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "calculator is"
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open youtube"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open youtube"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Youtube."
+    },
+    {
+        "speaker": "User",
+        "message": "open youtube"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Youtube."
+    },
+    {
+        "speaker": "User",
+        "message": "open camera"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Camera."
+    },
+    {
+        "speaker": "User",
+        "message": "aandhi hai tumhari jindagi"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Searching Google for aandhi hai tumhari jindagi."
+    },
+    {
+        "speaker": "User",
+        "message": "open camera"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Camera."
+    },
+    {
+        "speaker": "User",
+        "message": "open notepad"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Notepad."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed chrome."
     }
 ]

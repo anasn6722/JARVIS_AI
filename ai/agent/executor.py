@@ -45,7 +45,15 @@ class AgentExecutor:
             print("TOOL RESPONSE:", response)
 
             if task.action == "open":
-                self.brain.session.remember_app(task.target)
+                self.brain.conversation_memory.remember_app(task.target)
+            
+            
+            elif task.action == "close":
+                self.brain.conversation_memory.forget_app(task.target)
+            
+            
+            elif task.action == "search":
+                self.brain.conversation_memory.remember_search(task.target)
                 
             success = self.brain.agent_verifier.verify(
                 task,
