@@ -3482,5 +3482,9 @@
     {
         "speaker": "Assistant",
         "message": "Opened Github."
+    },
+    {
+        "speaker": "User",
+        "message": "learn django"
     }
 ]
