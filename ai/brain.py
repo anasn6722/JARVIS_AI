@@ -607,33 +607,43 @@ class Brain:
 
     def handle_get_preference(self, command):
 
-        text = command.lower()
+        text = command.lower().strip()
         text = text.replace("favourite", "favorite")
-
-        match = re.search(r"what is my (.+)", text)
-
-        if not match:
-            return "I don't know what you're asking."
-
-        key = match.group(1).strip().replace(" ", "_")
-
+    
+        # --------------------------
+        # Natural language aliases
+        # --------------------------
+    
+        key = None
+    
+        for phrase, memory_key in IntentClassifier.MEMORY_QUERIES.items():
+            if phrase in text:
+                key = memory_key
+                break
+            
+        if key is None:
+            match = re.search(r"what is my (.+)", text)
+    
+            if not match:
+                return "I don't know what you're asking."
+    
+            key = (
+                match.group(1)
+                .strip()
+                .replace(" ", "_")
+            )
+    
         print("Searching for key:", key)
-
-        self.long_memory.profile.db.cursor.execute(
-            "SELECT * FROM profile"
-        )
-
-        print("Database:", self.long_memory.profile.db.cursor.fetchall())
-
+    
         value = self.long_memory.profile.get(key)
-
+    
         print("Returned value:", value)
-
+    
         if value:
             return f"Your {key.replace('_', ' ')} is {value}."
-
+    
         return f"I don't know your {key.replace('_', ' ')} yet."
-
+    
     def handle_close(self, app):
 
         print("=" * 50)

@@ -1,4 +1,5 @@
 import re
+from typing import ClassVar
 
 from ai.intent_utils import IntentUtils
 
@@ -38,6 +39,30 @@ class IntentClassifier:
         "hi",
         "hey",
     )
+    MEMORY_QUERIES: ClassVar[dict[str, str]] = {
+        # City
+        "where do i live": "city",
+        "where i live": "city",
+        "do i live": "city",
+        "where am i from": "city",
+        "where i am from": "city",
+
+        # University
+        "where do i study": "university",
+        "where i study": "university",
+
+        # Language
+        "what is my favorite language": "favorite_language",
+        "what's my favorite language": "favorite_language",
+        "favorite language": "favorite_language",
+        "my favorite language": "favorite_language",
+
+        # Identity
+        "who am i": "identity",
+
+        # Favorites
+        "what do i like": "favorites",
+    }
 
     
     def classify(self, text: str) -> dict:
@@ -199,7 +224,17 @@ class IntentClassifier:
                 "intent": "set_preference",
             }
 
+        # -----------------------
         # Get preference
+        # -----------------------
+
+        for phrase in self.MEMORY_QUERIES:
+            if phrase in text:
+                return {
+                    "destination": "BRAIN",
+                    "intent": "get_preference",
+                }
+
         if (
             re.match(r"what is my .+", text)
             or text.startswith((
