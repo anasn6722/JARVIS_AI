@@ -64,7 +64,30 @@ class IntentClassifier:
         "what do i like": "favorites",
     }
 
-    
+    NEXT_TASK_WORDS = (
+        "next task",
+        "what's next",
+        "what is my next task",
+        "continue goal",
+    )
+    COMPLETE_TASK_WORDS = (
+        "complete task",
+        "mark task done",
+        "task done",
+        "finish task",
+    )
+    PROGRESS_WORDS = (
+        "goal progress",
+        "progress",
+        "how much progress",
+        "how far am i",
+    )
+    DELETE_GOAL_WORDS = (
+        "delete goal",
+        "remove goal",
+        "forget goal",
+    )
+
     def classify(self, text: str) -> dict:
         text = text.lower().strip()
 
@@ -206,6 +229,46 @@ class IntentClassifier:
                 "destination": "BRAIN",
                 "intent": "show_goals",
             }
+
+        # Add New Tasks
+        if IntentUtils.contains_any(
+            text,
+            self.NEXT_TASK_WORDS,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "next_task",
+            }
+
+        # Complete Task
+        if IntentUtils.contains_any(
+            text,
+            self.COMPLETE_TASK_WORDS,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "complete_task",
+            }
+
+        # Goal Progress
+        if IntentUtils.contains_any(
+            text,
+            self.PROGRESS_WORDS,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "goal_progress",
+            }
+
+        # Delete Goal
+        if IntentUtils.contains_any(
+            text,
+            self.DELETE_GOAL_WORDS,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "delete_goal",
+            } 
 
         # -----------------------
         # Memory Preferences

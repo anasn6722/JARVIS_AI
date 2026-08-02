@@ -20,21 +20,28 @@ class GoalManager:
         self.goals = self.load()
 
     def load(self):
-        with open(
-            self.FILE,
-            "r",
-            encoding="utf-8",
-        ) as f:
+        try:
+            with open(
+                self.FILE,
+                "r",
+                encoding="utf-8",
+            ) as f:
+                goals = json.load(f)
     
-            goals = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            goals = []
+            with open(
+                self.FILE,
+                "w",
+                encoding="utf-8",
+            ) as f:
+                json.dump(goals, f, indent=4)
     
         migrated = []
     
         for goal in goals:
         
-            # Old format
             if isinstance(goal, str):
-            
                 migrated.append(
                     {
                         "title": goal,
@@ -45,13 +52,9 @@ class GoalManager:
                         "tasks": [],
                     }
                 )
-    
-            # New format
             else:
-            
                 migrated.append(goal)
     
-        # Save migrated version automatically
         self.goals = migrated
         self.save()
     
@@ -189,9 +192,63 @@ class GoalManager:
                         done / total * 100
                     )
 
-                    if goal["progress"] == 100:
+                    if all(t["done"] for t in goal["tasks"]):
+                    
                         goal["completed"] = True
+                        goal["progress"] = 100
 
                 break
 
         self.save()
+
+    def next_task(self, title):
+
+        for goal in self.goals:
+
+            if goal["title"] == title:
+
+                for task in goal["tasks"]:
+
+                    if not task["done"]:
+                        return task
+
+        return None
+
+    def progress(self, title):
+
+        for goal in self.goals:
+
+            if goal["title"] == title:
+
+                total = len(goal["tasks"])
+
+                if total == 0:
+                    return 0
+
+                done = sum(
+                    1
+                    for task in goal["tasks"]
+                    if task["done"]
+                )
+
+                return int(done / total * 100)
+
+        return 0
+
+    def complete_goal(self, title):
+
+        for goal in self.goals:
+
+            if goal["title"] == title:
+
+                goal["completed"] = True
+                goal["progress"] = 100
+
+                for task in goal["tasks"]:
+                    task["done"] = True
+
+                self.save()
+
+                return True
+
+        return False

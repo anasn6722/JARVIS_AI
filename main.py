@@ -11,7 +11,6 @@ def main():
     app.setStyleSheet(DARK_THEME)
     window = MainWindow()
     window.show()
-
     sys.exit(app.exec())
 
 
