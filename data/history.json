@@ -3822,5 +3822,497 @@
     {
         "speaker": "Assistant",
         "message": "I created a plan for create goal learn django. It contains 13 tasks."
+    },
+    {
+        "speaker": "User",
+        "message": "show go"
+    },
+    {
+        "speaker": "User",
+        "message": "show"
+    },
+    {
+        "speaker": "User",
+        "message": "show goals"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your goals are:\n1. {'title': 'create goal learn django', 'created': '2026-08-02 10:39', 'deadline': '', 'progress': 0, 'completed': False, 'tasks': [{'task': 'Install Python and set up a virtual environment', 'done': False}, {'task': 'Install Django via pip', 'done': False}, {'task': 'Initialize a new Django project', 'done': False}, {'task': 'Create a Django application within the project', 'done': False}, {'task': 'Understand the MVT (Model-View-Template) architecture', 'done': False}, {'task': 'Define database models and run migrations', 'done': False}, {'task': 'Configure URL routing in urls.py', 'done': False}, {'task': 'Create views to handle request logic', 'done': False}, {'task': 'Design HTML templates using Django Template Language', 'done': False}, {'task': 'Register models with the Django Admin panel', 'done': False}, {'task': 'Implement Django Forms for user input', 'done': False}, {'task': 'Set up basic user authentication', 'done': False}, {'task': 'Build and deploy a simple CRUD application', 'done': False}]}"
+    },
+    {
+        "speaker": "User",
+        "message": "goals"
+    },
+    {
+        "speaker": "User",
+        "message": "show go"
+    },
+    {
+        "speaker": "User",
+        "message": "show"
+    },
+    {
+        "speaker": "User",
+        "message": "show bones"
+    },
+    {
+        "speaker": "User",
+        "message": "current go"
+    },
+    {
+        "speaker": "User",
+        "message": "current"
+    },
+    {
+        "speaker": "User",
+        "message": "current goal"
+    },
+    {
+        "speaker": "User",
+        "message": "show"
+    },
+    {
+        "speaker": "User",
+        "message": "show"
+    },
+    {
+        "speaker": "User",
+        "message": "show"
+    },
+    {
+        "speaker": "User",
+        "message": "show go"
+    },
+    {
+        "speaker": "User",
+        "message": "show balls"
+    },
+    {
+        "speaker": "User",
+        "message": "show go"
+    },
+    {
+        "speaker": "User",
+        "message": "show"
+    },
+    {
+        "speaker": "User",
+        "message": "ashok goal"
+    },
+    {
+        "speaker": "User",
+        "message": "show goal"
+    },
+    {
+        "speaker": "User",
+        "message": "show go"
+    },
+    {
+        "speaker": "User",
+        "message": "show goal"
+    },
+    {
+        "speaker": "User",
+        "message": "show go"
+    },
+    {
+        "speaker": "User",
+        "message": "show calls"
+    },
+    {
+        "speaker": "User",
+        "message": "show goals"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Here are your goals:\n1. create goal learn django (0 percent complete)\n"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "python decorator"
+    },
+    {
+        "speaker": "User",
+        "message": "search python classes"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Searching Google for python classes."
+    },
+    {
+        "speaker": "User",
+        "message": "open youtube"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Youtube."
+    },
+    {
+        "speaker": "User",
+        "message": "python tutorial"
+    },
+    {
+        "speaker": "User",
+        "message": "search python tut"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Searching Google for python tut."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "close"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "There is no previously opened application."
+    },
+    {
+        "speaker": "User",
+        "message": "close"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "There is no previously opened application."
+    },
+    {
+        "speaker": "User",
+        "message": "close chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open calculator"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "close calculator"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed calculator."
+    },
+    {
+        "speaker": "User",
+        "message": "open camera"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Camera."
+    },
+    {
+        "speaker": "User",
+        "message": "mujhe koi birthday dekh lo"
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed camera."
+    },
+    {
+        "speaker": "User",
+        "message": "open chat gpt"
+    },
+    {
+        "speaker": "User",
+        "message": "open github"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Github."
+    },
+    {
+        "speaker": "User",
+        "message": "close it"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know how to close github."
+    },
+    {
+        "speaker": "User",
+        "message": "music"
+    },
+    {
+        "speaker": "User",
+        "message": "my birthday is 13 february"
+    },
+    {
+        "speaker": "User",
+        "message": "magadh is 13 february"
+    },
+    {
+        "speaker": "User",
+        "message": "my birthday is 13"
+    },
+    {
+        "speaker": "User",
+        "message": "my birthday"
+    },
+    {
+        "speaker": "User",
+        "message": "my birthday is 13th february"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I'll remember that your birthday is 13th february."
+    },
+    {
+        "speaker": "User",
+        "message": "what's my birthday"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my birthday"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your birthday is 13th february."
+    },
+    {
+        "speaker": "User",
+        "message": "what's my birthday"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know what you're asking."
+    },
+    {
+        "speaker": "User",
+        "message": "what's my birthday"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know what you're asking."
+    },
+    {
+        "speaker": "User",
+        "message": "what is my birthday"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your birthday is 13th february."
+    },
+    {
+        "speaker": "User",
+        "message": "tell me my birthday"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know what you're asking."
+    },
+    {
+        "speaker": "User",
+        "message": "my birthday"
+    },
+    {
+        "speaker": "User",
+        "message": "what's my birthday"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know what you're asking."
+    },
+    {
+        "speaker": "User",
+        "message": "what's my birthday"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know what you're asking."
+    },
+    {
+        "speaker": "User",
+        "message": "what is"
+    },
+    {
+        "speaker": "User",
+        "message": "what is my birthday"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your birthday is 13th february."
+    },
+    {
+        "speaker": "User",
+        "message": "tell me my"
+    },
+    {
+        "speaker": "User",
+        "message": "tell me my"
+    },
+    {
+        "speaker": "User",
+        "message": "tell me my"
+    },
+    {
+        "speaker": "User",
+        "message": "tell me my birthday birthday"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know what you're asking."
+    },
+    {
+        "speaker": "User",
+        "message": "tell me my"
+    },
+    {
+        "speaker": "User",
+        "message": "tell me my birthday"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know what you're asking."
+    },
+    {
+        "speaker": "User",
+        "message": "what's my birthday"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know what you're asking."
+    },
+    {
+        "speaker": "User",
+        "message": "what's my birthday"
+    },
+    {
+        "speaker": "User",
+        "message": "what's my birthday"
+    },
+    {
+        "speaker": "User",
+        "message": "what's my birthday"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your birthday is 13th february."
+    },
+    {
+        "speaker": "User",
+        "message": "tell me my birthday"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your birthday is 13th february."
+    },
+    {
+        "speaker": "User",
+        "message": "where do i live"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your city is bahawalnagar."
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite language"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know what you're asking."
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite languages python"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know what you're asking."
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite language"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know what you're asking."
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite language is"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know what you're asking."
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite language is python"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I'll remember that your favorite language is python."
+    },
+    {
+        "speaker": "User",
+        "message": "my favourite language"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know what you're asking."
+    },
+    {
+        "speaker": "User",
+        "message": "what's my favourite"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your favourite is game."
+    },
+    {
+        "speaker": "User",
+        "message": "favourite language"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know what you're asking."
+    },
+    {
+        "speaker": "User",
+        "message": "what's my favourite language"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know your favourite language yet."
+    },
+    {
+        "speaker": "User",
+        "message": "tell me about"
+    },
+    {
+        "speaker": "User",
+        "message": "tell me about my favourite language"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know what you're asking."
     }
 ]

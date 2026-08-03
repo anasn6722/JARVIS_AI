@@ -35,9 +35,12 @@ from automation.web import WebController
 from brain.context_rules import ContextRules
 from brain.conversation import Conversation
 from brain.services import APPS, WEBSITES
+from memory.auto_memory import AutoMemoryExtractor
 from memory.chat_memory import ChatMemory
 from memory.memory_manager import MemoryManager
+from memory.memory_service import MemoryService
 from memory.profile_memory import ProfileMemory
+from memory.query_parser import MemoryQueryParser
 from plugins.plugin_manager import PluginManager
 
 
@@ -64,8 +67,10 @@ class Brain:
             self.llm
         )
         self.entity_extractor = EntityExtractor()
-        self.long_memory = MemoryManager()
+        self.memory = MemoryService()
+        self.memory_query_parser = MemoryQueryParser()
         self.memory_extractor = MemoryExtractor()
+        self.auto_memory = AutoMemoryExtractor()
         self.session = SessionContext()
         self.conversation_manager = ConversationManager()
         self.reasoning = ReasoningEngine(self)
@@ -185,6 +190,25 @@ class Brain:
             "show_goals",
             self.handle_show_goals,
         )
+        self.registry.register(
+            "next_task",
+            self.handle_next_task,
+        )
+
+        self.registry.register(
+            "complete_task",
+            self.handle_complete_task,
+        )
+
+        self.registry.register(
+            "goal_progress",
+            self.handle_goal_progress,
+        )
+
+        self.registry.register(
+            "delete_goal",
+            self.handle_delete_goal,
+        )
 
 
         self.apps = {
@@ -225,6 +249,22 @@ class Brain:
             "User",
             command,
         )
+        memory = self.auto_memory.extract(command)
+
+        if memory:
+        
+            key, value = memory
+        
+            self.memory.remember(
+                key,
+                value,
+            )
+        
+            print(
+                "AUTO MEMORY:",
+                key,
+                value,
+            )
 
         command_data, goal = self.command_manager.process(
             command,
@@ -358,9 +398,8 @@ class Brain:
 
     def handle_search(self, command):
         query = CommandParser.search_query(command)
-        self.context.last_search = query
         self.context.update(
-            search=query
+            search=query,
         )
 
         self.web.google_search(query)
@@ -399,6 +438,11 @@ class Brain:
             if app in WEBSITES:
                 self.web.open_url(WEBSITES[app])
                 self.conversation_memory.remember_website(app)
+
+                self.context.update(
+                    website=app,
+                )
+
                 responses.append(f"Opened {app.title()}.")
                 continue
 
@@ -409,6 +453,16 @@ class Brain:
 
                 if success:
                     self.conversation_memory.remember_app(app)
+                    self.session.last_app = app
+
+                    self.context.update(
+                        app=app,
+                    )
+
+                    self.context.update(
+                        app=app,
+                    )
+
                     responses.append(f"Opened {app.title()}.")
                 else:
                     responses.append(f"Couldn't open {app.title()}.")
@@ -532,7 +586,9 @@ class Brain:
                 task
             )
     
-    
+        self.context.update(
+            goal=goal,
+        )
         return (
             f"I created a plan for {goal}. "
             f"It contains {len(tasks)} tasks."
@@ -540,18 +596,171 @@ class Brain:
 
 
     def handle_show_goals(self, command):
+
+        goals = self.goal_manager.all()
+    
+        if not goals:
+            return "You don't have any goals."
+    
+        total = len(goals)
+    
+        completed = sum(
+            1
+            for goal in goals
+            if goal["completed"]
+        )
+    
+        current = goals[0]
+    
+        return (
+            f"You have {total} goals. "
+            f"{completed} are completed. "
+            f"Your current goal is "
+            f"{current['title']} "
+            f"with {current['progress']} percent progress."
+        )
+
+    def handle_next_task(self, command):
+
         goals = self.goal_manager.all()
 
         if not goals:
-            return "You don't have any saved goals."
+            return "You don't have any goals."
 
-        response = "Your goals are:\n"
+        goal_name = self.context.current_goal
 
-        for i, goal in enumerate(goals, start=1):
-            response += f"{i}. {goal}\n"
+        if goal_name:
+            goal = next(
+                (
+                    g for g in goals
+                    if g["title"] == goal_name
+                ),
+                goals[0],
+            )
+        else:
+            goal = goals[0]
 
-        return response.strip()
+        task = self.goal_manager.next_task(
+            goal["title"]
+        )
 
+        if not task:
+            return "Everything is completed."
+
+        self.context.update(
+            goal=goal["title"],
+            task=task,
+        )
+
+        self.context.add_task_history(task)
+        return f"Your next task is {task}."
+
+    def handle_goal_progress(self, command):
+
+        goals = self.goal_manager.all()
+
+        if not goals:
+            return "You don't have any goals."
+
+        goal_name = self.context.current_goal
+
+        if goal_name:
+            goal = next(
+                (
+                    g for g in goals
+                    if g["title"] == goal_name
+                ),
+                goals[0],
+            )
+        else:
+            goal = goals[0]
+
+        progress = self.goal_manager.progress(
+            goal["title"]
+        )
+
+        return (
+            f"You have completed "
+            f"{progress}% of "
+            f"{goal['title']}."
+        )
+
+    def handle_delete_goal(self, command):
+
+        goals = self.goal_manager.all()
+
+        if not goals:
+            return "You don't have any goals."
+
+        goal_name = self.context.current_goal
+
+        if goal_name:
+            goal = next(
+                (
+                    g for g in goals
+                    if g["title"] == goal_name
+                ),
+                goals[0],
+            )
+        else:
+            goal = goals[0]
+
+        self.goal_manager.remove(
+            goal["title"]
+        )
+
+        return (
+            f"I removed the goal "
+            f"{goal['title']}."
+        )
+
+    def handle_complete_task(self, command):
+
+        goals = self.goal_manager.all()
+
+        if not goals:
+            return "You don't have any goals."
+
+        goal_name = self.context.current_goal
+
+        if goal_name:
+            goal = next(
+                (
+                    g for g in goals
+                    if g["title"] == goal_name
+                ),
+                goals[0],
+            )
+        else:
+            goal = goals[0]
+
+        task = self.goal_manager.next_task(
+            goal["title"]
+        )
+
+        if not task:
+            return "Everything is already completed."
+
+        self.goal_manager.complete_task(
+            goal["title"],
+            task,
+        )
+        self.context.update(
+            goal=goal["title"],
+            task=task,
+        )
+        
+        self.context.add_task_history(task)
+
+        progress = self.goal_manager.progress(
+            goal["title"]
+        )
+
+        return (
+            f"Completed {task}. "
+            f"Progress is now {progress}%."
+        )
+        
     def handle_open_task(self, app):
 
         if app in WEBSITES:
@@ -596,52 +805,31 @@ class Brain:
 
         if key:
 
-            self.long_memory.profile.set(
+            self.memory.remember(
                 key,
                 value,
             )
-            self.long_memory.profile.db.cursor.execute("SELECT * FROM profile")
-            print("Saved:", self.long_memory.profile.db.cursor.fetchall())
-
+            
             return f"I'll remember that your {key.replace('_', ' ')} is {value}."
 
-    def handle_get_preference(self, command):
+    from memory.query_parser import MemoryQueryParser
 
-        text = command.lower().strip()
-        text = text.replace("favourite", "favorite")
-    
-        # --------------------------
-        # Natural language aliases
-        # --------------------------
-    
-        key = None
-    
-        for phrase, memory_key in IntentClassifier.MEMORY_QUERIES.items():
-            if phrase in text:
-                key = memory_key
-                break
-            
-        if key is None:
-            match = re.search(r"what is my (.+)", text)
-    
-            if not match:
-                return "I don't know what you're asking."
-    
-            key = (
-                match.group(1)
-                .strip()
-                .replace(" ", "_")
-            )
-    
+
+    def handle_get_preference(self, command):
+        key = self.memory_query_parser.extract(command)
+
+        if not key:
+            return "I don't know what you're asking."
+
         print("Searching for key:", key)
-    
-        value = self.long_memory.profile.get(key)
-    
+
+        value = self.memory.recall(key)
+
         print("Returned value:", value)
-    
+
         if value:
             return f"Your {key.replace('_', ' ')} is {value}."
-    
+
         return f"I don't know your {key.replace('_', ' ')} yet."
     
     def handle_close(self, app):

@@ -39,6 +39,24 @@ class IntentClassifier:
         "hi",
         "hey",
     )
+    NORMALIZATION: ClassVar[dict[str, str]] = {
+        "gold": "goal",
+        "goalss": "goals",
+        "goal's": "goals",
+        "favourite": "favorite",
+
+        # Contractions
+        "what's": "what is",
+        "who's": "who is",
+        "where's": "where is",
+        "how's": "how is",
+        "it's": "it is",
+        "i'm": "i am",
+        "don't": "do not",
+        "can't": "cannot",
+        "won't": "will not",
+    }
+    
     MEMORY_QUERIES: ClassVar[dict[str, str]] = {
         # City
         "where do i live": "city",
@@ -63,12 +81,30 @@ class IntentClassifier:
         # Favorites
         "what do i like": "favorites",
     }
+    PRONOUNS: ClassVar[set[str]] = {
+        "it",
+        "that",
+        "this",
+        "them",
+        "those",
+        "him",
+        "her",
+    }
 
     NEXT_TASK_WORDS = (
+        "next",
         "next task",
+        "what next",
         "what's next",
+        "what is next",
         "what is my next task",
+        "continue",
+        "continue it",
+        "continue learning",
         "continue goal",
+        "resume",
+        "resume it",
+        "after that",
     )
     COMPLETE_TASK_WORDS = (
         "complete task",
@@ -88,8 +124,11 @@ class IntentClassifier:
         "forget goal",
     )
 
+    
+
     def classify(self, text: str) -> dict:
         text = text.lower().strip()
+        text = self.normalize(text)
 
         # -----------------------
         # Open Applications
@@ -221,9 +260,13 @@ class IntentClassifier:
             "what are my goals" in text
             or"what is my goal" in text
             or "show my goals" in text
+            or "my goal" in text
+            or "my goals" in text
             or"show my goal" in text
             or "show goals" in text
             or "my goals" == text
+            or "goal" == text
+            or "goals" == text
         ):
             return {
                 "destination": "BRAIN",
@@ -313,11 +356,45 @@ class IntentClassifier:
        
         if text in (
             "close it",
+            "close that",
+            "close this",
             "close",
+            "exit it",
+            "quit it",
         ):
             return {
                 "destination": "BRAIN",
                 "intent": "close_last",
+            }
+
+        # -----------------------
+        # Continue Search
+        # -----------------------
+
+        if text in (
+            "open the first one",
+            "open first result",
+            "open first",
+            "open second",
+            "open third",
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "search_result",
+            }
+
+        # -----------------------
+        # Goal Continuation
+        # -----------------------
+        
+        if text in (
+            "mark it done",
+            "complete it",
+            "finish it",
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "complete_current_task",
             }
         
 
@@ -328,5 +405,17 @@ class IntentClassifier:
             "destination": "AI",
             "intent": "chat",
         }
+
+    def normalize(self, text):
+
+        text = text.lower().strip()
+
+        for wrong, correct in self.NORMALIZATION.items():
+            text = text.replace(
+                wrong,
+                correct,
+            )
+
+        return text
 
         
