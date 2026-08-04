@@ -332,57 +332,24 @@ class Brain:
 
         if intent in builtin_intents:
         
-            response = self.registry.execute(
+            response = self.execute_builtin(
                 intent,
                 command_data.original,
             )
-            print("Registry returned:", response)
 
             if response:
-
-                self.conversation_manager.remember_response(response)
-                self.chat_memory.add(
-                    "Assistant",
-                    response,
-                )
-
                 return response
-
 
         # -------------------------
         # AI Planner
         # -------------------------
 
         if destination == "BRAIN":
+
+            response = self.execute_planner(command_data)
         
-            tasks = self.planning_manager.plan(command_data)
-            print("Brain received tasks:", tasks)
-
-            if tasks:
-            
-                response = self.agent_executor.execute(tasks)
-                for task in tasks:
-
-                    if task.action == "open":
-                        self.conversation_memory.remember_app(task.target)
-
-                    elif task.action == "open_website":
-                        self.conversation_memory.remember_website(task.target)
-
-                
-
-                self.context.last_tasks = tasks
-
-                if response:
-                
-                    self.chat_memory.add(
-                        "Assistant",
-                        response,
-                    )
-                    # NEW
-                    self.conversation_manager.remember_response(response)
-
-                    return response
+            if response:
+                return response
         
 
     def handle_hello(self, command):
@@ -831,6 +798,59 @@ class Brain:
             return f"Your {key.replace('_', ' ')} is {value}."
 
         return f"I don't know your {key.replace('_', ' ')} yet."
+
+    def execute_builtin(self, intent, command):
+
+        response = self.registry.execute(
+            intent,
+            command,
+        )
+
+        print("Registry returned:", response)
+
+        if response:
+            self.conversation_manager.remember_response(response)
+
+            self.chat_memory.add(
+                "Assistant",
+                response,
+            )
+
+        return response
+
+    def execute_planner(self, command_data):
+
+        tasks = self.planning_manager.plan(command_data)
+
+        print("Brain received tasks:", tasks)
+
+        if not tasks:
+            return None
+
+        response = self.agent_executor.execute(tasks)
+
+        for task in tasks:
+
+            if task.action == "open":
+                self.conversation_memory.remember_app(task.target)
+
+            elif task.action == "open_website":
+                self.conversation_memory.remember_website(task.target)
+
+        self.context.last_tasks = tasks
+
+        if response:
+
+            self.chat_memory.add(
+                "Assistant",
+                response,
+            )
+
+            self.conversation_manager.remember_response(
+                response,
+            )
+
+        return response
     
     def handle_close(self, app):
 

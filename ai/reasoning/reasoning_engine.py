@@ -1,3 +1,6 @@
+from ai.reasoning.decision import Decision
+
+
 class ReasoningEngine:
 
     def __init__(self, brain):
@@ -5,13 +8,42 @@ class ReasoningEngine:
 
     def analyze(self, command):
 
-        entities = command.entities
+        intent = command.intent
 
-        return {
-            "intent": command.intent,
-            "goal": (entities.get("goals") or [None])[0],
-            "app": (entities.get("apps") or [None])[0],
-            "website": (entities.get("websites") or [None])[0],
-            "search": (entities.get("searches") or [None])[0],
-            "command": command.original,
-        }
+        if intent in (
+            "get_preference",
+            "set_preference",
+            "get_name",
+            "set_name",
+        ):
+            return Decision(
+                route="MEMORY",
+                intent=intent,
+            )
+
+        if intent in (
+            "open",
+            "close",
+            "search",
+            "youtube",
+        ):
+            return Decision(
+                route="TOOL",
+                intent=intent,
+            )
+
+        if intent in (
+            "add_goal",
+            "next_task",
+            "show_goals",
+            "goal_progress",
+        ):
+            return Decision(
+                route="PLANNER",
+                intent=intent,
+            )
+
+        return Decision(
+            route="AI",
+            intent=intent,
+        )

@@ -4314,5 +4314,29 @@
     {
         "speaker": "Assistant",
         "message": "I don't know what you're asking."
+    },
+    {
+        "speaker": "User",
+        "message": "what's my birthday"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your birthday is 13th february."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome youtube notepad and"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome.\nOpened Notepad.\nOpened Youtube."
     }
 ]
