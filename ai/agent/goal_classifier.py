@@ -1,26 +1,65 @@
+from typing import ClassVar
+
+
 class GoalClassifier:
 
+    GOAL_KEYWORDS: ClassVar[set[str]] = {
+        "build",
+        "create",
+        "make",
+        "develop",
+        "design",
+
+        "learn",
+        "study",
+        "master",
+
+        "plan",
+        "organize",
+        "prepare",
+
+        "buy",
+        "purchase",
+        "order",
+
+        "write",
+        "generate",
+
+        "improve",
+        "upgrade",
+        "fix",
+
+        "start",
+    }
+
+    NON_GOALS: ClassVar[set[str]] = {
+        "open",
+        "close",
+        "search",
+        "find",
+
+        "time",
+        "date",
+
+        "hello",
+        "hi",
+    }
+
     def classify(self, command: str):
-        command = command.lower()
 
-        if any(word in command for word in [
-            "learn",
-            "study",
-            "tutorial",
-        ]):
-            return "learn"
+        words = command.lower().split()
 
-        if any(word in command for word in [
-            "buy",
-            "purchase",
-            "order",
-        ]):
-            return "shopping"
+        # Ignore simple commands
+        for word in self.NON_GOALS:
+            if words and words[0] == word:
+                return {
+                    "type": "project",
+                    "goal": command,
+                }
 
-        if any(word in command for word in [
-            "news",
-            "latest",
-        ]):
-            return "news"
+        # Detect long-term goals
+        for word in words:
+            if word in self.GOAL_KEYWORDS:
+                return "goal"
 
-        return "general"
+        return None

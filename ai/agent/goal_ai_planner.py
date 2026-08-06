@@ -6,27 +6,33 @@ class GoalAIPlanner:
     def __init__(self, llm):
         self.llm = llm
 
-    def create_plan(self, goal):
+    def create_plan(self, goal: str):
 
         prompt = f"""
-You are an AI planning engine.
+You are an AI task planner.
 
-Break this goal into small actionable tasks.
+Break the following goal into executable tasks.
 
 Goal:
-
 {goal}
 
-Return ONLY JSON.
+Return ONLY valid JSON.
 
 Example:
 
 [
-    "Install Python",
-    "Install Django",
-    "Create Project",
-    "Views",
-    "Templates"
+    {{
+        "action": "install",
+        "target": "python"
+    }},
+    {{
+        "action": "install",
+        "target": "django"
+    }},
+    {{
+        "action": "create_project",
+        "target": "portfolio"
+    }}
 ]
 """
 
@@ -35,6 +41,6 @@ Example:
         try:
             return json.loads(response)
 
-        except Exception:
-
+        except Exception as e:
+            print("GoalAIPlanner Error:", e)
             return []

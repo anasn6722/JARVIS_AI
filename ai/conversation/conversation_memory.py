@@ -55,3 +55,12 @@ class ConversationMemory:
     def get_last_search(self):
 
         return self.context.last_search
+
+    def last_app(self):
+        return self.get_last_app()
+
+    def last_website(self):
+        return self.get_last_website()
+
+    def last_search(self):
+        return self.get_last_search()

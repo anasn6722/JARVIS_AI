@@ -39,34 +39,22 @@ class SystemController:
         ):
             return False
 
+    import os
     import subprocess
 
-    def close(self, app):
-
-        processes = {
-            "chrome": ["chrome.exe"],
-            "edge": ["msedge.exe"],
-            "firefox": ["firefox.exe"],
-            "notepad": ["notepad.exe"],
-            "calculator": [
-                "CalculatorApp.exe",
-                "calc.exe",
-            ],
-        }
+    def close_program(self, process_name):
+        print("=" * 50)
+        print("SYSTEM CONTROLLER CLOSE")
+        print("Process:", process_name)
     
-        names = processes.get(app.lower())
+        result = subprocess.run(
+            ["taskkill", "/F", "/IM", process_name],
+            capture_output=True,
+            text=True,
+        )
     
-        if not names:
-            return f"I don't know how to close {app}."
+        print("Return Code:", result.returncode)
+        print("STDOUT:", result.stdout)
+        print("STDERR:", result.stderr)
     
-        for process in names:
-            print("Closing process:", process)
-            subprocess.run(
-                ["taskkill", "/F", "/IM", process],
-                capture_output=True,
-                check=False,
-            )
-            
-          
-    
-        return f"Closed {app.title()}."
+        return result.returncode == 0

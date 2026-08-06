@@ -4338,5 +4338,341 @@
     {
         "speaker": "Assistant",
         "message": "Opened Chrome.\nOpened Notepad.\nOpened Youtube."
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome youtube camera"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "open"
+    },
+    {
+        "speaker": "User",
+        "message": "i couldn't process that request"
+    },
+    {
+        "speaker": "User",
+        "message": "open chrome"
+    },
+    {
+        "speaker": "User",
+        "message": "what's my birthday"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Your name is anas."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I am JARVIS, your personal AI assistant."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "I don't know what you're asking."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Hello Anas! \ud83d\udc4b"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Current time: 11:28:40 AM"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Hello Anas! \ud83d\udc4b"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Youtube."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Youtube."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome.\nOpened Youtube.\nOpened Github."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Notepad.\nCouldn't open Calculator.\nI don't know camera."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome.\nOpened Youtube.\nOpened Github."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Couldn't open Calculator."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Failed: close"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Failed: close"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Failed: close_last"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Failed: close_last"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome.\nOpened Youtube."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome.\nOpened Youtube."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome.\nOpened Youtube."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome.\nOpened Youtube."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome.\nOpened Youtube."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome.\nOpened Youtube."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome.\nOpened Youtube."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Notepad."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Notepad."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Failed: close_last"
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Closed chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Couldn't open Calculator."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Notepad."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Youtube."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Github."
     }
 ]

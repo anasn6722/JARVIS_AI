@@ -1,4 +1,4 @@
-from ai.agent.planner import Planner
+from ai.agent.rule_planner import Planner
 
 planner = Planner()
 

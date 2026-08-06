@@ -1,10 +1,18 @@
-from dataclasses import dataclass
+import uuid
+from dataclasses import dataclass, field
 
 
 @dataclass
 class Task:
-    action: str
+
+    id: str = ""
+
+    action: str = ""
     target: str = ""
+
+    depends_on: list[str] = field(
+        default_factory=list
+    )
 
     completed: bool = False
     success: bool = False
@@ -14,3 +22,8 @@ class Task:
 
     result: str = ""
     error: str = ""
+
+    def __post_init__(self):
+
+        if not self.id:
+            self.id = str(uuid.uuid4())[:8]

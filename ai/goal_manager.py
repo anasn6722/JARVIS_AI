@@ -1,254 +1,86 @@
-import json
 from datetime import datetime
-from pathlib import Path
+from uuid import uuid4
+
+from ai.memory.goal_record import GoalRecord
 
 
 class GoalManager:
 
-    FILE = Path("data/goals.json")
+    def __init__(self, goal_memory):
+        self.goal_memory = goal_memory
 
-    def __init__(self):
+    # -------------------------
+    # Create Goal
+    # -------------------------
 
-        self.FILE.parent.mkdir(exist_ok=True)
+    def create_goal(self, title, tasks):
 
-        if not self.FILE.exists():
-            self.FILE.write_text(
-                "[]",
-                encoding="utf-8",
-            )
+        goal = GoalRecord(
+            id=str(uuid4()),
+            title=title,
+            created=datetime.now(),
+            tasks=tasks,
+        )
 
-        self.goals = self.load()
+        self.goal_memory.add(goal)
 
-    def load(self):
-        try:
-            with open(
-                self.FILE,
-                "r",
-                encoding="utf-8",
-            ) as f:
-                goals = json.load(f)
-    
-        except (FileNotFoundError, json.JSONDecodeError):
-            goals = []
-            with open(
-                self.FILE,
-                "w",
-                encoding="utf-8",
-            ) as f:
-                json.dump(goals, f, indent=4)
-    
-        migrated = []
-    
-        for goal in goals:
-        
-            if isinstance(goal, str):
-                migrated.append(
-                    {
-                        "title": goal,
-                        "created": "",
-                        "deadline": "",
-                        "progress": 0,
-                        "completed": False,
-                        "tasks": [],
-                    }
-                )
-            else:
-                migrated.append(goal)
-    
-        self.goals = migrated
-        self.save()
-    
-        return migrated
-    def save(self):
+        return goal
 
-        with open(
-            self.FILE,
-            "w",
-            encoding="utf-8",
-        ) as f:
+    # -------------------------
+    # Read
+    # -------------------------
 
-            json.dump(
-                self.goals,
-                f,
-                indent=4,
-            )
+    def get_goal(self, goal_id):
 
-    def add(
-        self,
-        title,
-        deadline="",
-    ):
+        return self.goal_memory.get(goal_id)
 
-        title = title.strip()
+    def all_goals(self):
 
-        if not title:
+        return self.goal_memory.all()
+
+    # -------------------------
+    # Delete
+    # -------------------------
+
+    def delete_goal(self, goal_id):
+
+        self.goal_memory.remove(goal_id)
+
+    # -------------------------
+    # Progress
+    # -------------------------
+
+    def update_progress(self, goal):
+
+        if not goal.tasks:
+
+            goal.progress = 100
+            goal.completed = True
             return
 
-        goal = {
-            "title": title,
-            "created": datetime.now().strftime(
-                "%Y-%m-%d %H:%M"
-            ),
-            "deadline": deadline,
-            "progress": 0,
-            "completed": False,
-            "tasks": [],
-        }
+        completed = sum(
+            task.completed
+            for task in goal.tasks
+        )
 
-        self.goals.append(goal)
+        goal.progress = (
+            completed / len(goal.tasks)
+        ) * 100
 
-        self.save()
+        goal.completed = (
+            completed == len(goal.tasks)
+        )
 
-    def remove(self, title):
+    # -------------------------
+    # Next Task
+    # -------------------------
 
-        self.goals = [
-            goal
-            for goal in self.goals
-            if goal["title"] != title
-        ]
+    def next_task(self, goal):
 
-        self.save()
+        for task in goal.tasks:
 
-    def all(self):
+            if not task.completed:
 
-        return self.goals
-
-    def clear(self):
-
-        self.goals = []
-
-        self.save()
-
-    def update_progress(
-        self,
-        title,
-        progress,
-    ):
-
-        for goal in self.goals:
-
-            if goal["title"] == title:
-
-                goal["progress"] = max(
-                    0,
-                    min(progress, 100),
-                )
-
-                if goal["progress"] == 100:
-                    goal["completed"] = True
-
-                break
-
-        self.save()
-
-    def add_task(
-        self,
-        title,
-        task,
-    ):
-
-        for goal in self.goals:
-
-            if goal["title"] == title:
-
-                goal["tasks"].append(
-                    {
-                        "task": task,
-                        "done": False,
-                    }
-                )
-
-                break
-
-        self.save()
-
-    def complete_task(
-        self,
-        title,
-        task,
-    ):
-
-        for goal in self.goals:
-
-            if goal["title"] == title:
-
-                for t in goal["tasks"]:
-
-                    if t["task"] == task:
-
-                        t["done"] = True
-
-                total = len(goal["tasks"])
-
-                if total:
-
-                    done = sum(
-                        1
-                        for t in goal["tasks"]
-                        if t["done"]
-                    )
-
-                    goal["progress"] = int(
-                        done / total * 100
-                    )
-
-                    if all(t["done"] for t in goal["tasks"]):
-                    
-                        goal["completed"] = True
-                        goal["progress"] = 100
-
-                break
-
-        self.save()
-
-    def next_task(self, title):
-
-        for goal in self.goals:
-
-            if goal["title"] == title:
-
-                for task in goal["tasks"]:
-
-                    if not task["done"]:
-                        return task
+                return task
 
         return None
-
-    def progress(self, title):
-
-        for goal in self.goals:
-
-            if goal["title"] == title:
-
-                total = len(goal["tasks"])
-
-                if total == 0:
-                    return 0
-
-                done = sum(
-                    1
-                    for task in goal["tasks"]
-                    if task["done"]
-                )
-
-                return int(done / total * 100)
-
-        return 0
-
-    def complete_goal(self, title):
-
-        for goal in self.goals:
-
-            if goal["title"] == title:
-
-                goal["completed"] = True
-                goal["progress"] = 100
-
-                for task in goal["tasks"]:
-                    task["done"] = True
-
-                self.save()
-
-                return True
-
-        return False

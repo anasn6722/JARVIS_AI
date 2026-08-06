@@ -1,37 +1,40 @@
-from ai.planner.task import Task
+from ai.agent.task import Task
 
 
 class TaskParser:
+
     """
-    Converts raw AI output into Task objects.
+    Converts AI JSON into Task objects.
     """
 
-    def parse(self, ai_output: str):
+    def parse(self, ai_tasks):
+
         tasks = []
 
-        if not ai_output:
+        if not ai_tasks:
             return tasks
 
-        for line in ai_output.splitlines():
+        for item in ai_tasks:
 
-            line = line.strip()
-
-            if not line:
+            if not isinstance(item, dict):
                 continue
 
-            parts = line.split(":", 1)
+            action = item.get("action")
+            target = item.get("target")
 
-            if len(parts) != 2:
+            if not action:
                 continue
-
-            action = parts[0].strip().lower()
-            target = parts[1].strip()
 
             tasks.append(
+
                 Task(
+
                     action=action,
+
                     target=target,
+
                 )
+
             )
 
         return tasks
