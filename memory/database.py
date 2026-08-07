@@ -90,6 +90,28 @@ class Database:
         )
         """)
         self.conn.commit()
+        # ----------------------------
+        # AI Memories
+        # ----------------------------
+        self.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS memories(
+
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            category TEXT,
+
+            content TEXT,
+
+            importance INTEGER DEFAULT 1,
+
+            created DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+            last_access DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+            access_count INTEGER DEFAULT 0
+
+        )
+        """)
 
 
     # ======================================
@@ -267,6 +289,104 @@ class Database:
             """
         )  
         return self.cursor.fetchall()
+
+    def add_memory(
+        self,
+        category,
+        content,
+        importance=1,
+    ):
+
+        self.cursor.execute(
+            """
+            INSERT INTO memories(
+                category,
+                content,
+                importance
+            )
+            VALUES(?, ?, ?)
+            """,
+            (
+                category,
+                content,
+                importance,
+            ),
+        )
+
+        self.conn.commit()
+
+    def get_memories(
+        self,
+        category=None,
+    ):
+
+        if category:
+
+            self.cursor.execute(
+                """
+                SELECT
+                    id,
+                    category,
+                    content,
+                    importance
+                FROM memories
+                WHERE category=?
+                ORDER BY importance DESC
+                """,
+                (category,),
+            )
+
+        else:
+
+            self.cursor.execute(
+                """
+                SELECT
+                    id,
+                    category,
+                    content,
+                    importance
+                FROM memories
+                ORDER BY importance DESC
+                """
+            )
+
+        return self.cursor.fetchall()
+
+    def search_memories(
+        self,
+        keyword,
+    ):
+
+        self.cursor.execute(
+            """
+            SELECT
+                id,
+                category,
+                content,
+                importance
+            FROM memories
+            WHERE content LIKE ?
+            ORDER BY importance DESC
+            """,
+            (f"%{keyword}%",),
+        )
+
+        return self.cursor.fetchall()
+
+    def delete_memory(
+        self,
+        memory_id,
+    ):
+    
+        self.cursor.execute(
+            """
+            DELETE FROM memories
+            WHERE id=?
+            """,
+            (memory_id,),
+        )
+    
+        self.conn.commit()
     # ==================================================
     # Close Database
     # ==================================================

@@ -1,27 +1,20 @@
-from memory.database import Database
-
-
 class HistoryMemory:
 
-    def __init__(self):
+    def __init__(self, db):
 
-        self.db = Database()
+        self.db = db
 
     def add(self, speaker, message):
 
         self.db.cursor.execute(
-
             """
             INSERT INTO history(
                 speaker,
                 message
             )
-
-            VALUES(?,?)
+            VALUES(?, ?)
             """,
-
-            (speaker, message)
-
+            (speaker, message),
         )
 
         self.db.conn.commit()
@@ -29,19 +22,13 @@ class HistoryMemory:
     def last(self, limit=10):
 
         self.db.cursor.execute(
-
             """
-            SELECT speaker,message
-
+            SELECT speaker, message
             FROM history
-
             ORDER BY id DESC
-
             LIMIT ?
             """,
-
-            (limit,)
-
+            (limit,),
         )
 
         return self.db.cursor.fetchall()

@@ -3,9 +3,9 @@ from memory.database import Database
 
 class GoalMemory:
 
-    def __init__(self):
+    def __init__(self, db):
 
-        self.db = Database()
+        self.db = db
 
     def add(self, goal):
 

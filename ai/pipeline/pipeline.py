@@ -1,3 +1,4 @@
+from ai.pipeline.ai_stage import AIStage
 from ai.pipeline.command_stage import CommandStage
 from ai.pipeline.execution_stage import ExecutionStage
 from ai.pipeline.memory_stage import MemoryStage
@@ -18,6 +19,8 @@ class Pipeline:
 
             ReasoningStage(brain),
 
+            AIStage(brain),
+
             PlanningStage(brain),
 
             ExecutionStage(brain),
@@ -29,10 +32,16 @@ class Pipeline:
 
     def run(self, context):
 
+        print("\n===== PIPELINE START =====")
+    
         for stage in self.stages:
-
+        
+            print(f"Running: {stage.__class__.__name__}")
+    
             stage.run(context)
-
+    
             if context.stop:
-
+                print("Pipeline stopped.")
                 break
+            
+        print("===== PIPELINE END =====\n")

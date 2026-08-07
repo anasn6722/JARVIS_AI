@@ -1,58 +1,32 @@
-import json
-from pathlib import Path
+from memory.database import Database
 
 
 class ChatMemory:
-    def __init__(self):
-        self.file = Path("data/history.json")
-        self.history = []
 
-        self.load()
+    def __init__(self, db: Database):
+        self.db = db
 
     def add(self, speaker: str, message: str):
-        self.history.append(
-            {
-                "speaker": speaker,
-                "message": message,
-            }
-        )
-
-        self.save()
+        self.db.add_history(speaker, message)
 
     def recent(self, limit=10):
-        return self.history[-limit:]
+        history = self.db.get_history()
+        return history[-limit:]
 
     def last(self):
-        if self.history:
-            return self.history[-1]
-
+        history = self.db.get_history()
+        if history:
+            speaker, message, timestamp = history[-1]
+            return {
+                "speaker": speaker,
+                "message": message,
+                "timestamp": timestamp,
+            }
         return None
 
     def clear(self):
-        self.history.clear()
-        self.save()
+        self.db.cursor.execute("DELETE FROM history")
+        self.db.conn.commit()
 
     def get_all(self):
-        return self.history
-
-    def load(self):
-      
-        try:
-          with open(self.file, "r", encoding="utf-8") as f:
-            self.history = json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
-            self.history = []
-        
-
-    def save(self):
-        with open(
-            self.file,
-            "w",
-            encoding="utf-8",
-        ) as f:
-
-            json.dump(
-                self.history,
-                f,
-                indent=4,
-            )
+        return self.db.get_history()

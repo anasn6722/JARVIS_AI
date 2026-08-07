@@ -3,23 +3,16 @@ class ReasoningStage:
     def __init__(self, brain):
         self.brain = brain
 
-
     def run(self, context):
 
         context.decisions = []
-
+        context.decision = None
 
         for item in context.commands:
 
             command = item["command"]
 
-
-            decision = (
-                self.brain.reasoning.decide(
-                    command
-                )
-            )
-
+            decision = self.brain.reasoning.decide(command)
 
             context.decisions.append(
                 {
@@ -28,6 +21,8 @@ class ReasoningStage:
                 }
             )
 
+            # Keep the current decision for AIStage
+            context.decision = decision
 
             print("=" * 50)
             print("REASONING")

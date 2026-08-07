@@ -25,7 +25,10 @@ from ai.handlers.goal_handler import GoalHandler
 from ai.handlers.memory_handler import MemoryHandler
 from ai.history.action_history import ActionHistory
 from ai.intent_classifier import IntentClassifier
-from ai.llm import LLM
+from ai.knowledge.knowledge_manager import KnowledgeManager
+from ai.knowledge.source_registry import SourceRegistry
+from ai.knowledge.wikipedia_source import WikipediaSource
+from ai.llm.llm import LLM
 from ai.managers.command_manager import CommandManager
 from ai.managers.planning_manager import PlanningManager
 from ai.memory.goal_memory import GoalMemory
@@ -49,6 +52,7 @@ from automation.system import SystemController
 from automation.web import WebController
 from memory.auto_memory import AutoMemoryExtractor
 from memory.chat_memory import ChatMemory
+from memory.database import Database
 from memory.memory_manager import MemoryManager
 from memory.memory_service import MemoryService
 from memory.profile_memory import ProfileMemory
@@ -60,14 +64,30 @@ class ServiceBuilder:
 
     @staticmethod
     def build(brain):
+        
 
         brain.system = SystemController()
         brain.web = WebController()
+        brain.database = Database()
 
-        brain.chat_memory = ChatMemory()
-        brain.profile = ProfileMemory()
+        brain.chat_memory = ChatMemory(brain.database)
+        brain.profile = ProfileMemory(brain.database)
+        
         brain.memory = MemoryService()
-        brain.memory_manager = MemoryManager()
+        brain.memory_manager = MemoryManager(brain.database)
+        # -------------------------
+        # Knowledge
+        # -------------------------
+
+        brain.source_registry = SourceRegistry()
+
+        brain.source_registry.register(
+            WikipediaSource()
+        )
+
+        brain.knowledge_manager = KnowledgeManager(
+            brain.source_registry
+        )
 
         brain.llm = LLM()
 
@@ -206,4 +226,6 @@ class ServiceBuilder:
         brain.execution_handler = ExecutionHandler(brain)
         ToolRegistryBuilder.build(brain)
         brain.workflow_manager = WorkflowManager(brain.tool_executor)
+        
+        
         
