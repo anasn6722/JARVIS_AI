@@ -10,5 +10,17 @@
     {
         "speaker": "Assistant",
         "message": "Opened Youtube."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
+    },
+    {
+        "speaker": "Assistant",
+        "message": "Opened Chrome."
     }
 ]

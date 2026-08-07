@@ -33,16 +33,12 @@ class WorkflowManager:
         tasks=None,
         graph=None,
     ):
-
         if graph is not None:
-
-            return self.graph_runner.run(
-                graph,
-            )
-
-        return self.linear_runner.run(
-            tasks,
-        )
+            print(">>> USING GRAPH RUNNER")
+            return self.graph_runner.run(graph)
+    
+        print(">>> USING LINEAR RUNNER")
+        return self.linear_runner.run(tasks)
 
     def run_action(
         self,

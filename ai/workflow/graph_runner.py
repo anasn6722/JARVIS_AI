@@ -15,66 +15,57 @@ class GraphRunner:
         self.events = events
         self.retry_manager = retry_manager
 
-    def run(
-        self,
-        graph,
-    ):
+    def run(self, graph):
 
-        context = WorkflowContext([])
-
-        context.status = WorkflowStatus.RUNNING
-
-        self.events.publish(
-            WorkflowEvent(
-                name="GRAPH_STARTED",
-                data=context,
+        print("=" * 60)
+        print("GRAPH RUNNER START")
+        print("=" * 60)
+    
+        print("Nodes in graph:")
+    
+        for node in graph.all_nodes():
+            print(
+                node.id,
+                node.task.action,
+                node.task.target,
             )
-        )
-
+    
+        context = WorkflowContext([])
+    
+        context.status = WorkflowStatus.RUNNING
+    
         while True:
-
+        
             ready = self.ready_nodes(graph)
-
+    
+            print("READY:", len(ready))
+    
             if not ready:
                 break
-
+            
             for node in ready:
-
-                success = self.execute_node(node)
-
-                if success:
-
-                    context.completed.append(
-                        node.task
-                    )
-
-                else:
-
-                    context.failed.append(
-                        node.task
-                    )
-
-                    context.result.errors.append(
-                        node.task.error
-                    )
-
-        if context.failed:
-
-            context.status = WorkflowStatus.FAILED
-
-        else:
-
-            context.status = WorkflowStatus.COMPLETED
-
-        self.events.publish(
-            WorkflowEvent(
-                name="GRAPH_FINISHED",
-                data=context,
-            )
-        )
-
-        return self.build_result(context)
-
+            
+                print(
+                    "Executing:",
+                    node.task.action,
+                    node.task.target,
+                )
+    
+                self.execute_node(node)
+    
+        print("=" * 60)
+        print("GRAPH RUNNER FINISHED")
+        print("=" * 60)
+    
+        responses = []
+    
+        for node in graph.all_nodes():
+        
+            if node.task.success and node.task.result:
+            
+                responses.append(node.task.result)
+    
+        return "\n".join(responses)
     def ready_nodes(
         self,
         graph,
