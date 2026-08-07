@@ -31,4 +31,12 @@ class HistoryMemory:
             (limit,),
         )
 
-        return self.db.cursor.fetchall()
+        rows = self.db.cursor.fetchall()
+
+        return [
+            {
+                "speaker": row[0],
+                "message": row[1],
+            }
+            for row in rows
+        ]

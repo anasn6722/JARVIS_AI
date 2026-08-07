@@ -13,3 +13,5 @@ class KnowledgeResult:
     content: str
 
     confidence: float = 1.0
+
+    error: str = ""

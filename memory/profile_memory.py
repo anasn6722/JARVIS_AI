@@ -3,11 +3,44 @@ from memory.database import Database
 
 class ProfileMemory:
 
-    def __init__(self, db: Database):
-        self.db = db
+    def __init__(self, db):
 
-    def set(self, key, value):
-        self.db.set_profile(key, value)
+        self.db = db    
 
-    def get(self, key):
-        return self.db.get_profile(key)
+
+    def set(self,key,value):
+
+        self.db.cursor.execute(
+            """
+            INSERT INTO profile(key,value)
+            VALUES(?,?)
+            ON CONFLICT(key)
+            DO UPDATE SET value=excluded.value
+            """,
+            (
+                key,
+                value,
+            )
+        )
+
+        self.db.conn.commit()
+
+
+
+    def get(self,key):
+
+        self.db.cursor.execute(
+            """
+            SELECT value
+            FROM profile
+            WHERE key=?
+            """,
+            (key,)
+        )
+
+        row=self.db.cursor.fetchone()
+
+        if row:
+            return row[0]
+
+        return None

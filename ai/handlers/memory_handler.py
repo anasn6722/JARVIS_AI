@@ -56,7 +56,7 @@ class MemoryHandler:
         if not name:
             return "Please tell me your name."
 
-        self.brain.profile.set(
+        self.brain.memory_manager.profile.set(
             "name",
             name,
         )
@@ -65,7 +65,7 @@ class MemoryHandler:
 
     def get_name(self):
 
-        name = self.brain.profile.get(
+        name = self.brain.memory_manager.profile.get(
             "name"
         )
 
