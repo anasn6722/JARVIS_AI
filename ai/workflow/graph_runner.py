@@ -1,5 +1,3 @@
-from ai.workflow.event_bus import EventBus
-from ai.workflow.retry_manager import RetryManager
 from ai.workflow.workflow_context import WorkflowContext
 from ai.workflow.workflow_event import WorkflowEvent
 from ai.workflow.workflow_status import WorkflowStatus
@@ -10,11 +8,12 @@ class GraphRunner:
     def __init__(
         self,
         tool_executor,
+        events,
+        retry_manager,
     ):
-
         self.tool_executor = tool_executor
-        self.events = EventBus()
-        self.retry_manager = RetryManager()
+        self.events = events
+        self.retry_manager = retry_manager
 
     def run(
         self,
@@ -41,9 +40,31 @@ class GraphRunner:
 
             for node in ready:
 
-                self.execute_node(node)
+                success = self.execute_node(node)
 
-        context.status = WorkflowStatus.COMPLETED
+                if success:
+
+                    context.completed.append(
+                        node.task
+                    )
+
+                else:
+
+                    context.failed.append(
+                        node.task
+                    )
+
+                    context.result.errors.append(
+                        node.task.error
+                    )
+
+        if context.failed:
+
+            context.status = WorkflowStatus.FAILED
+
+        else:
+
+            context.status = WorkflowStatus.COMPLETED
 
         self.events.publish(
             WorkflowEvent(
@@ -52,17 +73,12 @@ class GraphRunner:
             )
         )
 
-        return context
+        return self.build_result(context)
 
-    def root_nodes(self, graph):
-        return [
-            node
-            for node in graph.all_nodes()
-            if not node.parents
-        ]
-
-
-    def ready_nodes(self, graph):
+    def ready_nodes(
+        self,
+        graph,
+    ):
 
         ready = []
 
@@ -71,7 +87,7 @@ class GraphRunner:
             if node.completed:
                 continue
 
-            if node.running:
+            if getattr(node, "running", False):
                 continue
 
             parents_complete = True
@@ -124,14 +140,41 @@ class GraphRunner:
 
             return False
 
-
-    def execute_ready_nodes(
+    def build_result(
         self,
-        graph,
+        context,
     ):
 
-        ready = self.ready_nodes(graph)
+        responses = []
 
-        for node in ready:
+        for task in context.completed:
 
-            self.execute_node(node)
+            if task.result:
+
+                responses.append(
+                    task.result
+                )
+
+        for task in context.failed:
+
+            responses.append(
+                f"Failed: {task.action}"
+            )
+
+        context.result.success = (
+            len(context.failed) == 0
+        )
+
+        context.result.completed_tasks = len(
+            context.completed
+        )
+
+        context.result.failed_tasks = len(
+            context.failed
+        )
+
+        context.result.response = "\n".join(
+            responses
+        )
+
+        return context.result.response

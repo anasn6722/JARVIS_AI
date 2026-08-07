@@ -16,6 +16,8 @@ class PipelineContext:
 
         self.tasks = []
 
+        self.graph = None  
+
         self.response = None
 
         self.stop = False

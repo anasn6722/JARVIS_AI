@@ -42,6 +42,8 @@ class ExecutionManager:
 
         if response:
 
+            print(type(response))
+            print(response)
             self.brain.chat_memory.add(
                 "Assistant",
                 response,

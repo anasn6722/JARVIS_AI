@@ -43,6 +43,7 @@ from ai.skills.skill_manager import SkillManager
 from ai.skills.system_skill import SystemSkill
 from ai.tools.tool_executor import ToolExecutor
 from ai.tools.tool_registry import ToolRegistry
+from ai.workflow.graph_builder import GraphBuilder
 from ai.workflow.workflow_manager import WorkflowManager
 from automation.system import SystemController
 from automation.web import WebController
@@ -98,6 +99,7 @@ class ServiceBuilder:
         brain.conversation_memory = ConversationMemory()
         brain.command_splitter = CommandSplitter()
         brain.task_parser = TaskParser()
+        brain.graph_builder = GraphBuilder()
 
         
 

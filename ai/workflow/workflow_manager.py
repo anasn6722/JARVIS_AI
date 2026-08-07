@@ -7,7 +7,10 @@ from ai.workflow.scheduler import Scheduler
 
 class WorkflowManager:
 
-    def __init__(self, tool_executor):
+    def __init__(
+        self,
+        tool_executor,
+    ):
 
         self.tool_executor = tool_executor
 
@@ -15,22 +18,31 @@ class WorkflowManager:
         self.retry_manager = RetryManager()
         self.scheduler = Scheduler(self)
 
-        self.linear_runner = LinearRunner(tool_executor)
-        self.graph_runner = GraphRunner(tool_executor)
+        self.linear_runner = LinearRunner(
+            tool_executor,
+        )
 
+        self.graph_runner = GraphRunner(
+            tool_executor,
+            self.events,
+            self.retry_manager,
+        )
 
     def run(
         self,
-        workflow,
+        tasks=None,
+        graph=None,
     ):
 
-        if hasattr(workflow, "nodes"):
+        if graph is not None:
 
-            return self.graph_runner.run(workflow)
+            return self.graph_runner.run(
+                graph,
+            )
 
-        return self.linear_runner.run(workflow)
-
-
+        return self.linear_runner.run(
+            tasks,
+        )
 
     def run_action(
         self,
@@ -40,13 +52,11 @@ class WorkflowManager:
 
         from ai.agent.task import Task
 
-
         task = Task(
             action=action,
             target=target,
         )
 
-
         return self.run(
-            [task]
+            tasks=[task],
         )

@@ -29,7 +29,10 @@ class ExecutionManager:
             context.response = None
             return None
 
-        response = self.execution_engine.execute(tasks)
+        response = self.execution_engine.execute(
+            tasks=tasks,
+            graph=context.graph,
+        )
 
         context.response = response
 

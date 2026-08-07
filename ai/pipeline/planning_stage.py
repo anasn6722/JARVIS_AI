@@ -19,8 +19,12 @@ class PlanningStage:
             tasks = self.brain.planning_manager.plan(
                 command
             )
-
+            
             context.tasks.extend(tasks)
+            
+            context.graph = self.brain.graph_builder.build(
+                tasks
+            )
 
         print("=" * 50)
         print("ALL PLANNED TASKS")

@@ -36,15 +36,13 @@ class ChatMemory:
         return self.history
 
     def load(self):
-        if self.file.exists():
-
-            with open(
-                self.file,
-                "r",
-                encoding="utf-8",
-            ) as f:
-
-                self.history = json.load(f)
+      
+        try:
+          with open(self.file, "r", encoding="utf-8") as f:
+            self.history = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            self.history = []
+        
 
     def save(self):
         with open(
