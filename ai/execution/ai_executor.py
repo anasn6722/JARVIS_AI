@@ -10,14 +10,12 @@ class AIExecutor:
         self.conversation_manager = conversation_manager
         self.memory = memory
 
-    def execute(self, context):
-
-        history = self.conversation_manager.history()
-
-        name = self.memory.get_name()
-
-        return self.llm.ask(
+    def execute(
+        self,
+        context,
+    ):
+        return self.llm.generate(
             prompt=context.command.original,
-            history=history,
-            name=name,
+            history=self.conversation_manager.history(),
+            name=self.memory.get_name(),
         )

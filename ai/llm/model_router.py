@@ -1,28 +1,70 @@
+from google.genai.errors import APIError, ClientError
+
 from ai.model_manager import ModelManager
+from core.logger import logger
 
 
 class ModelRouter:
 
-    def __init__(self):
+    def __init__(
+        self,
+        provider,
+    ):
+        self.provider = provider
+        self.model_manager = ModelManager()
 
-        self.manager = ModelManager()
+    def generate(
+        self,
+        conversation,
+    ):
 
-    @property
-    def current(self):
+        for _ in range(len(self.model_manager.models)):
 
-        return self.manager.current
+            model = self.model_manager.current
 
-    def next(self):
+            try:
 
-        self.manager.next_model()
+                logger.info(
+                    "Using AI model: %s",
+                    model,
+                )
 
-    def reset(self):
+                response = self.provider.generate(
+                    model=model,
+                    conversation=conversation,
+                )
 
-        self.manager.reset()
+                self.model_manager.reset()
 
-    @property
-    def count(self):
+                return response
 
-        return len(
-            self.manager.models
+            except APIError as e:
+
+                logger.warning(
+                    "Model %s failed: %s",
+                    model,
+                    e,
+                )
+
+                self.model_manager.next_model()
+
+            except ClientError as e:
+
+                logger.error(
+                    "Client Error: %s",
+                    e,
+                )
+
+                return (
+                    "I couldn't connect to the AI service."
+                )
+
+        logger.error(
+            "All AI models failed."
+        )
+
+        self.model_manager.reset()
+
+        return (
+            "I'm unable to contact my AI brain right now."
         )

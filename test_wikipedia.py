@@ -1,4 +1,4 @@
-from ai.knowledge.wikipedia_source import WikipediaSource
+from ai.knowledge.sources.wikipedia_source import WikipediaSource
 
 wiki = WikipediaSource()
 

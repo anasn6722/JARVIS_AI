@@ -1,4 +1,8 @@
+from ai.prompt import build_prompt
+
+
 class ConversationBuilder:
+    
 
     def build(
         self,

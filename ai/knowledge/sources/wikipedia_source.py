@@ -1,7 +1,7 @@
 import wikipedia
 
-from ai.knowledge.knowledge_result import KnowledgeResult
-from ai.knowledge.knowledge_source import KnowledgeSource
+from ai.knowledge.models.knowledge_result import KnowledgeResult
+from ai.knowledge.sources.base import KnowledgeSource
 
 
 class WikipediaSource(KnowledgeSource):

@@ -1,15 +1,11 @@
-from google import genai
-
-from config.settings import GEMINI_API_KEY
+from ai.llm.providers.gemini import GeminiProvider
 
 
 class LLMClient:
 
     def __init__(self):
 
-        self.client = genai.Client(
-            api_key=GEMINI_API_KEY
-        )
+        self.provider = GeminiProvider()
 
     def generate(
         self,
@@ -17,11 +13,7 @@ class LLMClient:
         conversation,
     ):
 
-        response = (
-            self.client.models.generate_content(
-                model=model,
-                contents=conversation,
-            )
+        return self.provider.generate(
+            model=model,
+            conversation=conversation,
         )
-
-        return response.text

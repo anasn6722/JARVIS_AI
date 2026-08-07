@@ -3,8 +3,8 @@ from memory.database import Database
 
 class MemoryService:
 
-    def __init__(self):
-        self.db = Database()
+    def __init__(self , db:Database):
+        self.db = db
 
     # ----------------------------
     # Profile Memory
@@ -55,3 +55,28 @@ class MemoryService:
 
     def upcoming_events(self):
         return self.db.get_events()
+
+    def search(self, query):
+
+        query = query.lower()
+    
+        # Profile fields
+        profile_keys = (
+            "name",
+            "city",
+            "country",
+            "favorite_language",
+        )
+    
+        for key in profile_keys:
+        
+            value = self.recall(key)
+    
+            if value:
+            
+                text = f"{key} {value}".lower()
+    
+                if query in text:
+                    return f"{key.replace('_',' ')}: {value}"
+    
+        return None

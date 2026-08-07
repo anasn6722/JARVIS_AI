@@ -25,10 +25,11 @@ from ai.handlers.goal_handler import GoalHandler
 from ai.handlers.memory_handler import MemoryHandler
 from ai.history.action_history import ActionHistory
 from ai.intent_classifier import IntentClassifier
-from ai.knowledge.knowledge_manager import KnowledgeManager
+from ai.knowledge.manager import KnowledgeManager
 from ai.knowledge.source_registry import SourceRegistry
-from ai.knowledge.wikipedia_source import WikipediaSource
-from ai.llm.llm import LLM
+from ai.knowledge.sources.memory_source import MemorySource
+from ai.knowledge.sources.wikipedia_source import WikipediaSource
+from ai.llm.manager import LLMManager
 from ai.managers.command_manager import CommandManager
 from ai.managers.planning_manager import PlanningManager
 from ai.memory.goal_memory import GoalMemory
@@ -66,20 +67,40 @@ class ServiceBuilder:
     def build(brain):
         
 
+        # =====================================================
+        # Core
+        # =====================================================
+
         brain.system = SystemController()
         brain.web = WebController()
         brain.database = Database()
 
+        # =====================================================
+        # Database & Memory
+        # =====================================================
+
         brain.chat_memory = ChatMemory(brain.database)
         brain.profile = ProfileMemory(brain.database)
-        
-        brain.memory = MemoryService()
+
+        brain.memory = MemoryService(brain.database)
         brain.memory_manager = MemoryManager(brain.database)
-        # -------------------------
+
+        brain.goal_memory = GoalMemory()
+        brain.goal_manager = GoalManager(brain.goal_memory)
+
+        brain.memory_query_parser = MemoryQueryParser()
+        brain.memory_extractor = MemoryExtractor()
+        brain.auto_memory = AutoMemoryExtractor()
+
+        # =====================================================
         # Knowledge
-        # -------------------------
+        # =====================================================
 
         brain.source_registry = SourceRegistry()
+
+        brain.source_registry.register(
+            MemorySource(brain.memory)
+        )
 
         brain.source_registry.register(
             WikipediaSource()
@@ -89,39 +110,45 @@ class ServiceBuilder:
             brain.source_registry
         )
 
-        brain.llm = LLM()
+        # =====================================================
+        # AI / LLM
+        # =====================================================
+
+        brain.llm = LLMManager()
+
+        # =====================================================
+        # Plugins
+        # =====================================================
 
         brain.plugin_manager = PluginManager()
+
+        # =====================================================
+        # Context
+        # =====================================================
 
         brain.context = ContextManager()
         brain.session = SessionContext()
         brain.action_history = ActionHistory()
 
+        # =====================================================
+        # NLP
+        # =====================================================
+
         brain.intent_classifier = IntentClassifier()
         brain.entity_extractor = EntityExtractor()
         brain.goal_classifier = GoalClassifier()
 
-        brain.goal_memory = GoalMemory()
-        brain.goal_manager = GoalManager(
-            brain.goal_memory
-        )
-        brain.memory_query_parser = MemoryQueryParser()
-        brain.memory_extractor = MemoryExtractor()
-        brain.auto_memory = AutoMemoryExtractor()
-
-        brain.skill_manager = SkillManager()
-
-        
-
-        brain.execution_engine = ExecutionEngine(brain)
+        # =====================================================
+        # Conversation
+        # =====================================================
 
         brain.conversation_manager = ConversationManager()
         brain.conversation_memory = ConversationMemory()
+
         brain.command_splitter = CommandSplitter()
         brain.task_parser = TaskParser()
-        brain.graph_builder = GraphBuilder()
 
-        
+        brain.graph_builder = GraphBuilder()
 
         brain.reference_resolver = ReferenceResolver(
             brain.conversation_memory
@@ -129,48 +156,21 @@ class ServiceBuilder:
 
         brain.reasoning = ReasoningEngine(brain)
 
-        brain.execution_manager = ExecutionManager(
-            execution_engine=brain.execution_engine,
-            conversation_memory=brain.conversation_memory,
-            chat_memory=brain.chat_memory,
-            conversation_manager=brain.conversation_manager,
-            context=brain.context,
-            action_history=brain.action_history,
-        )
+        # =====================================================
+        # Planning
+        # =====================================================
 
-
-
-        brain.ai_planner = AIPlanner(
-            brain.llm
-        )
+        brain.ai_planner = AIPlanner(brain.llm)
 
         brain.goal_ai_planner = GoalAIPlanner(
             brain.llm
         )
 
         brain.planner_registry = PlannerRegistry()
-        brain.ai_executor = AIExecutor(
-            brain.llm,
-            brain.conversation_manager,
-            brain.memory,
-        )
-        brain.builtin_executor = BuiltinExecutor(brain)
-        brain.plugin_executor = PluginExecutor(brain)
-        brain.planner_executor = PlannerExecutor(brain)
 
-
-
-        brain.planner_registry.register(
-            AppPlanner()
-        )
-
-        brain.planner_registry.register(
-            SearchPlanner()
-        )
-
-        brain.planner_registry.register(
-            MemoryPlanner()
-        )
+        brain.planner_registry.register(AppPlanner())
+        brain.planner_registry.register(SearchPlanner())
+        brain.planner_registry.register(MemoryPlanner())
 
         brain.planner_registry.register(
             GoalPlanner(
@@ -179,15 +179,8 @@ class ServiceBuilder:
             )
         )
 
-        brain.planner_registry.register(
-            TimePlanner()
-        )
-
-        brain.planner_registry.register(
-            IdentityPlanner()
-        )
-
-        
+        brain.planner_registry.register(TimePlanner())
+        brain.planner_registry.register(IdentityPlanner())
 
         brain.planning_manager = PlanningManager(
             brain.planner_registry,
@@ -195,23 +188,9 @@ class ServiceBuilder:
             brain,
         )
 
-        brain.command_manager = CommandManager(
-            brain.context,
-            brain.intent_classifier,
-            brain.entity_extractor,
-            brain.goal_classifier,
-            brain.reference_resolver,
-        )
-
-        brain.agent_verifier = AgentVerifier()
-
-        brain.skill_manager.register(
-            SystemSkill(brain)
-        )
-
-        # -------------------------
+        # =====================================================
         # Handlers
-        # -------------------------
+        # =====================================================
 
         brain.builtin = BuiltinHandler(brain)
 
@@ -224,8 +203,70 @@ class ServiceBuilder:
         brain.goal_handler = GoalHandler(brain)
 
         brain.execution_handler = ExecutionHandler(brain)
+
+        # =====================================================
+        # Tool System
+        # =====================================================
+
         ToolRegistryBuilder.build(brain)
-        brain.workflow_manager = WorkflowManager(brain.tool_executor)
-        
-        
-        
+
+        # =====================================================
+        # Workflow
+        # =====================================================
+
+        brain.workflow_manager = WorkflowManager(
+            brain.tool_executor
+        )
+
+        # =====================================================
+        # Execution
+        # =====================================================
+
+        brain.execution_engine = ExecutionEngine(
+            brain.workflow_manager
+        )
+
+        brain.execution_manager = ExecutionManager(
+            execution_engine=brain.execution_engine,
+            conversation_memory=brain.conversation_memory,
+            chat_memory=brain.chat_memory,
+            conversation_manager=brain.conversation_manager,
+            context=brain.context,
+            action_history=brain.action_history,
+        )
+
+        brain.ai_executor = AIExecutor(
+            brain.llm,
+            brain.conversation_manager,
+            brain.memory,
+        )
+
+        brain.builtin_executor = BuiltinExecutor(brain)
+
+        brain.plugin_executor = PluginExecutor(brain)
+
+        brain.planner_executor = PlannerExecutor(brain)
+
+        # =====================================================
+        # Command System
+        # =====================================================
+
+        brain.command_manager = CommandManager(
+            brain.context,
+            brain.intent_classifier,
+            brain.entity_extractor,
+            brain.goal_classifier,
+            brain.reference_resolver,
+        )
+
+        brain.agent_verifier = AgentVerifier()
+
+        # =====================================================
+        # Skills
+        # =====================================================   
+
+        brain.skill_manager = SkillManager()
+
+        brain.skill_manager.register(
+            SystemSkill(brain)
+        )  
