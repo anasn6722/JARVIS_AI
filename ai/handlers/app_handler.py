@@ -188,19 +188,84 @@ class AppHandler:
 
         return f"Closed {app.title()}."
 
+    
+    
     # =========================================================
     # CLOSE LAST
     # =========================================================
 
-    def close_last(self):
+    def close_last(self, argument=None):
 
-        app = self.brain.session.last_app
+        reference = None
 
-        if not app:
+        # -----------------------------------------------------
+        # Get latest memory reference
+        # -----------------------------------------------------
 
-            return (
-                "There is no previously opened "
-                "application."
+        if hasattr(
+            self.brain.conversation_memory,
+            "last_reference",
+        ):
+            reference = (
+                self.brain.conversation_memory.last_reference()
             )
 
-        return self.close(app)
+        print(
+            "🧠 CLOSE LAST REFERENCE:",
+            reference,
+        )
+
+        # -----------------------------------------------------
+        # No reference
+        # -----------------------------------------------------
+
+        if not reference:
+            return (
+                "There is no previously opened "
+                "application or website."
+            )
+
+        reference_type, reference_value = reference
+
+        # =====================================================
+        # APPLICATION
+        # =====================================================
+
+        if reference_type == "app":
+
+            return self.close(
+                reference_value
+            )
+
+        # =====================================================
+        # WEBSITE
+        # =====================================================
+
+        if reference_type == "website":
+
+            # -------------------------------------------------
+            # No WebManager exists.
+            # Websites run inside the browser, so close
+            # the browser for now.
+            # -------------------------------------------------
+
+            browser = "chrome"
+
+            result = self.close(browser)
+
+            if result.startswith("Closed Chrome"):
+                return (
+                    f"Closed {reference_value.title()} "
+                    f"by closing Chrome."
+                )
+
+            return result
+
+        # =====================================================
+        # UNKNOWN
+        # =====================================================
+
+        return (
+            "I don't know how to close "
+            "the last reference."
+        )
