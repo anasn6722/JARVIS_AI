@@ -8,7 +8,7 @@ class WindowManager:
 
     @staticmethod
     def list_windows():
-        """Return visible windows with their titles and handles."""
+        """Return visible windows with their handles and titles."""
 
         windows = []
 
@@ -34,9 +34,12 @@ class WindowManager:
 
     @staticmethod
     def find_window(name):
-        """Find a visible window whose title contains the given name."""
+        """Find a visible window whose title contains name."""
 
         name = name.lower().strip()
+
+        if not name:
+            return None
 
         for window in WindowManager.list_windows():
             if name in window["title"].lower():
@@ -46,7 +49,7 @@ class WindowManager:
 
     @staticmethod
     def get_active_window():
-        """Return information about the currently active window."""
+        """Return the currently active window."""
 
         hwnd = win32gui.GetForegroundWindow()
 
@@ -67,7 +70,13 @@ class WindowManager:
     def focus_window(hwnd):
         """Bring a window to the foreground."""
 
+        if not hwnd:
+            return False
+
         try:
+            if not win32gui.IsWindow(hwnd):
+                return False
+
             win32gui.ShowWindow(
                 hwnd,
                 win32con.SW_RESTORE,
@@ -77,14 +86,24 @@ class WindowManager:
 
             return True
 
-        except Exception:
+        except Exception as error:
+            print(
+                f"Window focus failed: {error}"
+            )
+
             return False
 
     @staticmethod
     def close_window(hwnd):
-        """Request a window to close."""
+        """Request a specific window to close."""
+
+        if not hwnd:
+            return False
 
         try:
+            if not win32gui.IsWindow(hwnd):
+                return False
+
             win32gui.PostMessage(
                 hwnd,
                 win32con.WM_CLOSE,
@@ -94,5 +113,9 @@ class WindowManager:
 
             return True
 
-        except Exception:
+        except Exception as error:
+            print(
+                f"Window close failed: {error}"
+            )
+
             return False
