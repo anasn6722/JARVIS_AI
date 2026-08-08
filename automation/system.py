@@ -1,14 +1,17 @@
-import os
-import shutil
 import subprocess
+
+from automation.application_resolver import ApplicationResolver
 
 
 class SystemController:
     """Controls Windows system applications and processes."""
 
-    # -------------------------
-    # Built-in Windows Apps
-    # -------------------------
+    def __init__(self):
+        self.application_resolver = ApplicationResolver()
+
+    # ============================================================
+    # BUILT-IN WINDOWS APPS
+    # ============================================================
 
     def open_notepad(self):
         """Open Windows Notepad."""
@@ -22,91 +25,17 @@ class SystemController:
         """Open Windows File Explorer."""
         subprocess.Popen(["explorer.exe"])
 
-    # -------------------------
-    # Open Programs
-    # -------------------------
-
-    def open_program(self, executable: str) -> bool:
-        """Open a Windows program or drive."""
+    def open_camera(self) -> bool:
+        """Open the Windows Camera app."""
 
         try:
-            executable = executable.strip()
-
-            if not executable:
-                return False
-
-            # -------------------------
-            # Windows Drive
-            # -------------------------
-
-            if executable.endswith(":"):
-                subprocess.Popen(
-                    ["explorer.exe", executable]
-                )
-                return True
-
-            # -------------------------
-            # Existing Full Path
-            # -------------------------
-
-            if os.path.isfile(executable):
-                subprocess.Popen([executable])
-                return True
-
-            # -------------------------
-            # Search Windows PATH
-            # -------------------------
-
-            program = shutil.which(executable)
-
-            if program:
-                subprocess.Popen([program])
-                return True
-
-            # -------------------------
-            # Search Executable Name
-            # -------------------------
-
-            executable_name = os.path.basename(
-                executable
+            subprocess.Popen(
+                [
+                    "explorer.exe",
+                    "microsoft.windows.camera:",
+                ]
             )
 
-            program = shutil.which(
-                executable_name
-            )
-
-            if program:
-                subprocess.Popen([program])
-                return True
-
-            # -------------------------
-            # Common Windows Locations
-            # -------------------------
-
-            common_locations = [
-                os.environ.get("ProgramFiles"),
-                os.environ.get("ProgramFiles(x86)"),
-                os.environ.get("LOCALAPPDATA"),
-            ]
-
-            for location in common_locations:
-                if not location:
-                    continue
-
-                candidate = os.path.join(
-                    location,
-                    executable_name,
-                )
-
-                if os.path.isfile(candidate):
-                    subprocess.Popen([candidate])
-                    return True
-
-            # -------------------------
-            # Final Fallback
-            # -------------------------
-
-            subprocess.Popen(executable)
             return True
 
         except (
@@ -116,9 +45,75 @@ class SystemController:
         ):
             return False
 
-    # -------------------------
-    # Close Programs
-    # -------------------------
+    # ============================================================
+    # OPEN PROGRAMS
+    # ============================================================
+
+    def open_program(
+        self,
+        executable: str,
+    ) -> bool:
+        """Open a Windows program or drive."""
+
+        try:
+            executable = executable.strip()
+
+            if not executable:
+                return False
+
+            # ----------------------------------------------------
+            # WINDOWS CAMERA
+            # ----------------------------------------------------
+
+            if executable.lower() in {
+                "camera",
+                "windows camera",
+            }:
+                return self.open_camera()
+
+            # ----------------------------------------------------
+            # WINDOWS DRIVE
+            # ----------------------------------------------------
+
+            if executable.endswith(":"):
+                subprocess.Popen(
+                    [
+                        "explorer.exe",
+                        executable,
+                    ]
+                )
+
+                return True
+
+            # ----------------------------------------------------
+            # RESOLVE APPLICATION
+            # ----------------------------------------------------
+
+            program = self.application_resolver.resolve(
+                executable
+            )
+
+            if not program:
+                return False
+
+            # ----------------------------------------------------
+            # LAUNCH APPLICATION
+            # ----------------------------------------------------
+
+            subprocess.Popen([program])
+
+            return True
+
+        except (
+            FileNotFoundError,
+            OSError,
+            PermissionError,
+        ):
+            return False
+
+    # ============================================================
+    # CLOSE PROGRAMS
+    # ============================================================
 
     def close_program(
         self,

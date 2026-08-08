@@ -14,11 +14,16 @@ class AppPlanner(Planner):
     def plan(self, command):
         tasks = []
 
-        # -------------------------
+        # =========================================================
         # OPEN
-        # -------------------------
+        # =========================================================
 
         if command.intent == "open":
+
+            # -------------------------
+            # Applications
+            # -------------------------
+
             for app in command.entities.get("apps", []):
                 tasks.append(
                     Task(
@@ -26,6 +31,10 @@ class AppPlanner(Planner):
                         target=app,
                     )
                 )
+
+            # -------------------------
+            # Websites
+            # -------------------------
 
             for website in command.entities.get("websites", []):
                 tasks.append(
@@ -35,17 +44,19 @@ class AppPlanner(Planner):
                     )
                 )
 
-        # -------------------------
+        # =========================================================
         # CLOSE
-        # -------------------------
+        # =========================================================
 
         elif command.intent == "close":
+
             apps = command.entities.get(
                 "apps",
                 [],
             )
 
             if apps:
+
                 for app in apps:
                     tasks.append(
                         Task(
@@ -53,7 +64,9 @@ class AppPlanner(Planner):
                             target=app,
                         )
                     )
+
             else:
+
                 tasks.append(
                     Task(
                         action="close_last",
@@ -61,9 +74,9 @@ class AppPlanner(Planner):
                     )
                 )
 
-        # -------------------------
+        # =========================================================
         # DEBUG
-        # -------------------------
+        # =========================================================
 
         print("=" * 50)
         print("APP PLANNER")

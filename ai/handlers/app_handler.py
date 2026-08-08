@@ -8,28 +8,22 @@ class AppHandler:
     def __init__(self, brain):
         self.brain = brain
 
-    # -------------------------
-    # Open
-    # -------------------------
+    # =========================================================
+    # OPEN
+    # =========================================================
 
     def open(self, command):
+
         if isinstance(command, str):
-            targets = [
-                command.lower().strip()
-            ]
+            targets = [command.lower().strip()]
+
         else:
             targets = list(
-                command.entities.get(
-                    "apps",
-                    [],
-                )
+                command.entities.get("apps", [])
             )
 
             targets.extend(
-                command.entities.get(
-                    "websites",
-                    [],
-                )
+                command.entities.get("websites", [])
             )
 
         if not targets:
@@ -38,43 +32,51 @@ class AppHandler:
         responses = []
 
         for target in targets:
+
             target = target.lower().strip()
 
-            # -------------------------
+            # -------------------------------------------------
             # Website
-            # -------------------------
+            # -------------------------------------------------
 
             if target in WEBSITES:
+
                 responses.append(
                     self._open_website(target)
                 )
+
                 continue
 
-            # -------------------------
-            # Application
-            # -------------------------
+            # -------------------------------------------------
+            # Registered application
+            # -------------------------------------------------
 
             if target in APPS:
+
                 responses.append(
                     self._open_application(target)
                 )
+
                 continue
 
-            # -------------------------
-            # Unknown
-            # -------------------------
+            # -------------------------------------------------
+            # Automatic application detection
+            # -------------------------------------------------
 
-            responses.append(
-                f"I don't know {target}."
+            response = self._open_unknown_application(
+                target
             )
+
+            responses.append(response)
 
         return "\n".join(responses)
 
-    # -------------------------
-    # Open Website
-    # -------------------------
+    # =========================================================
+    # OPEN WEBSITE
+    # =========================================================
 
     def _open_website(self, website):
+
         self.brain.web.open_url(
             WEBSITES[website]
         )
@@ -89,17 +91,21 @@ class AppHandler:
 
         return f"Opened {website.title()}."
 
-    # -------------------------
-    # Open Application
-    # -------------------------
+    # =========================================================
+    # OPEN REGISTERED APPLICATION
+    # =========================================================
 
     def _open_application(self, app):
+
         success = self.brain.system.open_program(
             APPS[app]["open"]
         )
 
         if not success:
-            return f"Couldn't open {app.title()}."
+
+            return (
+                f"Couldn't open {app.title()}."
+            )
 
         self.brain.conversation_memory.remember_app(
             app
@@ -113,16 +119,57 @@ class AppHandler:
 
         return f"Opened {app.title()}."
 
-    # -------------------------
-    # Close Application
-    # -------------------------
+    # =========================================================
+    # OPEN UNKNOWN APPLICATION
+    # =========================================================
+
+    def _open_unknown_application(self, target):
+
+        executable = self.brain.application_resolver.resolve(
+            target
+        )
+
+        if not executable:
+
+            return (
+                f"I couldn't find an installed application "
+                f"called {target}."
+            )
+
+        success = self.brain.system.open_program(
+            executable
+        )
+
+        if not success:
+
+            return (
+                f"I found {target}, but couldn't open it."
+            )
+
+        self.brain.conversation_memory.remember_app(
+            target
+        )
+
+        self.brain.session.last_app = target
+
+        self.brain.context.update(
+            app=target,
+        )
+
+        return f"Opened {target.title()}."
+
+    # =========================================================
+    # CLOSE
+    # =========================================================
 
     def close(self, app):
+
         app = app.lower().strip()
 
         program = APPS.get(app)
 
         if not program:
+
             return (
                 f"I don't know how to close {app}."
             )
@@ -134,18 +181,23 @@ class AppHandler:
         )
 
         if not success:
-            return f"Couldn't close {app}."
+
+            return (
+                f"Couldn't close {app.title()}."
+            )
 
         return f"Closed {app.title()}."
 
-    # -------------------------
-    # Close Last Application
-    # -------------------------
+    # =========================================================
+    # CLOSE LAST
+    # =========================================================
 
     def close_last(self):
+
         app = self.brain.session.last_app
 
         if not app:
+
             return (
                 "There is no previously opened "
                 "application."

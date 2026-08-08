@@ -1,5 +1,4 @@
 from ai.workflow.workflow_context import WorkflowContext
-from ai.workflow.workflow_event import WorkflowEvent
 from ai.workflow.workflow_status import WorkflowStatus
 
 

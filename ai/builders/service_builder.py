@@ -49,6 +49,9 @@ from ai.tools.tool_executor import ToolExecutor
 from ai.tools.tool_registry import ToolRegistry
 from ai.workflow.graph_builder import GraphBuilder
 from ai.workflow.workflow_manager import WorkflowManager
+from automation.application_resolver import (
+    ApplicationResolver,
+)
 from automation.system import SystemController
 from automation.web import WebController
 from memory.auto_memory import AutoMemoryExtractor
@@ -73,6 +76,7 @@ class ServiceBuilder:
 
         brain.system = SystemController()
         brain.web = WebController()
+        brain.application_resolver = ApplicationResolver()
         brain.database = Database()
 
         # =====================================================
