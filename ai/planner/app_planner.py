@@ -3,28 +3,23 @@ from ai.planner.planner import Planner
 
 
 class AppPlanner(Planner):
+    """Plans application open/close commands."""
 
     def can_plan(self, command):
-
         return command.intent in (
             "open",
             "close",
         )
 
-
     def plan(self, command):
-
         tasks = []
-
 
         # -------------------------
         # OPEN
         # -------------------------
 
         if command.intent == "open":
-
             for app in command.entities.get("apps", []):
-
                 tasks.append(
                     Task(
                         action="open",
@@ -32,9 +27,7 @@ class AppPlanner(Planner):
                     )
                 )
 
-
             for website in command.entities.get("websites", []):
-
                 tasks.append(
                     Task(
                         action="open",
@@ -42,33 +35,25 @@ class AppPlanner(Planner):
                     )
                 )
 
-
         # -------------------------
         # CLOSE
         # -------------------------
 
         elif command.intent == "close":
-
             apps = command.entities.get(
                 "apps",
-                []
+                [],
             )
 
-
             if apps:
-
                 for app in apps:
-
                     tasks.append(
                         Task(
                             action="close",
                             target=app,
                         )
                     )
-
-
             else:
-
                 tasks.append(
                     Task(
                         action="close_last",
@@ -76,8 +61,9 @@ class AppPlanner(Planner):
                     )
                 )
 
-
-        # Debug
+        # -------------------------
+        # DEBUG
+        # -------------------------
 
         print("=" * 50)
         print("APP PLANNER")
@@ -86,6 +72,5 @@ class AppPlanner(Planner):
             print(task)
 
         print("=" * 50)
-
 
         return tasks

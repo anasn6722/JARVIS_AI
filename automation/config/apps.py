@@ -1,4 +1,7 @@
 APPS = {
+    # -------------------------
+    # Windows Built-in Apps
+    # -------------------------
 
     "notepad": {
         "open": "notepad.exe",
@@ -6,7 +9,7 @@ APPS = {
     },
 
     "calculator": {
-        "open": "CalculatorApp.exe",
+        "open": "calc.exe",
         "process": "CalculatorApp.exe",
     },
 
@@ -14,6 +17,15 @@ APPS = {
         "open": "explorer.exe",
         "process": "explorer.exe",
     },
+
+    "paint": {
+        "open": "mspaint.exe",
+        "process": "mspaint.exe",
+    },
+
+    # -------------------------
+    # Web Browsers
+    # -------------------------
 
     "chrome": {
         "open": r"C:\Program Files\Google\Chrome\Application\chrome.exe",
@@ -25,10 +37,23 @@ APPS = {
         "process": "msedge.exe",
     },
 
-    "paint": {
-        "open": "mspaint.exe",
-        "process": "mspaint.exe",
+    # -------------------------
+    # Development
+    # -------------------------
+
+    "vscode": {
+        "open": "Code.exe",
+        "process": "Code.exe",
     },
+
+    "code": {
+        "open": "Code.exe",
+        "process": "Code.exe",
+    },
+
+    # -------------------------
+    # Communication / Media
+    # -------------------------
 
     "spotify": {
         "open": "spotify.exe",
@@ -38,15 +63,5 @@ APPS = {
     "discord": {
         "open": "Discord.exe",
         "process": "Discord.exe",
-    },
-
-    "code": {
-        "open": "Code.exe",
-        "process": "Code.exe",
-    },
-
-    "vscode": {
-        "open": "Code.exe",
-        "process": "Code.exe",
     },
 }

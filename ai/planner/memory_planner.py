@@ -3,9 +3,9 @@ from ai.planner.planner import Planner
 
 
 class MemoryPlanner(Planner):
+    """Plans memory-related commands."""
 
     def can_plan(self, command):
-
         return command.intent in (
             "set_name",
             "get_name",
@@ -16,15 +16,16 @@ class MemoryPlanner(Planner):
         )
 
     def plan(self, command):
-
-        tasks = []
-
-        tasks.append(
+        tasks = [
             Task(
-                command.intent,
-                command.original,
+                action=command.intent,
+                target=command.original,
             )
-        )
+        ]
+
+        # -------------------------
+        # DEBUG
+        # -------------------------
 
         print("=" * 50)
         print("MEMORY PLANNER")

@@ -1,26 +1,41 @@
 WEBSITES = {
+    # -------------------------
+    # Search / Information
+    # -------------------------
 
-    "google":
-    "https://www.google.com",
+    "google": "https://www.google.com",
 
-    "youtube":
-    "https://www.youtube.com",
+    "wikipedia": "https://www.wikipedia.org",
 
-    "github":
-    "https://github.com",
+    # -------------------------
+    # Development
+    # -------------------------
 
-    "chatgpt":
-    "https://chat.openai.com",
+    "github": "https://github.com",
 
-    "gmail":
-    "https://mail.google.com",
+    # -------------------------
+    # AI
+    # -------------------------
 
-    "wikipedia":
-    "https://www.wikipedia.org",
+    "chatgpt": "https://chat.openai.com",
 
-    "instagram":
-    "https://www.instagram.com",
+    # -------------------------
+    # Google Services
+    # -------------------------
 
-    "facebook":
-    "https://www.facebook.com",
+    "gmail": "https://mail.google.com",
+
+    # -------------------------
+    # Social Media
+    # -------------------------
+
+    "instagram": "https://www.instagram.com",
+
+    "facebook": "https://www.facebook.com",
+
+    # -------------------------
+    # Video
+    # -------------------------
+
+    "youtube": "https://www.youtube.com",
 }

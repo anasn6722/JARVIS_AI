@@ -3,18 +3,22 @@ from ai.planner.planner import Planner
 
 
 class TimePlanner(Planner):
+    """Plans time-related commands."""
 
     def can_plan(self, command):
         return command.intent == "time"
 
     def plan(self, command):
-
         tasks = [
             Task(
-                "time",
-                "",
+                action="time",
+                target="",
             )
         ]
+
+        # -------------------------
+        # DEBUG
+        # -------------------------
 
         print("=" * 50)
         print("TIME PLANNER")

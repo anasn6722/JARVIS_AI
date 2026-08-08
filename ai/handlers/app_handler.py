@@ -3,17 +3,34 @@ from automation.config.websites import WEBSITES
 
 
 class AppHandler:
+    """Handles application and website opening/closing."""
 
     def __init__(self, brain):
         self.brain = brain
 
-    def open(self, command):
+    # -------------------------
+    # Open
+    # -------------------------
 
+    def open(self, command):
         if isinstance(command, str):
-            targets = [command.lower().strip()]
+            targets = [
+                command.lower().strip()
+            ]
         else:
-            targets = list(command.entities.get("apps", []))
-            targets.extend(command.entities.get("websites", []))
+            targets = list(
+                command.entities.get(
+                    "apps",
+                    [],
+                )
+            )
+
+            targets.extend(
+                command.entities.get(
+                    "websites",
+                    [],
+                )
+            )
 
         if not targets:
             return "I couldn't find anything to open."
@@ -21,6 +38,11 @@ class AppHandler:
         responses = []
 
         for target in targets:
+            target = target.lower().strip()
+
+            # -------------------------
+            # Website
+            # -------------------------
 
             if target in WEBSITES:
                 responses.append(
@@ -28,11 +50,19 @@ class AppHandler:
                 )
                 continue
 
+            # -------------------------
+            # Application
+            # -------------------------
+
             if target in APPS:
                 responses.append(
                     self._open_application(target)
                 )
                 continue
+
+            # -------------------------
+            # Unknown
+            # -------------------------
 
             responses.append(
                 f"I don't know {target}."
@@ -40,8 +70,11 @@ class AppHandler:
 
         return "\n".join(responses)
 
-    def _open_website(self, website):
+    # -------------------------
+    # Open Website
+    # -------------------------
 
+    def _open_website(self, website):
         self.brain.web.open_url(
             WEBSITES[website]
         )
@@ -56,8 +89,11 @@ class AppHandler:
 
         return f"Opened {website.title()}."
 
-    def _open_application(self, app):
+    # -------------------------
+    # Open Application
+    # -------------------------
 
+    def _open_application(self, app):
         success = self.brain.system.open_program(
             APPS[app]["open"]
         )
@@ -77,34 +113,42 @@ class AppHandler:
 
         return f"Opened {app.title()}."
 
-    def close(self, app):
+    # -------------------------
+    # Close Application
+    # -------------------------
 
-        program = APPS.get(
-            app.lower()
-        )
+    def close(self, app):
+        app = app.lower().strip()
+
+        program = APPS.get(app)
 
         if not program:
-            return f"I don't know how to close {app}."
+            return (
+                f"I don't know how to close {app}."
+            )
 
         process = program["process"]
 
-        try:
+        success = self.brain.system.close_program(
+            process
+        )
 
-            self.brain.system.close_program(
-                process
-            )
+        if not success:
+            return f"Couldn't close {app}."
 
-            return f"Closed {app}."
+        return f"Closed {app.title()}."
 
-        except OSError as e:
-
-            return str(e)
+    # -------------------------
+    # Close Last Application
+    # -------------------------
 
     def close_last(self):
-
         app = self.brain.session.last_app
 
         if not app:
-            return "There is no previously opened application."
+            return (
+                "There is no previously opened "
+                "application."
+            )
 
         return self.close(app)

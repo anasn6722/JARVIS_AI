@@ -3,6 +3,7 @@ from ai.planner.planner import Planner
 
 
 class GoalPlanner(Planner):
+    """Plans goal-management commands."""
 
     def __init__(
         self,
@@ -13,7 +14,6 @@ class GoalPlanner(Planner):
         self.task_parser = task_parser
 
     def can_plan(self, command):
-
         return command.intent in (
             "add_goal",
             "show_goals",
@@ -24,23 +24,16 @@ class GoalPlanner(Planner):
         )
 
     def plan(self, command):
-
         # -------------------------
         # Rule-based goal commands
         # -------------------------
 
         if command.intent != "add_goal":
-
             tasks = [
-
                 Task(
-
                     action=command.intent,
-
                     target=command.original,
-
                 )
-
             ]
 
         # -------------------------
@@ -48,7 +41,6 @@ class GoalPlanner(Planner):
         # -------------------------
 
         else:
-
             ai_tasks = self.goal_ai_planner.create_plan(
                 command.original
             )
@@ -56,6 +48,17 @@ class GoalPlanner(Planner):
             tasks = self.task_parser.parse(
                 ai_tasks
             )
+
+        # -------------------------
+        # Safety
+        # -------------------------
+
+        if tasks is None:
+            tasks = []
+
+        # -------------------------
+        # DEBUG
+        # -------------------------
 
         print("=" * 50)
         print("GOAL PLANNER")

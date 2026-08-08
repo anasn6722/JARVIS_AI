@@ -183,9 +183,10 @@ class ServiceBuilder:
         brain.planner_registry.register(IdentityPlanner())
 
         brain.planning_manager = PlanningManager(
-            brain.planner_registry,
-            brain.ai_planner,
-            brain,
+            planner_registry=brain.planner_registry,
+            ai_planner=brain.ai_planner,
+            available_tools_provider=brain.available_tools,
+            planner_context_provider=brain.planner_context,
         )
 
         # =====================================================

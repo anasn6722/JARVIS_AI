@@ -3,18 +3,22 @@ from ai.planner.planner import Planner
 
 
 class IdentityPlanner(Planner):
+    """Plans identity-related commands."""
 
     def can_plan(self, command):
         return command.intent == "identity"
 
     def plan(self, command):
-
         tasks = [
             Task(
-                "identity",
-                "",
+                action="identity",
+                target="",
             )
         ]
+
+        # -------------------------
+        # DEBUG
+        # -------------------------
 
         print("=" * 50)
         print("IDENTITY PLANNER")
