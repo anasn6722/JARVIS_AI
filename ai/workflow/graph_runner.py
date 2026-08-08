@@ -95,7 +95,28 @@ class GraphRunner:
                     node.task.result
                 )
 
-        return "\n".join(responses)
+        formatted_responses = []
+
+        for response in responses:
+        
+            if isinstance(response, tuple):
+                success, message = response
+
+                if success:
+                    formatted_responses.append(
+                        str(message)
+                    )
+                else:
+                    formatted_responses.append(
+                        str(message)
+                    )
+
+            else:
+                formatted_responses.append(
+                    str(response)
+                )
+
+        return "\n".join(formatted_responses)
 
     # ============================================================
     # FIND READY NODES
@@ -183,91 +204,104 @@ class GraphRunner:
         self,
         node,
     ):
-
+    
         # --------------------------------------------------------
         # Safety check
-        #
-        # Never execute an already completed node.
         # --------------------------------------------------------
-
+    
         if (
             node.completed
             or node.task.completed
         ):
             return True
-
-        # --------------------------------------------------------
-        # Mark as running
-        # --------------------------------------------------------
-
+    
         node.running = True
-
+    
         try:
-
+        
             print(
                 "Tool:",
                 node.task.action,
                 node.task.target,
             )
-
-            result = self.tool_executor.execute(
-                node.task.action,
-                node.task.target,
-            )
-
+    
+            # ====================================================
+            # EXECUTE TOOL
+            # ====================================================
+            #
+            # Some tools require an argument:
+            #
+            #     focus_window("VS Code")
+            #     close_window("Chrome")
+            #
+            # Other tools require no argument:
+            #
+            #     active_window()
+            #     list_windows()
+            #
+            # ====================================================
+    
+            if node.task.target:
+            
+                result = self.tool_executor.execute(
+                    node.task.action,
+                    node.task.target,
+                )
+    
+            else:
+            
+                result = self.tool_executor.execute(
+                    node.task.action,
+                )
+    
             # ====================================================
             # SUCCESS
             # ====================================================
-
+    
             node.task.result = result
-
+    
             node.task.success = True
-
+    
             node.task.error = ""
-
-            # ----------------------------------------------------
-            # Mark BOTH levels as completed.
-            # ----------------------------------------------------
-
+    
             node.task.completed = True
-
+    
             node.completed = True
-
+    
             node.failed = False
-
+    
             node.running = False
-
+    
             return True
-
+    
         except Exception as e:
-
+        
             # ====================================================
             # FAILURE
             # ====================================================
-
+    
             node.task.error = str(e)
-
+    
             node.task.success = False
-
+    
             node.task.completed = False
-
+    
             node.failed = True
-
+    
             node.running = False
-
+    
             print(
                 "GRAPH NODE FAILED:",
                 node.task.action,
                 node.task.target,
             )
-
+    
             print(
                 "ERROR:",
                 e,
             )
-
+    
             return False
-
     # ============================================================
     # BUILD RESULT
     # ============================================================

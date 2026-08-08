@@ -19,6 +19,42 @@ class IntentClassifier:
     "quit",
     "terminate",
     )
+    FOCUS_WORDS = (
+        "focus",
+        "switch to",
+        "bring up",
+        "bring forward",
+    )
+
+    DESKTOP_WINDOW_WORDS = (
+        "window",
+        "windows",
+    )
+
+    LIST_WINDOW_PHRASES = (
+        "show windows",
+        "list windows",
+        "show all windows",
+        "list all windows",
+        "what windows are open",
+        "which windows are open",
+    )
+
+    ACTIVE_WINDOW_PHRASES = (
+        "active window",
+        "current window",
+        "which window is active",
+        "what window is active",
+        "what is the active window",
+    )
+
+    CLOSE_ACTIVE_WINDOW_PHRASES = (
+        "close active window",
+        "close current window",
+        "close this window",
+        "close the active window",
+        "close the current window",
+    )
 
     SEARCH_WORDS = (
         "search",
@@ -129,6 +165,114 @@ class IntentClassifier:
     def classify(self, text: str) -> dict:
         text = text.lower().strip()
         text = self.normalize(text)
+
+        
+        # =====================================================
+        # REFERENCE / CONTEXT COMMANDS
+        # =====================================================
+
+        # -----------------------
+        # Close Last Reference
+        # -----------------------
+
+        if text in (
+            "close it",
+            "close that",
+            "close this",
+            "close",
+            "exit it",
+            "quit it",
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "close_last",
+            }
+
+        # -----------------------
+        # Complete Current Task
+        # -----------------------
+
+        if text in (
+            "mark it done",
+            "complete it",
+            "finish it",
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "complete_current_task",
+            }
+
+
+
+        # =====================================================
+        # DESKTOP AUTOMATION
+        # =====================================================
+
+        # -----------------------
+        # Close Active Window
+        # -----------------------
+
+        if IntentUtils.contains_any(
+            text,
+            self.CLOSE_ACTIVE_WINDOW_PHRASES,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "close_active_window",
+            }
+
+        # -----------------------
+        # List Windows
+        # -----------------------
+
+        if IntentUtils.contains_any(
+            text,
+            self.LIST_WINDOW_PHRASES,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "list_windows",
+            }
+
+        # -----------------------
+        # Active Window
+        # -----------------------
+
+        if IntentUtils.contains_any(
+            text,
+            self.ACTIVE_WINDOW_PHRASES,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "active_window",
+            }
+
+        # -----------------------
+        # Focus Window
+        # -----------------------
+
+        if IntentUtils.contains_any(
+            text,
+            self.FOCUS_WORDS,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "focus_window",
+            }
+
+        # -----------------------
+        # Close Specific Window
+        # -----------------------
+
+        if (
+            text.startswith("close ")
+            and "window" in text
+            and text not in self.CLOSE_ACTIVE_WINDOW_PHRASES
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "close_window",
+            }
 
         # -----------------------
         # Open Applications
@@ -354,18 +498,7 @@ class IntentClassifier:
             }
         
        
-        if text in (
-            "close it",
-            "close that",
-            "close this",
-            "close",
-            "exit it",
-            "quit it",
-        ):
-            return {
-                "destination": "BRAIN",
-                "intent": "close_last",
-            }
+        
 
         # -----------------------
         # Continue Search
@@ -383,19 +516,6 @@ class IntentClassifier:
                 "intent": "search_result",
             }
 
-        # -----------------------
-        # Goal Continuation
-        # -----------------------
-        
-        if text in (
-            "mark it done",
-            "complete it",
-            "finish it",
-        ):
-            return {
-                "destination": "BRAIN",
-                "intent": "complete_current_task",
-            }
         
 
         # -----------------------

@@ -19,18 +19,27 @@ class ReasoningEngine:
     }
 
     PLANNER_INTENTS = {
-        "open",
-        "close",
-        "search",
-        "youtube_search",
+    "open",
+    "close",
+    "close_last",
+    "search",
+    "youtube_search",
 
-        "add_goal",
-        "show_goals",
-        "next_task",
-        "complete_task",
-        "goal_progress",
-        "delete_goal",
-    }
+    # Desktop automation
+    "focus_window",
+    "close_window",
+    "close_active_window",
+    "active_window",
+    "list_windows",
+
+    # Goals
+    "add_goal",
+    "show_goals",
+    "next_task",
+    "complete_task",
+    "goal_progress",
+    "delete_goal",
+}
 
     def __init__(self, brain):
         self.brain = brain

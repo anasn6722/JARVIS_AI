@@ -34,19 +34,35 @@ class WindowManager:
 
     @staticmethod
     def find_window(name):
-        """Find a visible window whose title contains name."""
+        """Find a visible window by title or common application alias."""
 
         name = name.lower().strip()
 
         if not name:
             return None
 
+        # Common desktop application aliases.
+        aliases = {
+            "vs code": "visual studio code",
+            "vscode": "visual studio code",
+            "code": "visual studio code",
+            "chrome": "google chrome",
+            "edge": "microsoft edge",
+            "ms edge": "microsoft edge",
+            "notepad": "notepad",
+            "explorer": "file explorer",
+            "file explorer": "file explorer",
+        }
+
+        search_name = aliases.get(name, name)
+
         for window in WindowManager.list_windows():
-            if name in window["title"].lower():
+            title = window["title"].lower()
+
+            if search_name in title:
                 return window
 
         return None
-
     @staticmethod
     def get_active_window():
         """Return the currently active window."""

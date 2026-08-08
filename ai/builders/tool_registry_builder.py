@@ -1,5 +1,7 @@
+
 from ai.tools.tool_executor import ToolExecutor
 from ai.tools.tool_registry import ToolRegistry
+from desktop_automation.controller.desktop_controller import DesktopController
 
 
 class ToolRegistryBuilder:
@@ -12,6 +14,12 @@ class ToolRegistryBuilder:
         brain.tool_executor = ToolExecutor(
             brain.tool_registry
         )
+
+        # -------------------------
+        # Desktop Automation
+        # -------------------------
+
+        brain.desktop = DesktopController()
 
         # -------------------------
         # Applications
@@ -33,6 +41,40 @@ class ToolRegistryBuilder:
             "close_last",
             "Close last opened application",
             brain.app_handler.close_last,
+        )
+
+        # -------------------------
+        # Desktop Windows
+        # -------------------------
+
+        brain.tool_registry.register(
+            "list_windows",
+            "List visible desktop windows",
+            brain.desktop.list_windows,
+        )
+
+        brain.tool_registry.register(
+            "active_window",
+            "Get the currently active window",
+            brain.desktop.active_window,
+        )
+
+        brain.tool_registry.register(
+            "focus_window",
+            "Focus a desktop window",
+            brain.desktop.focus_window,
+        )
+
+        brain.tool_registry.register(
+            "close_window",
+            "Close a specific desktop window",
+            brain.desktop.close_window,
+        )
+
+        brain.tool_registry.register(
+            "close_active_window",
+            "Close the currently active desktop window",
+            brain.desktop.close_active_window,
         )
 
         # -------------------------

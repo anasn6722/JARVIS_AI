@@ -1,7 +1,8 @@
 import re
 
 from ai.aliases import APP_ALIASES
-from brain.services import APPS, WEBSITES
+from automation.config.apps import APPS
+from automation.config.websites import WEBSITES
 
 
 class EntityExtractor:
@@ -56,6 +57,7 @@ class EntityExtractor:
         entities = {
             "apps": [],
             "websites": [],
+            "windows": [],
             "searches": [],
             "goals": [],
         }
@@ -132,6 +134,46 @@ class EntityExtractor:
                     entities["websites"].append(
                         website
                     )
+
+        # ========================================================
+        # DESKTOP WINDOWS
+        # ========================================================
+    
+        # Desktop commands such as:
+        #
+        #     focus VS Code
+        #     focus Chrome
+        #     close VS Code window
+        #
+        # should preserve the target separately from
+        # application entities.
+    
+        desktop_prefixes = (
+            "focus ",
+            "switch to ",
+            "bring up ",
+            "bring forward ",
+            "close ",
+        )
+    
+        for prefix in desktop_prefixes:
+        
+            if text.startswith(prefix):
+            
+                target = text[len(prefix):].strip()
+    
+                # Remove optional "window" at the end.
+                if target.endswith(" window"):
+                    target = target[:-7].strip()
+    
+                if (
+                    target
+                    and target not in self.REFERENCE_WORDS
+                    and target not in entities["windows"]
+                ):
+                    entities["windows"].append(target)
+    
+                break
 
         # ========================================================
         # SEARCH

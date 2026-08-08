@@ -54,6 +54,7 @@ from automation.application_resolver import (
 )
 from automation.system import SystemController
 from automation.web import WebController
+from desktop_automation.planner.desktop_planner import DesktopPlanner
 from memory.auto_memory import AutoMemoryExtractor
 from memory.chat_memory import ChatMemory
 from memory.database import Database
@@ -173,6 +174,7 @@ class ServiceBuilder:
         brain.planner_registry = PlannerRegistry()
 
         brain.planner_registry.register(AppPlanner())
+        brain.planner_registry.register(DesktopPlanner())
         brain.planner_registry.register(SearchPlanner())
         brain.planner_registry.register(MemoryPlanner())
 

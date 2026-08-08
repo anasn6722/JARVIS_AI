@@ -1,4 +1,3 @@
-
 class ToolExecutor:
 
     def __init__(self, registry):
@@ -7,12 +6,8 @@ class ToolExecutor:
     def execute(
         self,
         tool_name,
-        argument="",
+        argument=None,
     ):
-        # ====================================================
-        # FIND TOOL
-        # ====================================================
-
         tool = self.registry.get(tool_name)
 
         if tool is None:
@@ -21,25 +16,7 @@ class ToolExecutor:
             )
             return None
 
-        # ====================================================
-        # DEBUG
-        # ====================================================
-
-        print(
-            f"Tool: {tool_name}",
-            argument,
-        )
-
-        # ====================================================
-        # TOOLS WITHOUT ARGUMENTS
-        # ====================================================
-
-        if tool_name == "close_last":
-
+        if argument is None:
             return tool.callback()
-
-        # ====================================================
-        # NORMAL TOOLS
-        # ====================================================
 
         return tool.callback(argument)
