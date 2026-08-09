@@ -17,10 +17,27 @@ class DesktopPlanner(Planner):
         "list_windows",
     )
 
+    # Different names that can refer to the same application.
+    WINDOW_ALIASES = {
+        "vs code": "vscode",
+        "visual studio code": "vscode",
+        "visual studio": "vscode",
+        "code": "vscode",
+        "vscode": "vscode",
+    }
+
     def can_plan(self, command):
         """Return True if this planner handles the command."""
-
         return command.intent in self.DESKTOP_INTENTS
+
+    def normalize_window(self, window):
+        """Normalize a window name to a canonical target."""
+        window = str(window).strip().lower()
+
+        return self.WINDOW_ALIASES.get(
+            window,
+            window,
+        )
 
     def plan(self, command):
         """Create desktop automation tasks."""
@@ -42,25 +59,24 @@ class DesktopPlanner(Planner):
 
         if intent in target_window_intents:
 
-            # Prefer explicit window entities.
             windows = command.entities.get(
                 "windows",
                 [],
             )
 
-            # Fall back to application entities.
-            if not windows:
-
-                windows = command.entities.get(
-                    "apps",
-                    [],
-                )
-
             if not windows:
                 return []
 
-            for window in windows:
+            # Normalize and remove duplicate aliases.
+            normalized_windows = []
 
+            for window in windows:
+                normalized = self.normalize_window(window)
+
+                if normalized not in normalized_windows:
+                    normalized_windows.append(normalized)
+
+            for window in normalized_windows:
                 tasks.append(
                     Task(
                         action=intent,
