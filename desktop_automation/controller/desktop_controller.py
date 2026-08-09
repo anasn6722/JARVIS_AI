@@ -17,10 +17,33 @@ class DesktopController:
         """Return the currently active window."""
         return self.window_manager.get_active_window()
 
-    def find_window(self, name):
-        """Find a desktop window by its natural name."""
-        return self.window_resolver.resolve(name)
 
+    def find_window(self, name):
+        """Find a window by its natural name."""
+        window = self.window_resolver.resolve(name)
+
+        if not window:
+            return None
+
+        return window
+
+    def close_window(self, name):
+        """Find and close a window."""
+        window = self.window_resolver.resolve(name)
+
+        if not window:
+            return False, f"Window not found: {name}"
+
+        success = self.window_manager.close_window(
+            window["hwnd"]
+        )
+
+        if success:
+            return True, f"Closed {window['title']}."
+
+        return False, f"Could not close {window['title']}."
+
+    
     def focus_window(self, name):
         """Find and focus a window by its natural name."""
         window = self.window_resolver.resolve(name)
@@ -83,19 +106,4 @@ class DesktopController:
 
         return False, f"Could not restore {window['title']}."
 
-    def close_window(self, name):
-        """Find and close a window."""
     
-        window = self.window_resolver.resolve(name)
-    
-        if not window:
-            return False, f"Window not found: {name}"
-    
-        success = self.window_manager.close_window(
-            window["hwnd"]
-        )
-    
-        if success:
-            return True, f"Closed {window['title']}."
-    
-        return False, f"Could not close {window['title']}."

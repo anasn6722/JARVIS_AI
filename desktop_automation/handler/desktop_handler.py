@@ -1,4 +1,5 @@
 from desktop_automation.controller.desktop_controller import DesktopController
+from desktop_automation.planner.desktop_planner import DesktopPlanner
 
 
 class DesktopHandler:
@@ -6,9 +7,23 @@ class DesktopHandler:
 
     def __init__(self):
         self.desktop = DesktopController()
+        self.planner = DesktopPlanner()
+
+    def execute(self, command):
+        """Plan and execute a natural-language desktop command."""
+
+        plan = self.planner.plan(command)
+
+        if not plan:
+            return False, f"Could not understand desktop command: {command}"
+
+        action = plan["action"]
+        target = plan["target"]
+
+        return self.handle(action, target)
 
     def handle(self, action, target=None):
-        """Execute a desktop automation action."""
+        """Execute a structured desktop automation action."""
 
         if action == "list_windows":
             return True, self.desktop.list_windows()
