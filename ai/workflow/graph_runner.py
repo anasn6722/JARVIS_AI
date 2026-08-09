@@ -1,9 +1,9 @@
-
 from ai.workflow.workflow_context import WorkflowContext
 from ai.workflow.workflow_status import WorkflowStatus
 
 
 class GraphRunner:
+    """Execute tasks according to their graph dependencies."""
 
     def __init__(
         self,
@@ -20,17 +20,14 @@ class GraphRunner:
     # ============================================================
 
     def run(self, graph):
-
         print("=" * 60)
         print("GRAPH RUNNER START")
         print("=" * 60)
 
         print("Nodes in graph:")
 
-        for node in graph.all_nodes():
-
+        for node in graph.nodes:
             print(
-                node.id,
                 node.task.action,
                 node.task.target,
             )
@@ -43,9 +40,9 @@ class GraphRunner:
         # GRAPH EXECUTION LOOP
         # ========================================================
 
-        while True:
+        while not graph.completed():
 
-            ready = self.ready_nodes(graph)
+            ready = graph.executable()
 
             print(
                 "READY:",
@@ -53,11 +50,10 @@ class GraphRunner:
             )
 
             if not ready:
+                print(
+                    "No executable nodes remaining."
+                )
                 break
-
-            # ----------------------------------------------------
-            # Execute every currently ready node
-            # ----------------------------------------------------
 
             for node in ready:
 
@@ -73,128 +69,16 @@ class GraphRunner:
         # FINISHED
         # ========================================================
 
-        context.status = WorkflowStatus.COMPLETED
+        if graph.completed():
+            context.status = WorkflowStatus.COMPLETED
+        else:
+            context.status = WorkflowStatus.FAILED
 
         print("=" * 60)
         print("GRAPH RUNNER FINISHED")
         print("=" * 60)
 
-        # ========================================================
-        # BUILD RESPONSE
-        # ========================================================
-
-        responses = []
-
-        for node in graph.all_nodes():
-
-            if (
-                node.task.success
-                and node.task.result
-            ):
-                responses.append(
-                    node.task.result
-                )
-
-        formatted_responses = []
-
-        for response in responses:
-        
-            if isinstance(response, tuple):
-                success, message = response
-
-                if success:
-                    formatted_responses.append(
-                        str(message)
-                    )
-                else:
-                    formatted_responses.append(
-                        str(message)
-                    )
-
-            else:
-                formatted_responses.append(
-                    str(response)
-                )
-
-        return "\n".join(formatted_responses)
-
-    # ============================================================
-    # FIND READY NODES
-    # ============================================================
-
-    def ready_nodes(
-        self,
-        graph,
-    ):
-
-        ready = []
-
-        for node in graph.all_nodes():
-
-            # ----------------------------------------------------
-            # IMPORTANT:
-            #
-            # Use BOTH task.completed and node.completed.
-            #
-            # This prevents a task from being executed again
-            # if either layer has already marked it completed.
-            # ----------------------------------------------------
-
-            if (
-                node.completed
-                or node.task.completed
-            ):
-                continue
-
-            # ----------------------------------------------------
-            # Already running
-            # ----------------------------------------------------
-
-            if getattr(
-                node,
-                "running",
-                False,
-            ):
-                continue
-
-            # ----------------------------------------------------
-            # Failed nodes are not automatically executed again
-            # by the graph runner.
-            # ----------------------------------------------------
-
-            if getattr(
-                node,
-                "failed",
-                False,
-            ):
-                continue
-
-            # ----------------------------------------------------
-            # Check parent dependencies
-            # ----------------------------------------------------
-
-            parents_complete = True
-
-            for parent_id in node.parents:
-
-                parent = graph.get(parent_id)
-
-                if parent is None:
-                    parents_complete = False
-                    break
-
-                if not (
-                    parent.completed
-                    or parent.task.completed
-                ):
-                    parents_complete = False
-                    break
-
-            if parents_complete:
-
-                ready.append(node)
-
-        return ready
+        return self.build_graph_result(graph)
 
     # ============================================================
     # EXECUTE NODE
@@ -204,155 +88,120 @@ class GraphRunner:
         self,
         node,
     ):
-    
-        # --------------------------------------------------------
-        # Safety check
-        # --------------------------------------------------------
-    
+        """Execute one ready graph node."""
+
         if (
             node.completed
-            or node.task.completed
+            or node.failed
+            or node.blocked
         ):
-            return True
-    
-        node.running = True
-    
+            return False
+
+        if not node.ready:
+            return False
+
         try:
-        
+
             print(
                 "Tool:",
                 node.task.action,
                 node.task.target,
             )
-    
+
             # ====================================================
             # EXECUTE TOOL
             # ====================================================
-            #
-            # Some tools require an argument:
-            #
-            #     focus_window("VS Code")
-            #     close_window("Chrome")
-            #
-            # Other tools require no argument:
-            #
-            #     active_window()
-            #     list_windows()
-            #
-            # ====================================================
-    
+
             if node.task.target:
-            
+
                 result = self.tool_executor.execute(
                     node.task.action,
                     node.task.target,
                 )
-    
+
             else:
-            
+
                 result = self.tool_executor.execute(
                     node.task.action,
                 )
-    
+
             # ====================================================
             # SUCCESS
             # ====================================================
-    
+
             node.task.result = result
-    
             node.task.success = True
-    
             node.task.error = ""
-    
             node.task.completed = True
-    
+
             node.completed = True
-    
             node.failed = False
-    
-            node.running = False
-    
+
             return True
-    
-        except Exception as e:
-        
+
+        except Exception as error:
+
             # ====================================================
             # FAILURE
             # ====================================================
-    
-            node.task.error = str(e)
-    
+
+            node.task.error = str(error)
             node.task.success = False
-    
             node.task.completed = False
-    
+
             node.failed = True
-    
-            node.running = False
-    
+
             print(
                 "GRAPH NODE FAILED:",
                 node.task.action,
                 node.task.target,
             )
-    
+
             print(
                 "ERROR:",
-                e,
+                error,
             )
-    
+
             return False
+
     # ============================================================
-    # BUILD RESULT
+    # BUILD GRAPH RESULT
     # ============================================================
 
-    def build_result(
+    def build_graph_result(
         self,
-        context,
+        graph,
     ):
+        """Build a readable response from completed tasks."""
 
         responses = []
 
-        # --------------------------------------------------------
-        # Completed tasks
-        # --------------------------------------------------------
+        for node in graph.nodes:
 
-        for task in context.completed:
+            task = node.task
 
-            if task.result:
+            if task.result is not None:
+
+                if isinstance(
+                    task.result,
+                    tuple,
+                ):
+                    success, message = task.result
+
+                    responses.append(
+                        str(message)
+                    )
+
+                else:
+
+                    responses.append(
+                        str(task.result)
+                    )
+
+            elif node.failed:
 
                 responses.append(
-                    task.result
+                    f"Failed: {task.action}"
                 )
 
-        # --------------------------------------------------------
-        # Failed tasks
-        # --------------------------------------------------------
-
-        for task in context.failed:
-
-            responses.append(
-                f"Failed: {task.action}"
-            )
-
-        # --------------------------------------------------------
-        # Result information
-        # --------------------------------------------------------
-
-        context.result.success = (
-            len(context.failed) == 0
-        )
-
-        context.result.completed_tasks = (
-            len(context.completed)
-        )
-
-        context.result.failed_tasks = (
-            len(context.failed)
-        )
-
-        context.result.response = (
-            "\n".join(responses)
-        )
-
-        return context.result.response
+        return "\n".join(responses)
