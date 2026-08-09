@@ -167,3 +167,31 @@ class WindowManager:
             )
 
             return False
+
+    @staticmethod
+    def close_window(hwnd):
+        """Close a window."""
+    
+        if not hwnd:
+            return False
+    
+        try:
+            if not win32gui.IsWindow(hwnd):
+                return False
+    
+            win32gui.PostMessage(
+                hwnd,
+                win32con.WM_CLOSE,
+                0,
+                0,
+            )
+    
+            return True
+    
+        except Exception as error:
+            print(
+                f"Window close failed: {error}"
+            )
+    
+            return False
+    

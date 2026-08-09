@@ -1,142 +1,58 @@
-from ai.agent.task import Task
-from ai.planner.planner import Planner
+class DesktopPlanner:
+    """Convert desktop commands into structured actions."""
 
-
-class DesktopPlanner(Planner):
-    """Plans desktop window automation commands."""
-
-    DESKTOP_INTENTS = (
-        "focus_window",
-        "minimize_window",
-        "maximize_window",
-        "restore_window",
-        "minimize_active_window",
-        "maximize_active_window",
-        "restore_active_window",
-        "active_window",
-        "list_windows",
-    )
-
-    # Different names that can refer to the same application.
-    WINDOW_ALIASES = {
-        "vs code": "vscode",
-        "visual studio code": "vscode",
-        "visual studio": "vscode",
-        "code": "vscode",
-        "vscode": "vscode",
+    ACTIONS = {
+        "show windows": "list_windows",
+        "list windows": "list_windows",
+        "active window": "active_window",
+        "current window": "active_window",
+        "focus": "focus_window",
+        "focus window": "focus_window",
+        "switch to": "focus_window",
+        "minimize": "minimize_window",
+        "minimize window": "minimize_window",
+        "maximize": "maximize_window",
+        "maximize window": "maximize_window",
+        "restore": "restore_window",
+        "restore window": "restore_window",
+        "close": "close_window",
+        "close window": "close_window",
     }
 
-    def can_plan(self, command):
-        """Return True if this planner handles the command."""
-        return command.intent in self.DESKTOP_INTENTS
-
-    def normalize_window(self, window):
-        """Normalize a window name to a canonical target."""
-        window = str(window).strip().lower()
-
-        return self.WINDOW_ALIASES.get(
-            window,
-            window,
-        )
-
     def plan(self, command):
-        """Create desktop automation tasks."""
+        """Convert a text command into an action and target."""
 
-        tasks = []
+        if not command:
+            return None
 
-        intent = command.intent
+        command = command.lower().strip()
 
-        # =====================================================
-        # WINDOW ACTIONS WITH TARGET
-        # =====================================================
+        # Commands without a target.
+        if command in self.ACTIONS:
+            action = self.ACTIONS[command]
 
-        target_window_intents = (
-            "focus_window",
-            "minimize_window",
-            "maximize_window",
-            "restore_window",
-        )
+            if action in {
+                "list_windows",
+                "active_window",
+            }:
+                return {
+                    "action": action,
+                    "target": None,
+                }
 
-        if intent in target_window_intents:
+        # Commands that require a target.
+        for phrase, action in self.ACTIONS.items():
+            if not command.startswith(phrase + " "):
+                continue
 
-            windows = command.entities.get(
-                "windows",
-                [],
-            )
+            target = command[len(phrase):].strip()
 
-            if not windows:
-                return []
+            if not target:
+                return None
 
-            # Normalize and remove duplicate aliases.
-            normalized_windows = []
+            return {
+                "action": action,
+                "target": target,
+            }
 
-            for window in windows:
-                normalized = self.normalize_window(window)
-
-                if normalized not in normalized_windows:
-                    normalized_windows.append(normalized)
-
-            for window in normalized_windows:
-                tasks.append(
-                    Task(
-                        action=intent,
-                        target=window,
-                    )
-                )
-
-        # =====================================================
-        # ACTIVE WINDOW ACTIONS
-        # =====================================================
-
-        elif intent in (
-            "minimize_active_window",
-            "maximize_active_window",
-            "restore_active_window",
-        ):
-
-            tasks.append(
-                Task(
-                    action=intent,
-                    target="",
-                )
-            )
-
-        # =====================================================
-        # ACTIVE WINDOW
-        # =====================================================
-
-        elif intent == "active_window":
-
-            tasks.append(
-                Task(
-                    action="active_window",
-                    target="",
-                )
-            )
-
-        # =====================================================
-        # LIST WINDOWS
-        # =====================================================
-
-        elif intent == "list_windows":
-
-            tasks.append(
-                Task(
-                    action="list_windows",
-                    target="",
-                )
-            )
-
-        # =====================================================
-        # DEBUG
-        # =====================================================
-
-        print("=" * 50)
-        print("DESKTOP PLANNER")
-
-        for task in tasks:
-            print(task)
-
-        print("=" * 50)
-
-        return tasks
+        return None
