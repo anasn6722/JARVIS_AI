@@ -1,12 +1,16 @@
 
-from automation.desktop.window_manager import WindowManager
+from desktop_automation.controller.window_manager import WindowManager
+from desktop_automation.resolver.window_resolver import WindowResolver
 
 
 class DesktopController:
     """High-level controller for Windows desktop automation."""
 
     def __init__(self):
-        self.window_manager = WindowManager
+        self.window_manager = WindowManager()
+        self.window_resolver = WindowResolver(
+            self.window_manager
+        )
 
     # =====================================================
     # WINDOWS
@@ -25,9 +29,11 @@ class DesktopController:
     def find_window(self, name):
         """Find a window by title."""
 
-        return self.window_manager.find_window(
-            name
-        )
+        return self.window_resolver.resolve(name)
+
+    # =====================================================
+    # FOCUS
+    # =====================================================
 
     def focus_window(self, name):
         """Find and focus a window."""
@@ -55,8 +61,12 @@ class DesktopController:
             f"Focused {window['title']}.",
         )
 
-    def close_window(self, name):
-        """Find and close a specific window."""
+    # =====================================================
+    # MINIMIZE
+    # =====================================================
+
+    def minimize_window(self, name):
+        """Find and minimize a window."""
 
         window = self.find_window(name)
 
@@ -66,23 +76,87 @@ class DesktopController:
                 f"I couldn't find a window called {name}.",
             )
 
-        success = self.window_manager.close_window(
+        success = self.window_manager.minimize_window(
             window["hwnd"]
         )
 
         if not success:
             return (
                 False,
-                f"I couldn't close {window['title']}.",
+                f"I couldn't minimize {window['title']}.",
             )
 
         return (
             True,
-            f"Closed {window['title']}.",
+            f"Minimized {window['title']}.",
         )
 
-    def close_active_window(self):
-        """Close the currently active window."""
+    # =====================================================
+    # MAXIMIZE
+    # =====================================================
+
+    def maximize_window(self, name):
+        """Find and maximize a window."""
+
+        window = self.find_window(name)
+
+        if not window:
+            return (
+                False,
+                f"I couldn't find a window called {name}.",
+            )
+
+        success = self.window_manager.maximize_window(
+            window["hwnd"]
+        )
+
+        if not success:
+            return (
+                False,
+                f"I couldn't maximize {window['title']}.",
+            )
+
+        return (
+            True,
+            f"Maximized {window['title']}.",
+        )
+
+    # =====================================================
+    # RESTORE
+    # =====================================================
+
+    def restore_window(self, name):
+        """Find and restore a window."""
+
+        window = self.find_window(name)
+
+        if not window:
+            return (
+                False,
+                f"I couldn't find a window called {name}.",
+            )
+
+        success = self.window_manager.restore_window(
+            window["hwnd"]
+        )
+
+        if not success:
+            return (
+                False,
+                f"I couldn't restore {window['title']}.",
+            )
+
+        return (
+            True,
+            f"Restored {window['title']}.",
+        )
+
+    # =====================================================
+    # ACTIVE WINDOW
+    # =====================================================
+
+    def minimize_active_window(self):
+        """Minimize the currently active window."""
 
         window = self.active_window()
 
@@ -92,17 +166,69 @@ class DesktopController:
                 "I couldn't determine the active window.",
             )
 
-        success = self.window_manager.close_window(
+        success = self.window_manager.minimize_window(
             window["hwnd"]
         )
 
         if not success:
             return (
                 False,
-                f"I couldn't close {window['title']}.",
+                f"I couldn't minimize {window['title']}.",
             )
 
         return (
             True,
-            f"Closed {window['title']}.",
+            f"Minimized {window['title']}.",
+        )
+
+    def maximize_active_window(self):
+        """Maximize the currently active window."""
+
+        window = self.active_window()
+
+        if not window:
+            return (
+                False,
+                "I couldn't determine the active window.",
+            )
+
+        success = self.window_manager.maximize_window(
+            window["hwnd"]
+        )
+
+        if not success:
+            return (
+                False,
+                f"I couldn't maximize {window['title']}.",
+            )
+
+        return (
+            True,
+            f"Maximized {window['title']}.",
+        )
+
+    def restore_active_window(self):
+        """Restore the currently active window."""
+
+        window = self.active_window()
+
+        if not window:
+            return (
+                False,
+                "I couldn't determine the active window.",
+            )
+
+        success = self.window_manager.restore_window(
+            window["hwnd"]
+        )
+
+        if not success:
+            return (
+                False,
+                f"I couldn't restore {window['title']}.",
+            )
+
+        return (
+            True,
+            f"Restored {window['title']}.",
         )

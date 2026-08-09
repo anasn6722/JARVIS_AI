@@ -34,35 +34,19 @@ class WindowManager:
 
     @staticmethod
     def find_window(name):
-        """Find a visible window by title or common application alias."""
+        """Find a visible window whose title contains name."""
 
         name = name.lower().strip()
 
         if not name:
             return None
 
-        # Common desktop application aliases.
-        aliases = {
-            "vs code": "visual studio code",
-            "vscode": "visual studio code",
-            "code": "visual studio code",
-            "chrome": "google chrome",
-            "edge": "microsoft edge",
-            "ms edge": "microsoft edge",
-            "notepad": "notepad",
-            "explorer": "file explorer",
-            "file explorer": "file explorer",
-        }
-
-        search_name = aliases.get(name, name)
-
         for window in WindowManager.list_windows():
-            title = window["title"].lower()
-
-            if search_name in title:
+            if name in window["title"].lower():
                 return window
 
         return None
+
     @staticmethod
     def get_active_window():
         """Return the currently active window."""
@@ -110,8 +94,8 @@ class WindowManager:
             return False
 
     @staticmethod
-    def close_window(hwnd):
-        """Request a specific window to close."""
+    def minimize_window(hwnd):
+        """Minimize a window."""
 
         if not hwnd:
             return False
@@ -120,18 +104,66 @@ class WindowManager:
             if not win32gui.IsWindow(hwnd):
                 return False
 
-            win32gui.PostMessage(
+            win32gui.ShowWindow(
                 hwnd,
-                win32con.WM_CLOSE,
-                0,
-                0,
+                win32con.SW_MINIMIZE,
             )
 
             return True
 
         except Exception as error:
             print(
-                f"Window close failed: {error}"
+                f"Window minimize failed: {error}"
+            )
+
+            return False
+
+    @staticmethod
+    def maximize_window(hwnd):
+        """Maximize a window."""
+
+        if not hwnd:
+            return False
+
+        try:
+            if not win32gui.IsWindow(hwnd):
+                return False
+
+            win32gui.ShowWindow(
+                hwnd,
+                win32con.SW_MAXIMIZE,
+            )
+
+            return True
+
+        except Exception as error:
+            print(
+                f"Window maximize failed: {error}"
+            )
+
+            return False
+
+    @staticmethod
+    def restore_window(hwnd):
+        """Restore a minimized or maximized window."""
+
+        if not hwnd:
+            return False
+
+        try:
+            if not win32gui.IsWindow(hwnd):
+                return False
+
+            win32gui.ShowWindow(
+                hwnd,
+                win32con.SW_RESTORE,
+            )
+
+            return True
+
+        except Exception as error:
+            print(
+                f"Window restore failed: {error}"
             )
 
             return False

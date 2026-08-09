@@ -1,59 +1,64 @@
-
-from desktop_automation.controller.window_manager import WindowManager
-from desktop_automation.resolver.window_resolver import WindowResolver
+from desktop_automation.controller.desktop_controller import (
+    DesktopController,
+)
 
 
 def main():
-    manager = WindowManager()
-    resolver = WindowResolver(manager)
+    desktop = DesktopController()
 
     print("\n=== FIND VS CODE ===")
 
-    window = resolver.resolve("vs code")
+    window = desktop.find_window("vs code")
 
     print(window)
 
     if not window:
         print("VS Code not found.")
-        print("\n=== VISIBLE WINDOWS ===")
-
-        for item in manager.list_windows():
-            print(item)
-
         return
-
-    hwnd = window["hwnd"]
 
     print("\n=== MINIMIZE VS CODE ===")
 
-    success = manager.minimize_window(hwnd)
+    success, response = desktop.minimize_window(
+        "vs code"
+    )
 
     print("Success:", success)
+    print("Response:", response)
 
     input("\nPress Enter to restore VS Code...")
 
     print("\n=== RESTORE VS CODE ===")
 
-    success = manager.restore_window(hwnd)
+    success, response = desktop.restore_window(
+        "vs code"
+    )
 
     print("Success:", success)
+    print("Response:", response)
 
     input("\nPress Enter to maximize VS Code...")
 
     print("\n=== MAXIMIZE VS CODE ===")
 
-    success = manager.maximize_window(hwnd)
+    success, response = desktop.maximize_window(
+        "vs code"
+    )
 
     print("Success:", success)
+    print("Response:", response)
 
     input("\nPress Enter to restore VS Code...")
 
     print("\n=== RESTORE VS CODE ===")
 
-    success = manager.restore_window(hwnd)
+    success, response = desktop.restore_window(
+        "vs code"
+    )
 
     print("Success:", success)
+    print("Response:", response)
 
 
 if __name__ == "__main__":
     main()
+

@@ -1,4 +1,3 @@
-
 from ai.agent.task import Task
 from ai.planner.planner import Planner
 
@@ -8,73 +7,80 @@ class DesktopPlanner(Planner):
 
     DESKTOP_INTENTS = (
         "focus_window",
-        "close_window",
-        "close_active_window",
+        "minimize_window",
+        "maximize_window",
+        "restore_window",
+        "minimize_active_window",
+        "maximize_active_window",
+        "restore_active_window",
         "active_window",
         "list_windows",
     )
 
     def can_plan(self, command):
+        """Return True if this planner handles the command."""
+
         return command.intent in self.DESKTOP_INTENTS
 
     def plan(self, command):
+        """Create desktop automation tasks."""
+
         tasks = []
 
         intent = command.intent
 
         # =====================================================
-        # FOCUS WINDOW
+        # WINDOW ACTIONS WITH TARGET
         # =====================================================
 
-        if intent == "focus_window":
+        target_window_intents = (
+            "focus_window",
+            "minimize_window",
+            "maximize_window",
+            "restore_window",
+        )
 
+        if intent in target_window_intents:
+
+            # Prefer explicit window entities.
             windows = command.entities.get(
                 "windows",
                 [],
             )
 
+            # Fall back to application entities.
             if not windows:
-                return []
 
-            for window in windows:
-                tasks.append(
-                    Task(
-                        action="focus_window",
-                        target=window,
-                    )
+                windows = command.entities.get(
+                    "apps",
+                    [],
                 )
-
-        # =====================================================
-        # CLOSE WINDOW
-        # =====================================================
-
-        elif intent == "close_window":
-
-            windows = command.entities.get(
-                "windows",
-                [],
-            )
 
             if not windows:
                 return []
 
             for window in windows:
+
                 tasks.append(
                     Task(
-                        action="close_window",
+                        action=intent,
                         target=window,
                     )
                 )
 
         # =====================================================
-        # CLOSE ACTIVE WINDOW
+        # ACTIVE WINDOW ACTIONS
         # =====================================================
 
-        elif intent == "close_active_window":
+        elif intent in (
+            "minimize_active_window",
+            "maximize_active_window",
+            "restore_active_window",
+        ):
 
             tasks.append(
                 Task(
-                    action="close_active_window",
+                    action=intent,
                     target="",
                 )
             )

@@ -23,24 +23,6 @@ class DesktopHandler:
     # CLOSE
     # =====================================================
     
-    def close_window(self, target):
-        """Close a specific window."""
-    
-        if not target:
-            return "Please tell me which window to close."
-    
-        success, message = self.controller.close_window(target)
-    
-        return message
-    
-    def close_active_window(self):
-        """Close the currently active window."""
-    
-        success, message = (
-            self.controller.close_active_window()
-        )
-    
-        return message
     
     # =====================================================
     # ACTIVE WINDOW

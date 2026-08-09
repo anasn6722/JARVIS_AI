@@ -1,29 +1,31 @@
 
 from ai.tools.tool_executor import ToolExecutor
 from ai.tools.tool_registry import ToolRegistry
-from desktop_automation.controller.desktop_controller import DesktopController
+from desktop_automation.controller.desktop_controller import (
+    DesktopController,
+)
 
 
 class ToolRegistryBuilder:
+    """Build and register all JARVIS tools."""
 
     @staticmethod
     def build(brain):
-
         brain.tool_registry = ToolRegistry()
 
         brain.tool_executor = ToolExecutor(
             brain.tool_registry
         )
 
-        # -------------------------
-        # Desktop Automation
-        # -------------------------
+        # =================================================
+        # DESKTOP AUTOMATION
+        # =================================================
 
         brain.desktop = DesktopController()
 
-        # -------------------------
-        # Applications
-        # -------------------------
+        # =================================================
+        # APPLICATIONS
+        # =================================================
 
         brain.tool_registry.register(
             "open",
@@ -43,9 +45,9 @@ class ToolRegistryBuilder:
             brain.app_handler.close_last,
         )
 
-        # -------------------------
-        # Desktop Windows
-        # -------------------------
+        # =================================================
+        # DESKTOP WINDOWS
+        # =================================================
 
         brain.tool_registry.register(
             "list_windows",
@@ -66,20 +68,44 @@ class ToolRegistryBuilder:
         )
 
         brain.tool_registry.register(
-            "close_window",
-            "Close a specific desktop window",
-            brain.desktop.close_window,
+            "minimize_window",
+            "Minimize a desktop window",
+            brain.desktop.minimize_window,
         )
 
         brain.tool_registry.register(
-            "close_active_window",
-            "Close the currently active desktop window",
-            brain.desktop.close_active_window,
+            "maximize_window",
+            "Maximize a desktop window",
+            brain.desktop.maximize_window,
         )
 
-        # -------------------------
-        # Web
-        # -------------------------
+        brain.tool_registry.register(
+            "restore_window",
+            "Restore a desktop window",
+            brain.desktop.restore_window,
+        )
+
+        brain.tool_registry.register(
+            "minimize_active_window",
+            "Minimize the currently active window",
+            brain.desktop.minimize_active_window,
+        )
+
+        brain.tool_registry.register(
+            "maximize_active_window",
+            "Maximize the currently active window",
+            brain.desktop.maximize_active_window,
+        )
+
+        brain.tool_registry.register(
+            "restore_active_window",
+            "Restore the currently active window",
+            brain.desktop.restore_active_window,
+        )
+
+        # =================================================
+        # WEB
+        # =================================================
 
         brain.tool_registry.register(
             "search",
@@ -93,9 +119,9 @@ class ToolRegistryBuilder:
             brain.handle_youtube,
         )
 
-        # -------------------------
-        # Built-ins
-        # -------------------------
+        # =================================================
+        # BUILT-INS
+        # =================================================
 
         brain.tool_registry.register(
             "time",

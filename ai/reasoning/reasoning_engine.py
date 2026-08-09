@@ -18,28 +18,23 @@ class ReasoningEngine:
         "history",
     }
 
-    PLANNER_INTENTS = {
-    "open",
-    "close",
-    "close_last",
-    "search",
-    "youtube_search",
 
-    # Desktop automation
-    "focus_window",
-    "close_window",
-    "close_active_window",
-    "active_window",
-    "list_windows",
 
-    # Goals
-    "add_goal",
-    "show_goals",
-    "next_task",
-    "complete_task",
-    "goal_progress",
-    "delete_goal",
-}
+    PLANNER_INTENTS = (
+        # Desktop windows
+        "focus_window",
+        "close_window",
+        "close_active_window",
+        "minimize_window",
+        "maximize_window",
+        "restore_window",
+        "minimize_active_window",
+        "maximize_active_window",
+        "restore_active_window",
+        "active_window",
+        "list_windows",
+    )
+
 
     def __init__(self, brain):
         self.brain = brain

@@ -1,5 +1,5 @@
 
-from automation.desktop.window_manager import WindowManager
+from desktop_automation.controller.window_manager import WindowManager
 
 
 def main():

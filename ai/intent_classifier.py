@@ -1,3 +1,4 @@
+
 import re
 from typing import ClassVar
 
@@ -5,6 +6,7 @@ from ai.intent_utils import IntentUtils
 
 
 class IntentClassifier:
+    """Classifies natural-language commands into JARVIS intents."""
 
     OPEN_WORDS = (
         "open",
@@ -14,11 +16,12 @@ class IntentClassifier:
     )
 
     CLOSE_WORDS = (
-    "close",
-    "exit",
-    "quit",
-    "terminate",
+        "close",
+        "exit",
+        "quit",
+        "terminate",
     )
+
     FOCUS_WORDS = (
         "focus",
         "switch to",
@@ -56,6 +59,46 @@ class IntentClassifier:
         "close the current window",
     )
 
+    # =====================================================
+    # WINDOW CONTROL
+    # =====================================================
+
+    MINIMIZE_ACTIVE_WINDOW_PHRASES = (
+        "minimize active window",
+        "minimize the active window",
+        "minimize current window",
+        "minimize the current window",
+        "minimize this window",
+    )
+
+    MAXIMIZE_ACTIVE_WINDOW_PHRASES = (
+        "maximize active window",
+        "maximize the active window",
+        "maximize current window",
+        "maximize the current window",
+        "maximize this window",
+    )
+
+    RESTORE_ACTIVE_WINDOW_PHRASES = (
+        "restore active window",
+        "restore the active window",
+        "restore current window",
+        "restore the current window",
+        "restore this window",
+    )
+
+    MINIMIZE_WORDS = (
+        "minimize",
+    )
+
+    MAXIMIZE_WORDS = (
+        "maximize",
+    )
+
+    RESTORE_WORDS = (
+        "restore",
+    )
+
     SEARCH_WORDS = (
         "search",
         "google",
@@ -75,6 +118,7 @@ class IntentClassifier:
         "hi",
         "hey",
     )
+
     NORMALIZATION: ClassVar[dict[str, str]] = {
         "gold": "goal",
         "goalss": "goals",
@@ -92,7 +136,7 @@ class IntentClassifier:
         "can't": "cannot",
         "won't": "will not",
     }
-    
+
     MEMORY_QUERIES: ClassVar[dict[str, str]] = {
         # City
         "where do i live": "city",
@@ -117,6 +161,7 @@ class IntentClassifier:
         # Favorites
         "what do i like": "favorites",
     }
+
     PRONOUNS: ClassVar[set[str]] = {
         "it",
         "that",
@@ -142,31 +187,33 @@ class IntentClassifier:
         "resume it",
         "after that",
     )
+
     COMPLETE_TASK_WORDS = (
         "complete task",
         "mark task done",
         "task done",
         "finish task",
     )
+
     PROGRESS_WORDS = (
         "goal progress",
         "progress",
         "how much progress",
         "how far am i",
     )
+
     DELETE_GOAL_WORDS = (
         "delete goal",
         "remove goal",
         "forget goal",
     )
 
-    
-
     def classify(self, text: str) -> dict:
+        """Classify user input into an intent."""
+
         text = text.lower().strip()
         text = self.normalize(text)
 
-        
         # =====================================================
         # REFERENCE / CONTEXT COMMANDS
         # =====================================================
@@ -202,8 +249,6 @@ class IntentClassifier:
                 "intent": "complete_current_task",
             }
 
-
-
         # =====================================================
         # DESKTOP AUTOMATION
         # =====================================================
@@ -219,6 +264,45 @@ class IntentClassifier:
             return {
                 "destination": "BRAIN",
                 "intent": "close_active_window",
+            }
+
+        # -----------------------
+        # Minimize Active Window
+        # -----------------------
+
+        if IntentUtils.contains_any(
+            text,
+            self.MINIMIZE_ACTIVE_WINDOW_PHRASES,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "minimize_active_window",
+            }
+
+        # -----------------------
+        # Maximize Active Window
+        # -----------------------
+
+        if IntentUtils.contains_any(
+            text,
+            self.MAXIMIZE_ACTIVE_WINDOW_PHRASES,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "maximize_active_window",
+            }
+
+        # -----------------------
+        # Restore Active Window
+        # -----------------------
+
+        if IntentUtils.contains_any(
+            text,
+            self.RESTORE_ACTIVE_WINDOW_PHRASES,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "restore_active_window",
             }
 
         # -----------------------
@@ -261,6 +345,54 @@ class IntentClassifier:
             }
 
         # -----------------------
+        # Minimize Specific Window
+        # -----------------------
+
+        if (
+            IntentUtils.contains_any(
+                text,
+                self.MINIMIZE_WORDS,
+            )
+            and "window" in text
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "minimize_window",
+            }
+
+        # -----------------------
+        # Maximize Specific Window
+        # -----------------------
+
+        if (
+            IntentUtils.contains_any(
+                text,
+                self.MAXIMIZE_WORDS,
+            )
+            and "window" in text
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "maximize_window",
+            }
+
+        # -----------------------
+        # Restore Specific Window
+        # -----------------------
+
+        if (
+            IntentUtils.contains_any(
+                text,
+                self.RESTORE_WORDS,
+            )
+            and "window" in text
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "restore_window",
+            }
+
+        # -----------------------
         # Close Specific Window
         # -----------------------
 
@@ -274,9 +406,14 @@ class IntentClassifier:
                 "intent": "close_window",
             }
 
+        # =====================================================
+        # APPLICATIONS
+        # =====================================================
+
         # -----------------------
         # Open Applications
         # -----------------------
+
         if IntentUtils.contains_any(
             text,
             self.OPEN_WORDS,
@@ -289,7 +426,7 @@ class IntentClassifier:
         # -----------------------
         # Close Applications
         # -----------------------
-        
+
         if IntentUtils.contains_any(
             text,
             self.CLOSE_WORDS,
@@ -299,21 +436,26 @@ class IntentClassifier:
                 "intent": "close",
             }
 
-        # -----------------------
-        # Time
-        # -----------------------
-        if any(word in text for word in (
-            "time",
-            "clock",
-        )):
+        # =====================================================
+        # TIME
+        # =====================================================
+
+        if any(
+            word in text
+            for word in (
+                "time",
+                "clock",
+            )
+        ):
             return {
                 "destination": "BRAIN",
                 "intent": "time",
             }
 
-        # -----------------------
-        # Greeting
-        # -----------------------
+        # =====================================================
+        # GREETING
+        # =====================================================
+
         if IntentUtils.contains_any(
             text,
             self.HELLO_WORDS,
@@ -323,21 +465,25 @@ class IntentClassifier:
                 "intent": "hello",
             }
 
-        # -----------------------
-        # Identity
-        # -----------------------
-        if any(word in text for word in (
-            "who are you",
-            "your name",
-        )):
+        # =====================================================
+        # IDENTITY
+        # =====================================================
+
+        if any(
+            word in text
+            for word in (
+                "who are you",
+                "your name",
+            )
+        ):
             return {
                 "destination": "BRAIN",
                 "intent": "identity",
             }
 
-        # -----------------------
-        # Google Search
-        # -----------------------
+        # =====================================================
+        # GOOGLE SEARCH
+        # =====================================================
 
         if IntentUtils.contains_any(
             text,
@@ -348,39 +494,43 @@ class IntentClassifier:
                 "intent": "search",
             }
 
-        # -----------------------
-        # YouTube
-        # -----------------------
+        # =====================================================
+        # YOUTUBE
+        # =====================================================
+
         if IntentUtils.contains_any(
             text,
             self.YOUTUBE_WORDS,
         ):
             return {
-                "destination": "BRAIN",
-                "intent": "youtube",
-            }
+            "destination": "BRAIN",
+            "intent": "youtube",
+        }
 
-        # -----------------------
-        # Set Name
-        # -----------------------
+        # =====================================================
+        # SET NAME
+        # =====================================================
+
         if text.startswith("my name is"):
             return {
                 "destination": "BRAIN",
                 "intent": "set_name",
             }
 
-        # -----------------------
-        # Get Name
-        # -----------------------
+        # =====================================================
+        # GET NAME
+        # =====================================================
+
         if "what is my name" in text:
             return {
                 "destination": "BRAIN",
                 "intent": "get_name",
             }
 
-        # -----------------------
-        # Add Goal
-        # -----------------------
+        # =====================================================
+        # ADD GOAL
+        # =====================================================
+
         if text.startswith(
             (
                 "my goal is",
@@ -395,18 +545,18 @@ class IntentClassifier:
                 "destination": "BRAIN",
                 "intent": "add_goal",
             }
-           
 
-        # -----------------------
-        # Show Goals
-        # -----------------------
+        # =====================================================
+        # SHOW GOALS
+        # =====================================================
+
         if (
             "what are my goals" in text
-            or"what is my goal" in text
+            or "what is my goal" in text
             or "show my goals" in text
             or "my goal" in text
             or "my goals" in text
-            or"show my goal" in text
+            or "show my goal" in text
             or "show goals" in text
             or "my goals" == text
             or "goal" == text
@@ -417,7 +567,10 @@ class IntentClassifier:
                 "intent": "show_goals",
             }
 
-        # Add New Tasks
+        # =====================================================
+        # NEXT TASK
+        # =====================================================
+
         if IntentUtils.contains_any(
             text,
             self.NEXT_TASK_WORDS,
@@ -427,7 +580,10 @@ class IntentClassifier:
                 "intent": "next_task",
             }
 
-        # Complete Task
+        # =====================================================
+        # COMPLETE TASK
+        # =====================================================
+
         if IntentUtils.contains_any(
             text,
             self.COMPLETE_TASK_WORDS,
@@ -437,7 +593,10 @@ class IntentClassifier:
                 "intent": "complete_task",
             }
 
-        # Goal Progress
+        # =====================================================
+        # GOAL PROGRESS
+        # =====================================================
+
         if IntentUtils.contains_any(
             text,
             self.PROGRESS_WORDS,
@@ -447,7 +606,10 @@ class IntentClassifier:
                 "intent": "goal_progress",
             }
 
-        # Delete Goal
+        # =====================================================
+        # DELETE GOAL
+        # =====================================================
+
         if IntentUtils.contains_any(
             text,
             self.DELETE_GOAL_WORDS,
@@ -455,19 +617,24 @@ class IntentClassifier:
             return {
                 "destination": "BRAIN",
                 "intent": "delete_goal",
-            } 
+            }
+
+        # =====================================================
+        # MEMORY PREFERENCES
+        # =====================================================
 
         # -----------------------
-        # Memory Preferences
+        # Set Preference
         # -----------------------
 
-        # Set preference
         if (
             re.match(r"my .+ is .+", text)
-            or text.startswith((
-                "i live in ",
-                "remember that my ",
-            ))
+            or text.startswith(
+                (
+                    "i live in ",
+                    "remember that my ",
+                )
+            )
         ):
             return {
                 "destination": "BRAIN",
@@ -475,7 +642,7 @@ class IntentClassifier:
             }
 
         # -----------------------
-        # Get preference
+        # Get Preference
         # -----------------------
 
         for phrase in self.MEMORY_QUERIES:
@@ -487,22 +654,21 @@ class IntentClassifier:
 
         if (
             re.match(r"what is my .+", text)
-            or text.startswith((
-                "tell me my ",
-                "do you remember my ",
-            ))
+            or text.startswith(
+                (
+                    "tell me my ",
+                    "do you remember my ",
+                )
+            )
         ):
             return {
                 "destination": "BRAIN",
                 "intent": "get_preference",
             }
-        
-       
-        
 
-        # -----------------------
-        # Continue Search
-        # -----------------------
+        # =====================================================
+        # SEARCH RESULT REFERENCE
+        # =====================================================
 
         if text in (
             "open the first one",
@@ -516,17 +682,17 @@ class IntentClassifier:
                 "intent": "search_result",
             }
 
-        
+        # =====================================================
+        # DEFAULT
+        # =====================================================
 
-        # -----------------------
-        # Default
-        # -----------------------
         return {
             "destination": "AI",
             "intent": "chat",
         }
 
     def normalize(self, text):
+        """Normalize common variations and contractions."""
 
         text = text.lower().strip()
 
@@ -537,5 +703,3 @@ class IntentClassifier:
             )
 
         return text
-
-        

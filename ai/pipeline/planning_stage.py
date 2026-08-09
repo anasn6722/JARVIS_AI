@@ -1,14 +1,11 @@
 class PlanningStage:
-
     def __init__(self, brain):
         self.brain = brain
 
     def run(self, context):
-
         context.tasks = []
 
         for item in context.decisions:
-
             command = item["command"]
             decision = item["decision"]
 
@@ -16,15 +13,14 @@ class PlanningStage:
             if decision.route != "PLANNER":
                 continue
 
-            tasks = self.brain.planning_manager.plan(
-                command
-            )
-            
+            tasks = self.brain.planning_manager.plan(command)
+
             context.tasks.extend(tasks)
-            
-            context.graph = self.brain.graph_builder.build(
-                tasks
-            )
+
+        # Build ONE graph after all tasks are collected
+        context.graph = self.brain.graph_builder.build(
+            context.tasks
+        )
 
         print("=" * 50)
         print("ALL PLANNED TASKS")

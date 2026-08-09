@@ -1,4 +1,3 @@
-
 from ai.tools.tool import Tool
 
 
@@ -26,4 +25,4 @@ class ToolRegistry:
         return name in self.tools
 
     def all(self):
-        return self.tools
+        return self.tools.values()
