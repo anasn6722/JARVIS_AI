@@ -4,6 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
 
+from ai.agent.goal_state import GoalState
 from ai.agent.task import Task
 from ai.memory.goal_record import GoalRecord
 
@@ -158,6 +159,7 @@ class GoalMemory:
             "progress": goal.progress,
             "paused": goal.paused,
             "archived": goal.archived,
+            "state": goal.state.value,
             "description": goal.description,
             "metadata": goal.metadata,
         }
@@ -245,6 +247,14 @@ class GoalMemory:
 
             tasks.append(task)
 
+
+        state_value = data.get("state", "pending")
+
+        try:
+            state = GoalState(state_value)
+        except ValueError:
+            state = GoalState.PENDING
+
         return GoalRecord(
             id=goal_id,
             title=data.get(
@@ -271,6 +281,7 @@ class GoalMemory:
                 "archived",
                 False,
             ),
+            state=state,
             description=data.get(
                 "description",
                 "",

@@ -165,6 +165,7 @@
         "progress": 0.0,
         "paused": false,
         "archived": false,
+        "state": "pending",
         "description": "",
         "metadata": {}
     },
@@ -177,7 +178,94 @@
         "progress": 0.0,
         "paused": false,
         "archived": false,
+        "state": "pending",
         "description": "",
+        "metadata": {}
+    },
+    {
+        "id": "aabb44ec-a206-4a9d-b123-ffa29fb9d069",
+        "title": "Show my current desktop information",
+        "created": "2026-08-10T19:45:34.623037",
+        "tasks": [
+            {
+                "id": "74565f37",
+                "action": "get_display_info",
+                "target": null,
+                "depends_on": [],
+                "completed": true,
+                "success": true,
+                "retry_count": 0,
+                "max_retries": 2,
+                "result": {
+                    "screen_resolution": "1280x720"
+                },
+                "error": ""
+            },
+            {
+                "id": "5b33c182",
+                "action": "list_windows",
+                "target": null,
+                "depends_on": [],
+                "completed": true,
+                "success": true,
+                "retry_count": 0,
+                "max_retries": 2,
+                "result": [
+                    true,
+                    [
+                        {
+                            "hwnd": 66604,
+                            "title": "test_goal_orchestrator.py - JARVIS_AI - Visual Studio Code"
+                        },
+                        {
+                            "hwnd": 131926,
+                            "title": "ChatGPT Classic"
+                        },
+                        {
+                            "hwnd": 197468,
+                            "title": "Settings"
+                        },
+                        {
+                            "hwnd": 328034,
+                            "title": "Settings"
+                        },
+                        {
+                            "hwnd": 327942,
+                            "title": "Windows Input Experience"
+                        },
+                        {
+                            "hwnd": 65934,
+                            "title": "Program Manager"
+                        }
+                    ]
+                ],
+                "error": ""
+            },
+            {
+                "id": "16cd2f16",
+                "action": "active_window",
+                "target": null,
+                "depends_on": [],
+                "completed": true,
+                "success": true,
+                "retry_count": 0,
+                "max_retries": 2,
+                "result": [
+                    true,
+                    {
+                        "hwnd": 66604,
+                        "title": "test_goal_orchestrator.py - JARVIS_AI - Visual Studio Code"
+                    }
+                ],
+                "error": ""
+            }
+        ],
+        "completed": true,
+        "progress": 100.0,
+        "paused": false,
+        "archived": false,
+        "state": "completed",
+        "description": "Show my current desktop information",
         "metadata": {}
     }
 ]
