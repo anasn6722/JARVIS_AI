@@ -1,0 +1,35 @@
+[
+    {
+        "goal_id": "goal-001",
+        "action": "get_system_info",
+        "target": "desktop",
+        "success": true,
+        "result": "Windows 11",
+        "error": "",
+        "started": "2026-08-10 20:18:31.498926",
+        "completed": "2026-08-10 20:18:31.498926",
+        "id": "c4593166-d5bd-4a7e-a1c8-c1f64be0507d"
+    },
+    {
+        "goal_id": "goal-001",
+        "action": "get_display_info",
+        "target": "display",
+        "success": true,
+        "result": "1280x720",
+        "error": "",
+        "started": "2026-08-10 20:18:31.498926",
+        "completed": "2026-08-10 20:18:31.498926",
+        "id": "89e9345d-9277-457f-b040-7d4006171ecc"
+    },
+    {
+        "goal_id": "goal-002",
+        "action": "list_windows",
+        "target": "desktop",
+        "success": false,
+        "result": "",
+        "error": "Window enumeration failed",
+        "started": "2026-08-10 20:18:31.498926",
+        "completed": null,
+        "id": "e0c5d47f-c921-4181-82a8-a7766cf8494c"
+    }
+]
