@@ -30,7 +30,11 @@ class GoalExecutor:
                 graph=graph,
             )
 
+            if not graph.completed():
+                return False, response
+
             goal.completed = True
+
 
             print("=" * 60)
             print("GOAL EXECUTION COMPLETED")

@@ -1,3 +1,4 @@
+
 from ai.workflow.workflow_context import WorkflowContext
 from ai.workflow.workflow_status import WorkflowStatus
 
@@ -33,7 +34,6 @@ class GraphRunner:
             )
 
         context = WorkflowContext([])
-
         context.status = WorkflowStatus.RUNNING
 
         # ========================================================
@@ -66,13 +66,44 @@ class GraphRunner:
                 self.execute_node(node)
 
         # ========================================================
-        # FINISHED
+        # CHECK FAILED NODES
         # ========================================================
 
-        if graph.completed():
-            context.status = WorkflowStatus.COMPLETED
-        else:
+        failed_nodes = [
+            node
+            for node in graph.nodes
+            if node.failed
+        ]
+
+        if failed_nodes:
+
             context.status = WorkflowStatus.FAILED
+
+            print("=" * 60)
+            print("GRAPH RUNNER FAILED")
+            print("=" * 60)
+
+            return self.build_graph_result(graph)
+
+        # ========================================================
+        # CHECK WHETHER GRAPH ACTUALLY COMPLETED
+        # ========================================================
+
+        if not graph.completed():
+
+            context.status = WorkflowStatus.FAILED
+
+            print("=" * 60)
+            print("GRAPH RUNNER FAILED")
+            print("=" * 60)
+
+            return self.build_graph_result(graph)
+
+        # ========================================================
+        # SUCCESS
+        # ========================================================
+
+        context.status = WorkflowStatus.COMPLETED
 
         print("=" * 60)
         print("GRAPH RUNNER FINISHED")
@@ -172,7 +203,7 @@ class GraphRunner:
         self,
         graph,
     ):
-        """Build a readable response from completed tasks."""
+        """Build a readable response from graph task results."""
 
         responses = []
 
@@ -182,11 +213,11 @@ class GraphRunner:
 
             if task.result is not None:
 
-                if isinstance(
-                    task.result,
-                    tuple,
-                ):
-                    success, message = task.result
+                result = task.result
+
+                if isinstance(result, tuple):
+
+                    success, message = result
 
                     responses.append(
                         str(message)
@@ -195,13 +226,17 @@ class GraphRunner:
                 else:
 
                     responses.append(
-                        str(task.result)
+                        str(result)
                     )
 
             elif node.failed:
 
                 responses.append(
-                    f"Failed: {task.action}"
+                    f"Failed: {task.action}: "
+                    f"{task.error}"
                 )
+
+        if not responses:
+            return "No results were produced."
 
         return "\n".join(responses)

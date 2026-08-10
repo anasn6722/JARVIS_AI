@@ -1,6 +1,7 @@
 from ai.agent.goal_decomposer import GoalDecomposer
 from ai.agent.goal_executor import GoalExecutor
 from ai.tools.tool_executor import ToolExecutor
+from ai.tools.tool_loader import create_tool_registry
 from ai.tools.tool_registry import ToolRegistry
 from ai.workflow.workflow_manager import WorkflowManager
 from desktop_automation.controller.desktop_controller import DesktopController
@@ -51,6 +52,11 @@ def build_registry():
         callback=desktop.get_active_window,
     )
 
+    registry = create_tool_registry()
+    
+    tool_executor = ToolExecutor(
+        registry,
+    )
     return registry
 
 

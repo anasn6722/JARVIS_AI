@@ -11,6 +11,10 @@ class GoalGraph:
 
         self.nodes.append(node)
 
+    def all_nodes(self):
+        """Return all nodes in the graph."""
+        return self.nodes
+
     def connect(
         self,
         parent: GoalNode,

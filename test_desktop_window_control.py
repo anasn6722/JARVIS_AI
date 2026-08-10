@@ -1,64 +1,21 @@
-from desktop_automation.controller.desktop_controller import (
-    DesktopController,
+from ai.tools.tool_registry import ToolRegistry
+from desktop_automation.tools.desktop_tools import (
+    register_desktop_tools,
 )
 
 
 def main():
-    desktop = DesktopController()
+    print("\n=== DESKTOP TOOL REGISTRATION TEST ===\n")
 
-    print("\n=== FIND VS CODE ===")
+    registry = ToolRegistry()
 
-    window = desktop.find_window("vs code")
+    register_desktop_tools(registry)
 
-    print(window)
+    print("Registered desktop tools:\n")
 
-    if not window:
-        print("VS Code not found.")
-        return
-
-    print("\n=== MINIMIZE VS CODE ===")
-
-    success, response = desktop.minimize_window(
-        "vs code"
-    )
-
-    print("Success:", success)
-    print("Response:", response)
-
-    input("\nPress Enter to restore VS Code...")
-
-    print("\n=== RESTORE VS CODE ===")
-
-    success, response = desktop.restore_window(
-        "vs code"
-    )
-
-    print("Success:", success)
-    print("Response:", response)
-
-    input("\nPress Enter to maximize VS Code...")
-
-    print("\n=== MAXIMIZE VS CODE ===")
-
-    success, response = desktop.maximize_window(
-        "vs code"
-    )
-
-    print("Success:", success)
-    print("Response:", response)
-
-    input("\nPress Enter to restore VS Code...")
-
-    print("\n=== RESTORE VS CODE ===")
-
-    success, response = desktop.restore_window(
-        "vs code"
-    )
-
-    print("Success:", success)
-    print("Response:", response)
+    for tool in registry.all():
+        print(f"- {tool.name}: {tool.description}")
 
 
 if __name__ == "__main__":
     main()
-
