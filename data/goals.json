@@ -1,63 +1,183 @@
 [
     {
+        "id": "252ee010-c173-4212-bdc6-66bd3b879031",
         "title": "create goal learn django",
-        "created": "2026-08-02 10:39",
-        "deadline": "",
-        "progress": 0,
-        "completed": false,
+        "created": "2026-08-02T10:39:00",
         "tasks": [
             {
-                "task": "Install Python and set up a virtual environment",
-                "done": false
+                "id": "dd5a0c52",
+                "action": "Install Python and set up a virtual environment",
+                "target": "",
+                "depends_on": [],
+                "completed": false,
+                "success": false,
+                "retry_count": 0,
+                "max_retries": 2,
+                "result": "",
+                "error": ""
             },
             {
-                "task": "Install Django via pip",
-                "done": false
+                "id": "a26cb3fd",
+                "action": "Install Django via pip",
+                "target": "",
+                "depends_on": [],
+                "completed": false,
+                "success": false,
+                "retry_count": 0,
+                "max_retries": 2,
+                "result": "",
+                "error": ""
             },
             {
-                "task": "Initialize a new Django project",
-                "done": false
+                "id": "77ba0684",
+                "action": "Initialize a new Django project",
+                "target": "",
+                "depends_on": [],
+                "completed": false,
+                "success": false,
+                "retry_count": 0,
+                "max_retries": 2,
+                "result": "",
+                "error": ""
             },
             {
-                "task": "Create a Django application within the project",
-                "done": false
+                "id": "a0dbb103",
+                "action": "Create a Django application within the project",
+                "target": "",
+                "depends_on": [],
+                "completed": false,
+                "success": false,
+                "retry_count": 0,
+                "max_retries": 2,
+                "result": "",
+                "error": ""
             },
             {
-                "task": "Understand the MVT (Model-View-Template) architecture",
-                "done": false
+                "id": "ea2ad647",
+                "action": "Understand the MVT (Model-View-Template) architecture",
+                "target": "",
+                "depends_on": [],
+                "completed": false,
+                "success": false,
+                "retry_count": 0,
+                "max_retries": 2,
+                "result": "",
+                "error": ""
             },
             {
-                "task": "Define database models and run migrations",
-                "done": false
+                "id": "901d846b",
+                "action": "Define database models and run migrations",
+                "target": "",
+                "depends_on": [],
+                "completed": false,
+                "success": false,
+                "retry_count": 0,
+                "max_retries": 2,
+                "result": "",
+                "error": ""
             },
             {
-                "task": "Configure URL routing in urls.py",
-                "done": false
+                "id": "869b690e",
+                "action": "Configure URL routing in urls.py",
+                "target": "",
+                "depends_on": [],
+                "completed": false,
+                "success": false,
+                "retry_count": 0,
+                "max_retries": 2,
+                "result": "",
+                "error": ""
             },
             {
-                "task": "Create views to handle request logic",
-                "done": false
+                "id": "c4e54433",
+                "action": "Create views to handle request logic",
+                "target": "",
+                "depends_on": [],
+                "completed": false,
+                "success": false,
+                "retry_count": 0,
+                "max_retries": 2,
+                "result": "",
+                "error": ""
             },
             {
-                "task": "Design HTML templates using Django Template Language",
-                "done": false
+                "id": "7ee1fcfb",
+                "action": "Design HTML templates using Django Template Language",
+                "target": "",
+                "depends_on": [],
+                "completed": false,
+                "success": false,
+                "retry_count": 0,
+                "max_retries": 2,
+                "result": "",
+                "error": ""
             },
             {
-                "task": "Register models with the Django Admin panel",
-                "done": false
+                "id": "60fa11cc",
+                "action": "Register models with the Django Admin panel",
+                "target": "",
+                "depends_on": [],
+                "completed": false,
+                "success": false,
+                "retry_count": 0,
+                "max_retries": 2,
+                "result": "",
+                "error": ""
             },
             {
-                "task": "Implement Django Forms for user input",
-                "done": false
+                "id": "340a0da5",
+                "action": "Implement Django Forms for user input",
+                "target": "",
+                "depends_on": [],
+                "completed": false,
+                "success": false,
+                "retry_count": 0,
+                "max_retries": 2,
+                "result": "",
+                "error": ""
             },
             {
-                "task": "Set up basic user authentication",
-                "done": false
+                "id": "ea1f0090",
+                "action": "Set up basic user authentication",
+                "target": "",
+                "depends_on": [],
+                "completed": false,
+                "success": false,
+                "retry_count": 0,
+                "max_retries": 2,
+                "result": "",
+                "error": ""
             },
             {
-                "task": "Build and deploy a simple CRUD application",
-                "done": false
+                "id": "4cf7db6b",
+                "action": "Build and deploy a simple CRUD application",
+                "target": "",
+                "depends_on": [],
+                "completed": false,
+                "success": false,
+                "retry_count": 0,
+                "max_retries": 2,
+                "result": "",
+                "error": ""
             }
-        ]
+        ],
+        "completed": false,
+        "progress": 0.0,
+        "paused": false,
+        "archived": false,
+        "description": "",
+        "metadata": {}
+    },
+    {
+        "id": "goal-history-001",
+        "title": "Test desktop goal",
+        "created": "2026-08-10T14:59:42.258290",
+        "tasks": [],
+        "completed": false,
+        "progress": 0.0,
+        "paused": false,
+        "archived": false,
+        "description": "",
+        "metadata": {}
     }
 ]
