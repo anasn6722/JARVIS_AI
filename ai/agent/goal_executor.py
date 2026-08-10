@@ -62,6 +62,7 @@ class GoalExecutor:
 
             response = self.workflow_manager.run(
                 graph=graph,
+                goal_id=goal.id,
             )
 
             # ====================================================

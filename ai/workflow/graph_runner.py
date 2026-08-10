@@ -1,4 +1,7 @@
 
+from datetime import datetime
+
+from ai.memory.execution.execution_record import ExecutionRecord
 from ai.workflow.workflow_context import WorkflowContext
 from ai.workflow.workflow_status import WorkflowStatus
 
@@ -11,16 +14,22 @@ class GraphRunner:
         tool_executor,
         events,
         retry_manager,
+        execution_memory=None,
     ):
         self.tool_executor = tool_executor
         self.events = events
         self.retry_manager = retry_manager
+        self.execution_memory = execution_memory
 
     # ============================================================
     # RUN GRAPH
     # ============================================================
 
-    def run(self, graph):
+    def run(
+        self,
+        graph,
+        goal_id=None,
+    ):
         print("=" * 60)
         print("GRAPH RUNNER START")
         print("=" * 60)
@@ -63,7 +72,10 @@ class GraphRunner:
                     node.task.target,
                 )
 
-                self.execute_node(node)
+                self.execute_node(
+                    node,
+                    goal_id=goal_id,
+                )
 
         # ========================================================
         # CHECK FAILED NODES
@@ -118,6 +130,7 @@ class GraphRunner:
     def execute_node(
         self,
         node,
+        goal_id=None,
     ):
         """Execute one ready graph node."""
 
@@ -156,6 +169,18 @@ class GraphRunner:
                     node.task.action,
                 )
 
+            if self.execution_memory is not None:
+                self.execution_memory.add(
+                    ExecutionRecord(
+                        goal_id=goal_id or "",
+                        action=node.task.action,
+                        target=node.task.target,
+                        success=True,
+                        result=result,
+                        completed=datetime.now(),
+                    )
+                )
+
             # ====================================================
             # SUCCESS
             # ====================================================
@@ -181,6 +206,21 @@ class GraphRunner:
             node.task.completed = False
 
             node.failed = True
+
+            
+
+            if self.execution_memory is not None:
+                self.execution_memory.add(
+                    ExecutionRecord(
+                        goal_id=goal_id or "",
+                        action=node.task.action,
+                        target=node.task.target,
+                        success=False,
+                        result="",
+                        error=str(error),
+                        completed=datetime.now(),
+                    )
+                )
 
             print(
                 "GRAPH NODE FAILED:",
