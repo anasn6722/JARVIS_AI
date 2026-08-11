@@ -127,48 +127,53 @@ class GraphRunner:
     # EXECUTE NODE
     # ============================================================
 
+        
     def execute_node(
         self,
         node,
         goal_id=None,
     ):
         """Execute one ready graph node."""
-
+    
         if (
             node.completed
             or node.failed
             or node.blocked
         ):
             return False
-
+    
         if not node.ready:
             return False
-
+    
+        started = datetime.now()
+    
         try:
-
             print(
                 "Tool:",
                 node.task.action,
                 node.task.target,
             )
-
+    
             # ====================================================
             # EXECUTE TOOL
             # ====================================================
-
+    
             if node.task.target:
-
                 result = self.tool_executor.execute(
                     node.task.action,
                     node.task.target,
                 )
-
             else:
-
                 result = self.tool_executor.execute(
                     node.task.action,
                 )
-
+    
+            completed = datetime.now()
+    
+            # ====================================================
+            # SAVE EXECUTION HISTORY
+            # ====================================================
+    
             if self.execution_memory is not None:
                 self.execution_memory.add(
                     ExecutionRecord(
@@ -176,39 +181,43 @@ class GraphRunner:
                         action=node.task.action,
                         target=node.task.target,
                         success=True,
-                        result=result,
-                        completed=datetime.now(),
+                        result=str(result),
+                        started=started,
+                        completed=completed,
                     )
                 )
-
+    
             # ====================================================
             # SUCCESS
             # ====================================================
-
+    
             node.task.result = result
             node.task.success = True
             node.task.error = ""
             node.task.completed = True
-
+    
             node.completed = True
             node.failed = False
-
+    
             return True
-
+    
         except Exception as error:
-
+            completed = datetime.now()
+    
             # ====================================================
             # FAILURE
             # ====================================================
-
+    
             node.task.error = str(error)
             node.task.success = False
             node.task.completed = False
-
+    
             node.failed = True
-
-            
-
+    
+            # ====================================================
+            # SAVE FAILED EXECUTION
+            # ====================================================
+    
             if self.execution_memory is not None:
                 self.execution_memory.add(
                     ExecutionRecord(
@@ -218,23 +227,25 @@ class GraphRunner:
                         success=False,
                         result="",
                         error=str(error),
-                        completed=datetime.now(),
+                        started=started,
+                        completed=completed,
                     )
                 )
-
+    
             print(
                 "GRAPH NODE FAILED:",
                 node.task.action,
                 node.task.target,
             )
-
+    
             print(
                 "ERROR:",
                 error,
             )
-
+    
             return False
-
+    
+    
     # ============================================================
     # BUILD GRAPH RESULT
     # ============================================================

@@ -6,9 +6,9 @@
         "success": true,
         "result": "Windows 11",
         "error": "",
-        "started": "2026-08-10 20:39:48.604166",
-        "completed": "2026-08-10 20:39:48.604166",
-        "id": "813158f7-30ba-4383-b34e-9e5f7b1e9c12"
+        "started": "2026-08-11 16:26:20.974777",
+        "completed": "2026-08-11 16:26:20.974777",
+        "id": "01c2f9e1-91df-4417-82ee-ba4925dfbfb7"
     },
     {
         "goal_id": "goal-001",
@@ -17,9 +17,9 @@
         "success": true,
         "result": "1280x720",
         "error": "",
-        "started": "2026-08-10 20:39:48.604166",
-        "completed": "2026-08-10 20:39:48.604166",
-        "id": "b3899372-13ca-4eff-9ab2-94dd252fac9a"
+        "started": "2026-08-11 16:26:20.974777",
+        "completed": "2026-08-11 16:26:20.974777",
+        "id": "6ba30e62-b4fa-437a-ba4f-70e6a0a27372"
     },
     {
         "goal_id": "goal-002",
@@ -28,77 +28,41 @@
         "success": false,
         "result": "",
         "error": "Window enumeration failed",
-        "started": "2026-08-10 20:39:48.604166",
+        "started": "2026-08-11 16:26:20.974777",
         "completed": null,
-        "id": "60ade408-2494-4ecb-9ef0-5b0b4f199cfd"
+        "id": "c3f72b2f-dcc6-4102-8ce0-22a2a966fba6"
     },
     {
-        "goal_id": "9bc45aab-4baa-4a5e-8015-5d2778a22b30",
+        "goal_id": "a78855db-1c73-4494-a330-694285ecb2a0",
         "action": "get_display_info",
         "target": null,
         "success": true,
-        "result": {
-            "screen_resolution": "1280x720"
-        },
+        "result": "{'screen_resolution': '1280x720'}",
         "error": "",
-        "started": "2026-08-10 20:40:03.936498",
-        "completed": "2026-08-10 20:40:03.936498",
-        "id": "a3dd29b1-3547-49a7-9e09-652b5b2c4106"
+        "started": "2026-08-11 16:26:35.024628",
+        "completed": "2026-08-11 16:26:35.155817",
+        "id": "a3723816-7913-44aa-a3cb-d3c7c36e61e7"
     },
     {
-        "goal_id": "9bc45aab-4baa-4a5e-8015-5d2778a22b30",
+        "goal_id": "a78855db-1c73-4494-a330-694285ecb2a0",
         "action": "list_windows",
         "target": null,
         "success": true,
-        "result": [
-            true,
-            [
-                {
-                    "hwnd": 66604,
-                    "title": "graph_runner.py - JARVIS_AI - Visual Studio Code"
-                },
-                {
-                    "hwnd": 131926,
-                    "title": "ChatGPT Classic"
-                },
-                {
-                    "hwnd": 197468,
-                    "title": "Settings"
-                },
-                {
-                    "hwnd": 328034,
-                    "title": "Settings"
-                },
-                {
-                    "hwnd": 327942,
-                    "title": "Windows Input Experience"
-                },
-                {
-                    "hwnd": 65934,
-                    "title": "Program Manager"
-                }
-            ]
-        ],
+        "result": "(True, [{'hwnd': 67014, 'title': 'graph_runner.py - JARVIS_AI - Visual Studio Code'}, {'hwnd': 132520, 'title': 'ChatGPT Classic'}, {'hwnd': 525808, 'title': 'Settings'}, {'hwnd': 131460, 'title': 'Settings'}, {'hwnd': 263240, 'title': 'Windows Input Experience'}, {'hwnd': 65984, 'title': 'Program Manager'}])",
         "error": "",
-        "started": "2026-08-10 20:40:03.936498",
-        "completed": "2026-08-10 20:40:03.936498",
-        "id": "2c62b320-2fdb-4136-a724-486422e58590"
+        "started": "2026-08-11 16:26:35.157825",
+        "completed": "2026-08-11 16:26:35.159070",
+        "id": "5c7a60d1-70bd-49d1-b733-d49d578444cc"
     },
     {
-        "goal_id": "9bc45aab-4baa-4a5e-8015-5d2778a22b30",
+        "goal_id": "a78855db-1c73-4494-a330-694285ecb2a0",
         "action": "active_window",
         "target": null,
         "success": true,
-        "result": [
-            true,
-            {
-                "hwnd": 66604,
-                "title": "graph_runner.py - JARVIS_AI - Visual Studio Code"
-            }
-        ],
+        "result": "(True, {'hwnd': 67014, 'title': 'graph_runner.py - JARVIS_AI - Visual Studio Code'})",
         "error": "",
-        "started": "2026-08-10 20:40:03.936498",
-        "completed": "2026-08-10 20:40:03.936498",
-        "id": "e2882356-c09f-44e4-be76-14631b569bc1"
+        "started": "2026-08-11 16:26:35.159070",
+        "completed": "2026-08-11 16:26:35.159070",
+        "id": "2fa8acf3-80dd-4bdc-9503-e1d647a5e405"
     }
 ]

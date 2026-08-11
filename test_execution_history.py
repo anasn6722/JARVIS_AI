@@ -89,6 +89,42 @@ def main():
             execution.error,
         )
 
+    
+    print("\n=== BY ACTION ===")
+
+    for execution in history.by_action(
+        "get_system_info",
+    ):
+        print(
+            execution.action,
+            "->",
+            execution.result,
+        )
+
+    print("\n=== TODAY ===")
+
+    for execution in history.today():
+        print(
+            execution.action,
+            "->",
+            execution.success,
+        )
+
+    print("\n=== COUNTS ===")
+
+    print(
+        "Successful:",
+        history.successful_count(),
+    )
+
+    print(
+        "Failed:",
+        history.failed_count(),
+    )
+
+    print("\n=== SUMMARY ===")
+
+    print(history.summary())
     print("\n=== TEST PASSED ===")
 
 
