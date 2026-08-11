@@ -17,6 +17,58 @@ class DesktopController:
         """Return the currently active window."""
         return self.window_manager.get_active_window()
 
+        
+    def minimize_active_window(self):
+        """Minimize the currently active window."""
+        window = self.window_manager.get_active_window()
+
+        if not window:
+            return False, "No active window found."
+
+        success = self.window_manager.minimize_window(
+            window["hwnd"]
+        )
+
+        if success:
+            return True, f"Minimized {window['title']}."
+
+        return False, f"Could not minimize {window['title']}."
+
+
+    def maximize_active_window(self):
+        """Maximize the currently active window."""
+        window = self.window_manager.get_active_window()
+
+        if not window:
+            return False, "No active window found."
+
+        success = self.window_manager.maximize_window(
+            window["hwnd"]
+        )
+
+        if success:
+            return True, f"Maximized {window['title']}."
+
+        return False, f"Could not maximize {window['title']}."
+
+
+    def restore_active_window(self):
+        """Restore the currently active window."""
+        window = self.window_manager.get_active_window()
+
+        if not window:
+            return False, "No active window found."
+
+        success = self.window_manager.restore_window(
+            window["hwnd"]
+        )
+
+        if success:
+            return True, f"Restored {window['title']}."
+
+        return False, f"Could not restore {window['title']}."
+
+
 
     def find_window(self, name):
         """Find a window by its natural name."""

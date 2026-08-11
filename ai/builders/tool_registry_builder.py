@@ -58,7 +58,7 @@ class ToolRegistryBuilder:
         brain.tool_registry.register(
             "active_window",
             "Get the currently active window",
-            brain.desktop.active_window,
+            brain.desktop.get_active_window,
         )
 
         brain.tool_registry.register(

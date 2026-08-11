@@ -1,8 +1,24 @@
+from ai.memory.execution.execution_context import ExecutionContext
+from ai.memory.execution.execution_history import ExecutionHistory
+from ai.memory.execution.execution_memory import ExecutionMemory
+from ai.memory.execution.execution_query import ExecutionQuery
+
 
 class ExecutionHandler:
+
     def __init__(self, brain):
         self.brain = brain
 
+        self.execution_memory = ExecutionMemory()
+        self.execution_history = ExecutionHistory(
+            self.execution_memory
+        )
+        self.execution_query = ExecutionQuery(
+            self.execution_history
+        )
+        self.execution_context = ExecutionContext(
+            self.execution_query
+        )
 
     # -----------------------------------
     # Available AI Tools
@@ -60,17 +76,21 @@ class ExecutionHandler:
             "",
         )
 
+        execution_context = self.execution_context.recent(5)
+
         return f"""
-Last App: {last_app}
-
-Last Search: {last_search}
-
-Current Goal: {current_goal}
-
-Previous Tasks:
-{last_tasks}
-"""
-
+    Last App: {last_app}
+    
+    Last Search: {last_search}
+    
+    Current Goal: {current_goal}
+    
+    Previous Tasks:
+    {last_tasks}
+    
+    Recent Execution History:
+    {execution_context}
+    """
     # -----------------------------------
     # Builtin Commands
     # -----------------------------------

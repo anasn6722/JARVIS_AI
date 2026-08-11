@@ -162,60 +162,91 @@ class ServiceBuilder:
         brain.reasoning = ReasoningEngine(brain)
 
         # =====================================================
-        # Planning
+        # Planning - Basic AI Planner
         # =====================================================
-
-        brain.ai_planner = AIPlanner(brain.llm)
-
-        brain.goal_ai_planner = GoalAIPlanner(
+        
+        brain.ai_planner = AIPlanner(
             brain.llm
         )
-
+        
+        # =====================================================
+        # Handlers
+        # =====================================================
+        
+        brain.builtin = BuiltinHandler(brain)
+        
+        brain.app_handler = AppHandler(brain)
+        
+        brain.chat_handler = ChatHandler(brain)
+        
+        brain.memory_handler = MemoryHandler(brain)
+        
+        brain.goal_handler = GoalHandler(brain)
+        
+        brain.execution_handler = ExecutionHandler(brain)
+        
+        # =====================================================
+        # Tool System
+        # =====================================================
+        
+        ToolRegistryBuilder.build(brain)
+        
+        # =====================================================
+        # Goal AI Planner
+        # =====================================================
+        
+        brain.goal_ai_planner = GoalAIPlanner(
+            brain.llm,
+            brain.tool_registry,
+        )
+        
+        # =====================================================
+        # Planner Registry
+        # =====================================================
+        
         brain.planner_registry = PlannerRegistry()
-
-        brain.planner_registry.register(AppPlanner())
-        brain.planner_registry.register(DesktopPlanner())
-        brain.planner_registry.register(SearchPlanner())
-        brain.planner_registry.register(MemoryPlanner())
-
+        
+        brain.planner_registry.register(
+            AppPlanner()
+        )
+        
+        brain.planner_registry.register(
+            DesktopPlanner()
+        )
+        
+        brain.planner_registry.register(
+            SearchPlanner()
+        )
+        
+        brain.planner_registry.register(
+            MemoryPlanner()
+        )
+        
         brain.planner_registry.register(
             GoalPlanner(
                 brain.goal_ai_planner,
                 brain.task_parser,
             )
         )
-
-        brain.planner_registry.register(TimePlanner())
-        brain.planner_registry.register(IdentityPlanner())
-
+        
+        brain.planner_registry.register(
+            TimePlanner()
+        )
+        
+        brain.planner_registry.register(
+            IdentityPlanner()
+        )
+        
+        # =====================================================
+        # Planning Manager
+        # =====================================================
+        
         brain.planning_manager = PlanningManager(
             planner_registry=brain.planner_registry,
             ai_planner=brain.ai_planner,
             available_tools_provider=brain.available_tools,
             planner_context_provider=brain.planner_context,
         )
-
-        # =====================================================
-        # Handlers
-        # =====================================================
-
-        brain.builtin = BuiltinHandler(brain)
-
-        brain.app_handler = AppHandler(brain)
-
-        brain.chat_handler = ChatHandler(brain)
-
-        brain.memory_handler = MemoryHandler(brain)
-
-        brain.goal_handler = GoalHandler(brain)
-
-        brain.execution_handler = ExecutionHandler(brain)
-
-        # =====================================================
-        # Tool System
-        # =====================================================
-
-        ToolRegistryBuilder.build(brain)
 
         # =====================================================
         # Workflow
