@@ -36,7 +36,7 @@ class GraphRunner:
 
         print("Nodes in graph:")
 
-        for node in graph.nodes:
+        for node in graph.nodes.values():
             print(
                 node.task.action,
                 node.task.target,
@@ -83,7 +83,7 @@ class GraphRunner:
 
         failed_nodes = [
             node
-            for node in graph.nodes
+            for node in graph.nodes.values()
             if node.failed
         ]
 
@@ -258,7 +258,7 @@ class GraphRunner:
 
         responses = []
 
-        for node in graph.nodes:
+        for node in graph.nodes.values():
 
             task = node.task
 

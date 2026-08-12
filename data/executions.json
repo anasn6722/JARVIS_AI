@@ -64,5 +64,38 @@
         "started": "2026-08-11 16:26:35.159070",
         "completed": "2026-08-11 16:26:35.159070",
         "id": "2fa8acf3-80dd-4bdc-9503-e1d647a5e405"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-12 19:45:41.113621",
+        "completed": "2026-08-12 19:45:41.139816",
+        "id": "b50e1ba0-6d2b-4b1d-9f54-030a61d67f1c"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-12 19:47:32.129511",
+        "completed": "2026-08-12 19:47:32.159252",
+        "id": "e13eb429-269d-44d4-b0a0-ad809c22d639"
+    },
+    {
+        "goal_id": "",
+        "action": "search",
+        "target": "python classes",
+        "success": true,
+        "result": "Searching Google for python classes.",
+        "error": "",
+        "started": "2026-08-12 21:21:26.219276",
+        "completed": "2026-08-12 21:21:26.395756",
+        "id": "4683e388-a2c2-4266-91b6-4712180de706"
     }
 ]

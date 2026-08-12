@@ -12,36 +12,29 @@ class Pipeline:
     def __init__(self, brain):
 
         self.stages = [
-
             MemoryStage(brain),
-
             CommandStage(brain),
-
             ReasoningStage(brain),
-
-            AIStage(brain),
-
             PlanningStage(brain),
-
             ExecutionStage(brain),
-
             ResponseStage(brain),
-
+            AIStage(brain),
         ]
-
 
     def run(self, context):
 
         print("\n===== PIPELINE START =====")
-    
+
         for stage in self.stages:
-        
-            print(f"Running: {stage.__class__.__name__}")
-    
+
+            print(
+                f"Running: {stage.__class__.__name__}"
+            )
+
             stage.run(context)
-    
+
             if context.stop:
                 print("Pipeline stopped.")
                 break
-            
+
         print("===== PIPELINE END =====\n")

@@ -1,114 +1,87 @@
-class DesktopPlanner:
-    """Convert desktop commands into structured actions."""
-    
-    ACTIONS = {
-        # Window listing / information
-        "show windows": "list_windows",
-        "list windows": "list_windows",
-        "show all windows": "list_windows",
-        "list all windows": "list_windows",
-    
-        "active window": "active_window",
-        "current window": "active_window",
-        "what is active": "active_window",
-    
-        # Focus / switch
-        "focus": "focus_window",
-        "focus window": "focus_window",
-        "switch to": "focus_window",
-        "switch window to": "focus_window",
-        "bring": "focus_window",
-        "bring window": "focus_window",
-        "bring forward": "focus_window",
-    
-        # Minimize
-        "minimize": "minimize_window",
-        "minimize window": "minimize_window",
-        "hide": "minimize_window",
-        "hide window": "minimize_window",
-    
-        # Maximize
-        "maximize": "maximize_window",
-        "maximize window": "maximize_window",
-        "make full screen": "maximize_window",
-        "expand": "maximize_window",
-    
-        # Restore
-        "restore": "restore_window",
-        "restore window": "restore_window",
-        "show": "restore_window",
-        "show window": "restore_window",
-        "bring back": "restore_window",
-    
-        # Close
-        "close": "close_window",
-        "close window": "close_window",
-        "exit": "close_window",
-        "exit window": "close_window",
+from ai.planner.planner import Planner
+
+
+class DesktopPlanner(Planner):
+    """Plan desktop window automation commands."""
+
+    DESKTOP_INTENTS = {
+        "focus_window",
+        "close_window",
+        "close_active_window",
+        "minimize_window",
+        "maximize_window",
+        "restore_window",
+        "minimize_active_window",
+        "maximize_active_window",
+        "restore_active_window",
+        "active_window",
+        "list_windows",
     }
-    
-    def plan(self, command):
-        """Convert a text command into an action and target."""
-    
+
+    ACTIONS = {
+        "focus_window": "focus_window",
+        "close_window": "close_window",
+        "close_active_window": "close_active_window",
+        "minimize_window": "minimize_window",
+        "maximize_window": "maximize_window",
+        "restore_window": "restore_window",
+        "minimize_active_window": "minimize_active_window",
+        "maximize_active_window": "maximize_active_window",
+        "restore_active_window": "restore_active_window",
+        "active_window": "active_window",
+        "list_windows": "list_windows",
+    }
+
+    def can_plan(self, command):
+        """Return True when this planner handles the command."""
+
         if not command:
-            return None
-    
-        command = " ".join(command.lower().strip().split())
-    
-        # Commands without a target.
-        if command in self.ACTIONS:
-            action = self.ACTIONS[command]
-    
-            if action in {
-                "list_windows",
-                "active_window",
-            }:
-                return {
-                    "action": action,
-                    "target": None,
-                }
-    
-            return None
-    
-        # Commands that require a target.
-        #
-        # Sort phrases by length so that:
-        #
-        # "focus window VS Code"
-        #
-        # is matched before:
-        #
-        # "focus VS Code"
-        #
-        # This prevents shorter phrases from stealing commands
-        # from more specific phrases.
-        phrases = sorted(
-            self.ACTIONS.items(),
-            key=lambda item: len(item[0]),
-            reverse=True,
+            return False
+
+        return command.intent in self.DESKTOP_INTENTS
+
+    def plan(self, command):
+        """Convert a Command object into desktop Task objects."""
+
+        if not self.can_plan(command):
+            return []
+
+        action = self.ACTIONS.get(command.intent)
+
+        if not action:
+            return []
+
+        target = None
+
+        if hasattr(command, "entities"):
+            entities = command.entities or {}
+
+            windows = entities.get("windows", [])
+            apps = entities.get("apps", [])
+
+            if windows:
+                target = windows[0]
+
+            elif apps:
+                target = apps[0]
+
+        # Some desktop actions operate on the active window.
+        if action in {
+            "active_window",
+            "list_windows",
+            "close_active_window",
+            "minimize_active_window",
+            "maximize_active_window",
+            "restore_active_window",
+        }:
+            target = None
+
+        # Import here to avoid unnecessary circular imports.
+        from ai.agent.task import Task
+
+        task = Task(
+            action=action,
+            target=target,
         )
-    
-        for phrase, action in phrases:
-            prefix = phrase + " "
-    
-            if not command.startswith(prefix):
-                continue
-            
-            target = command[len(prefix):].strip()
-    
-            if not target:
-                return None
-    
-            if action in {
-                "list_windows",
-                "active_window",
-            }:
-                return None
-    
-            return {
-                "action": action,
-                "target": target,
-            }
-    
-        return None
-    
+
+        return [task]

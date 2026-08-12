@@ -25,6 +25,7 @@ from ai.handlers.goal_handler import GoalHandler
 from ai.handlers.memory_handler import MemoryHandler
 from ai.history.action_history import ActionHistory
 from ai.intent_classifier import IntentClassifier
+from ai.knowledge.knowledge_router import KnowledgeRouter
 from ai.knowledge.manager import KnowledgeManager
 from ai.knowledge.source_registry import SourceRegistry
 from ai.knowledge.sources.memory_source import MemorySource
@@ -111,8 +112,11 @@ class ServiceBuilder:
             WikipediaSource()
         )
 
+        brain.knowledge_router = KnowledgeRouter(
+            brain.source_registry)
+
         brain.knowledge_manager = KnowledgeManager(
-            brain.source_registry
+            brain.knowledge_router
         )
 
         # =====================================================
