@@ -17,8 +17,8 @@ class Pipeline:
             ReasoningStage(brain),
             PlanningStage(brain),
             ExecutionStage(brain),
-            ResponseStage(brain),
             AIStage(brain),
+            ResponseStage(brain),
         ]
 
     def run(self, context):

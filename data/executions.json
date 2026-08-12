@@ -97,5 +97,49 @@
         "started": "2026-08-12 21:21:26.219276",
         "completed": "2026-08-12 21:21:26.395756",
         "id": "4683e388-a2c2-4266-91b6-4712180de706"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-12 21:25:12.173245",
+        "completed": "2026-08-12 21:25:12.204953",
+        "id": "0df91e37-fff6-4908-9d5e-5f109021e36f"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-12 21:25:18.202455",
+        "completed": "2026-08-12 21:25:18.219309",
+        "id": "94343de2-d37e-4a14-bc43-7a5c533e7034"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-12 21:25:28.753609",
+        "completed": "2026-08-12 21:25:28.772430",
+        "id": "c23292e8-2162-46e5-9c9d-d914b99a7752"
+    },
+    {
+        "goal_id": "",
+        "action": "search",
+        "target": "python classes",
+        "success": true,
+        "result": "Searching Google for python classes.",
+        "error": "",
+        "started": "2026-08-12 21:25:28.795062",
+        "completed": "2026-08-12 21:25:28.977364",
+        "id": "16610f59-aa28-42d9-964c-6fd3bbfab35e"
     }
 ]
