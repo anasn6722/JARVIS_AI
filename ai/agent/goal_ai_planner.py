@@ -8,7 +8,11 @@ class GoalAIPlanner:
         self.llm = llm
         self.registry = registry
 
-    def create_plan(self, goal: str):
+    def create_plan(
+       self,
+       goal: str,
+       context="",
+    )   :
         tools = list(self.registry.all())
 
         if not tools:
@@ -30,6 +34,8 @@ Break the following goal into executable tasks.
 
 Goal:
 {goal}
+Recent Context:
+{context}
 
 Rules:
 1. Use ONLY the available tools.

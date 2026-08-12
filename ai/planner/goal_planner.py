@@ -9,9 +9,11 @@ class GoalPlanner(Planner):
         self,
         goal_ai_planner,
         task_parser,
+        context_provider,
     ):
         self.goal_ai_planner = goal_ai_planner
         self.task_parser = task_parser
+        self.context_provider = context_provider
 
     def can_plan(self, command):
         return command.intent in (
@@ -41,8 +43,11 @@ class GoalPlanner(Planner):
         # -------------------------
 
         else:
+            context = self.context_provider()
+
             ai_tasks = self.goal_ai_planner.create_plan(
-                command.original
+                command.original,
+                context,
             )
 
             tasks = self.task_parser.parse(

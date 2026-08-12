@@ -226,6 +226,7 @@ class ServiceBuilder:
             GoalPlanner(
                 brain.goal_ai_planner,
                 brain.task_parser,
+                brain.planner_context,
             )
         )
         

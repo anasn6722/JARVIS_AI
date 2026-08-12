@@ -137,24 +137,34 @@ Now plan this command:
                 "something other than a task list."
             )
             return []
+        valid_actions = {
+            tool["name"]
+            for tool in tools
+        }
 
         tasks = []
 
         for item in data:
             if not isinstance(item, dict):
                 continue
-
+            
             action = item.get("action")
             target = item.get("target", "")
-
+        
             if not action:
                 continue
-
+            
+            if action not in valid_actions:
+                print(
+                    f"AI Planner: Ignoring unknown tool: {action}"
+                )
+                continue
+            
             tasks.append(
                 Task(
                     action=action,
                     target=target,
                 )
             )
-
+        
         return tasks
