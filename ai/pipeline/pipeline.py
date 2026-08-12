@@ -16,8 +16,8 @@ class Pipeline:
             CommandStage(brain),
             ReasoningStage(brain),
             PlanningStage(brain),
-            ExecutionStage(brain),
             AIStage(brain),
+            ExecutionStage(brain),
             ResponseStage(brain),
         ]
 
