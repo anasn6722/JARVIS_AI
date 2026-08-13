@@ -1,4 +1,3 @@
-
 from datetime import datetime
 
 from ai.memory.execution.execution_record import ExecutionRecord
@@ -127,98 +126,203 @@ class GraphRunner:
     # EXECUTE NODE
     # ============================================================
 
-        
     def execute_node(
         self,
         node,
         goal_id=None,
     ):
         """Execute one ready graph node."""
-    
+
         if (
             node.completed
             or node.failed
             or node.blocked
         ):
             return False
-    
+
         if not node.ready:
             return False
-    
+
         started = datetime.now()
-    
+
         try:
             print(
                 "Tool:",
                 node.task.action,
                 node.task.target,
             )
-    
+
             # ====================================================
             # EXECUTE TOOL
             # ====================================================
-    
+
             if node.task.target:
-                result = self.tool_executor.execute(
+
+                raw_result = self.tool_executor.execute(
                     node.task.action,
                     node.task.target,
                 )
+
             else:
-                result = self.tool_executor.execute(
+
+                raw_result = self.tool_executor.execute(
                     node.task.action,
                 )
-    
+
             completed = datetime.now()
-    
+
             # ====================================================
-            # SAVE EXECUTION HISTORY
+            # NORMALIZE TOOL RESULT
             # ====================================================
-    
+
+            if (
+                isinstance(raw_result, tuple)
+                and len(raw_result) == 2
+                and isinstance(raw_result[0], bool)
+            ):
+
+                success, message = raw_result
+
+                node.task.success = success
+                node.task.result = str(message)
+
+            else:
+
+                success = True
+
+                node.task.success = True
+                node.task.result = raw_result
+
+            # ====================================================
+            # HANDLE TOOL-LEVEL FAILURE
+            # ====================================================
+
+            if not success:
+
+                node.task.error = str(
+                    node.task.result
+                )
+
+                node.task.completed = False
+                node.task.success = False
+
+                node.failed = True
+                node.completed = False
+
+                print(
+                    "GRAPH NODE FAILED:",
+                    node.task.action,
+                    node.task.target,
+                )
+
+                print(
+                    "RESULT:",
+                    node.task.result,
+                )
+
+                # ------------------------------------------------
+                # SAVE FAILED EXECUTION
+                # ------------------------------------------------
+
+                if self.execution_memory is not None:
+
+                    self.execution_memory.add(
+                        ExecutionRecord(
+                            goal_id=goal_id or "",
+                            action=node.task.action,
+                            target=node.task.target,
+                            success=False,
+                            result=str(
+                                node.task.result
+                            ),
+                            error=str(
+                                node.task.error
+                            ),
+                            started=started,
+                            completed=completed,
+                        )
+                    )
+
+                return False
+
+            # ====================================================
+            # SUCCESS
+            # ====================================================
+
+            node.task.error = ""
+            node.task.success = True
+            node.task.completed = True
+
+            node.completed = True
+            node.failed = False
+            node.running = False
+
+            print(
+                "Success:",
+                True,
+            )
+
+            print(
+                "Result:",
+                node.task.result,
+            )
+
+            # ====================================================
+            # SAVE SUCCESSFUL EXECUTION
+            # ====================================================
+
             if self.execution_memory is not None:
+
                 self.execution_memory.add(
                     ExecutionRecord(
                         goal_id=goal_id or "",
                         action=node.task.action,
                         target=node.task.target,
                         success=True,
-                        result=str(result),
+                        result=str(
+                            node.task.result
+                        ),
+                        error="",
                         started=started,
                         completed=completed,
                     )
                 )
-    
-            # ====================================================
-            # SUCCESS
-            # ====================================================
-    
-            node.task.result = result
-            node.task.success = True
-            node.task.error = ""
-            node.task.completed = True
-    
-            node.completed = True
-            node.failed = False
-    
+
             return True
-    
+
         except Exception as error:
+
             completed = datetime.now()
-    
+
             # ====================================================
-            # FAILURE
+            # HANDLE EXCEPTION FAILURE
             # ====================================================
-    
-            node.task.error = str(error)
+
             node.task.success = False
             node.task.completed = False
-    
+            node.task.error = str(error)
+
             node.failed = True
-    
-            # ====================================================
-            # SAVE FAILED EXECUTION
-            # ====================================================
-    
+            node.completed = False
+            node.running = False
+
+            print(
+                "GRAPH NODE EXCEPTION:",
+                node.task.action,
+                node.task.target,
+            )
+
+            print(
+                "ERROR:",
+                error,
+            )
+
+            # ------------------------------------------------
+            # SAVE EXCEPTION
+            # ------------------------------------------------
+
             if self.execution_memory is not None:
+
                 self.execution_memory.add(
                     ExecutionRecord(
                         goal_id=goal_id or "",
@@ -231,21 +335,9 @@ class GraphRunner:
                         completed=completed,
                     )
                 )
-    
-            print(
-                "GRAPH NODE FAILED:",
-                node.task.action,
-                node.task.target,
-            )
-    
-            print(
-                "ERROR:",
-                error,
-            )
-    
+
             return False
-    
-    
+
     # ============================================================
     # BUILD GRAPH RESULT
     # ============================================================
@@ -262,32 +354,22 @@ class GraphRunner:
 
             task = node.task
 
-            if task.result is not None:
-
-                result = task.result
-
-                if isinstance(result, tuple):
-
-                    success, message = result
-
-                    responses.append(
-                        str(message)
-                    )
-
-                else:
-
-                    responses.append(
-                        str(result)
-                    )
-
-            elif node.failed:
+            if node.failed:
 
                 responses.append(
-                    f"Failed: {task.action}: "
-                    f"{task.error}"
+                    f"Failed: {task.error}"
+                )
+
+                continue
+
+            if task.result is not None:
+
+                responses.append(
+                    str(task.result)
                 )
 
         if not responses:
+
             return "No results were produced."
 
         return "\n".join(responses)

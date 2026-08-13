@@ -13,6 +13,7 @@ class AppHandler:
     # =========================================================
 
     def open(self, command):
+        """Open one or more applications or websites."""
 
         if isinstance(command, str):
             targets = [command.lower().strip()]
@@ -27,9 +28,13 @@ class AppHandler:
             )
 
         if not targets:
-            return "I couldn't find anything to open."
+            return (
+                False,
+                "I couldn't find anything to open.",
+            )
 
         responses = []
+        overall_success = True
 
         for target in targets:
 
@@ -41,70 +46,98 @@ class AppHandler:
 
             if target in WEBSITES:
 
-                responses.append(
-                    self._open_website(target)
+                success, message = self._open_website(
+                    target
                 )
-
-                continue
 
             # -------------------------------------------------
             # Registered application
             # -------------------------------------------------
 
-            if target in APPS:
+            elif target in APPS:
 
-                responses.append(
-                    self._open_application(target)
+                success, message = self._open_application(
+                    target
                 )
-
-                continue
 
             # -------------------------------------------------
             # Automatic application detection
             # -------------------------------------------------
 
-            response = self._open_unknown_application(
-                target
-            )
+            else:
 
-            responses.append(response)
+                success, message = (
+                    self._open_unknown_application(
+                        target
+                    )
+                )
 
-        return "\n".join(responses)
+            responses.append(message)
+
+            if not success:
+                overall_success = False
+
+        return (
+            overall_success,
+            "\n".join(responses),
+        )
 
     # =========================================================
     # OPEN WEBSITE
     # =========================================================
 
     def _open_website(self, website):
+        """Open a registered website."""
 
-        self.brain.web.open_url(
-            WEBSITES[website]
-        )
+        try:
+            self.brain.web.open_url(
+                WEBSITES[website]
+            )
 
-        self.brain.conversation_memory.remember_website(
-            website
-        )
+            self.brain.conversation_memory.remember_website(
+                website
+            )
 
-        self.brain.context.update(
-            website=website,
-        )
+            self.brain.context.update(
+                website=website,
+            )
 
-        return f"Opened {website.title()}."
+            return (
+                True,
+                f"Opened {website.title()}.",
+            )
+
+        except Exception as error:
+
+            return (
+                False,
+                f"Couldn't open {website.title()}: {error}",
+            )
 
     # =========================================================
     # OPEN REGISTERED APPLICATION
     # =========================================================
 
     def _open_application(self, app):
+        """Open an application registered in APPS."""
 
-        success = self.brain.system.open_program(
-            APPS[app]["open"]
-        )
+        try:
+            success = self.brain.system.open_program(
+                APPS[app]["open"]
+            )
+
+        except Exception as error:
+
+            return (
+                False,
+                f"Couldn't open {app.title()}: {error}",
+            )
 
         if not success:
 
             return (
-                f"Couldn't open {app.title()}."
+                False,
+                f"Couldn't open {app.title()}.",
             )
 
         self.brain.conversation_memory.remember_app(
@@ -117,33 +150,58 @@ class AppHandler:
             app=app,
         )
 
-        return f"Opened {app.title()}."
+        return (
+            True,
+            f"Opened {app.title()}.",
+        )
 
     # =========================================================
     # OPEN UNKNOWN APPLICATION
     # =========================================================
 
     def _open_unknown_application(self, target):
+        """Resolve and open an application not in APPS."""
 
-        executable = self.brain.application_resolver.resolve(
-            target
-        )
+        try:
+            executable = (
+                self.brain.application_resolver.resolve(
+                    target
+                )
+            )
+
+        except Exception as error:
+
+            return (
+                False,
+                f"Couldn't resolve {target}: {error}",
+            )
 
         if not executable:
 
             return (
+                False,
                 f"I couldn't find an installed application "
-                f"called {target}."
+                f"called {target}.",
             )
 
-        success = self.brain.system.open_program(
-            executable
-        )
+        try:
+            success = self.brain.system.open_program(
+                executable
+            )
+
+        except Exception as error:
+
+            return (
+                False,
+                f"I found {target}, but couldn't open it: "
+                f"{error}",
+            )
 
         if not success:
 
             return (
-                f"I found {target}, but couldn't open it."
+                False,
+                f"I found {target}, but couldn't open it.",
             )
 
         self.brain.conversation_memory.remember_app(
@@ -156,13 +214,17 @@ class AppHandler:
             app=target,
         )
 
-        return f"Opened {target.title()}."
+        return (
+            True,
+            f"Opened {target.title()}.",
+        )
 
     # =========================================================
     # CLOSE
     # =========================================================
 
     def close(self, app):
+        """Close a registered application."""
 
         app = app.lower().strip()
 
@@ -171,36 +233,42 @@ class AppHandler:
         if not program:
 
             return (
-                f"I don't know how to close {app}."
+                False,
+                f"I don't know how to close {app}.",
             )
 
-        process = program["process"]
+        try:
+            success = self.brain.system.close_program(
+                program["process"]
+            )
 
-        success = self.brain.system.close_program(
-            process
-        )
+        except Exception as error:
+
+            return (
+                False,
+                f"Couldn't close {app.title()}: {error}",
+            )
 
         if not success:
 
             return (
-                f"Couldn't close {app.title()}."
+                False,
+                f"Couldn't close {app.title()}.",
             )
 
-        return f"Closed {app.title()}."
+        return (
+            True,
+            f"Closed {app.title()}.",
+        )
 
-    
-    
     # =========================================================
     # CLOSE LAST
     # =========================================================
 
     def close_last(self, argument=None):
+        """Close the most recently referenced application or website."""
 
         reference = None
-
-        # -----------------------------------------------------
-        # Get latest memory reference
-        # -----------------------------------------------------
 
         if hasattr(
             self.brain.conversation_memory,
@@ -220,9 +288,11 @@ class AppHandler:
         # -----------------------------------------------------
 
         if not reference:
+
             return (
+                False,
                 "There is no previously opened "
-                "application or website."
+                "application or website.",
             )
 
         reference_type, reference_value = reference
@@ -243,29 +313,34 @@ class AppHandler:
 
         if reference_type == "website":
 
-            # -------------------------------------------------
-            # No WebManager exists.
-            # Websites run inside the browser, so close
-            # the browser for now.
-            # -------------------------------------------------
+            # Websites run inside a browser, so close Chrome
+            # for now.
 
             browser = "chrome"
 
-            result = self.close(browser)
+            success, message = self.close(
+                browser
+            )
 
-            if result.startswith("Closed Chrome"):
+            if success:
+
                 return (
+                    True,
                     f"Closed {reference_value.title()} "
-                    f"by closing Chrome."
+                    f"by closing Chrome.",
                 )
 
-            return result
+            return (
+                False,
+                message,
+            )
 
         # =====================================================
         # UNKNOWN
         # =====================================================
 
         return (
+            False,
             "I don't know how to close "
-            "the last reference."
+            "the last reference.",
         )
