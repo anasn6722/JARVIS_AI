@@ -471,5 +471,38 @@
         "started": "2026-08-13 14:19:27.116425",
         "completed": "2026-08-13 14:19:29.177912",
         "id": "e0a10343-346f-44e6-a9f4-356c82c3804b"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-13 14:37:28.636778",
+        "completed": "2026-08-13 14:37:28.669183",
+        "id": "ac11aa02-50ba-4bd1-b2fe-044074549bc1"
+    },
+    {
+        "goal_id": "",
+        "action": "close",
+        "target": "chrome",
+        "success": true,
+        "result": "Closed Chrome.",
+        "error": "",
+        "started": "2026-08-13 14:37:59.279427",
+        "completed": "2026-08-13 14:37:59.419362",
+        "id": "ad9c56b1-c515-4f58-82bf-ad6708c6948a"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "x",
+        "success": false,
+        "result": "I couldn't find an installed application called x.",
+        "error": "I couldn't find an installed application called x.",
+        "started": "2026-08-13 14:38:11.029891",
+        "completed": "2026-08-13 14:38:13.073514",
+        "id": "bc61f1b7-fee1-427c-9f2d-2f8439cab8ec"
     }
 ]

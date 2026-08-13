@@ -24,4 +24,8 @@ class PipelineContext:
 
         self.verification_errors = []
 
+        self.recovery_attempted = False
+
+        self.recovery_task = None
+
         self.stop = False

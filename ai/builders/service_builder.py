@@ -1,6 +1,7 @@
 from ai.agent.ai_planner import AIPlanner
 from ai.agent.goal_ai_planner import GoalAIPlanner
 from ai.agent.goal_classifier import GoalClassifier
+from ai.agent.recovery_manager import RecoveryManager
 from ai.agent.verifier import AgentVerifier
 from ai.builders.tool_registry_builder import ToolRegistryBuilder
 from ai.context.session_context import SessionContext
@@ -251,6 +252,11 @@ class ServiceBuilder:
             ai_planner=brain.ai_planner,
             available_tools_provider=brain.available_tools,
             planner_context_provider=brain.planner_context,
+        )
+        brain.recovery_manager = RecoveryManager(
+            llm=brain.llm,
+            available_tools_provider=brain.available_tools,
+            execution_context_provider=brain.planner_context,
         )
 
         # =====================================================

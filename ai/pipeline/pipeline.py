@@ -4,6 +4,7 @@ from ai.pipeline.execution_stage import ExecutionStage
 from ai.pipeline.memory_stage import MemoryStage
 from ai.pipeline.planning_stage import PlanningStage
 from ai.pipeline.reasoning_stage import ReasoningStage
+from ai.pipeline.recovery_stage import RecoveryStage
 from ai.pipeline.response_stage import ResponseStage
 from ai.pipeline.verification_stage import VerificationStage
 
@@ -20,6 +21,7 @@ class Pipeline:
             AIStage(brain),
             ExecutionStage(brain),
             VerificationStage(brain),
+            RecoveryStage(brain),
             ResponseStage(brain),
         ]
 
