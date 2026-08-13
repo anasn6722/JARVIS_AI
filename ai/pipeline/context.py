@@ -16,8 +16,12 @@ class PipelineContext:
 
         self.tasks = []
 
-        self.graph = None  
+        self.graph = None
 
         self.response = None
+
+        self.verified = False
+
+        self.verification_errors = []
 
         self.stop = False
