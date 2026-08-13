@@ -141,5 +141,115 @@
         "started": "2026-08-12 21:25:28.795062",
         "completed": "2026-08-12 21:25:28.977364",
         "id": "16610f59-aa28-42d9-964c-6fd3bbfab35e"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-12 23:17:34.592219",
+        "completed": "2026-08-12 23:17:34.619204",
+        "id": "6d03196f-2c9c-40f2-9a40-bc3e68bb2d5f"
+    },
+    {
+        "goal_id": "",
+        "action": "close",
+        "target": "chrome",
+        "success": true,
+        "result": "Closed Chrome.",
+        "error": "",
+        "started": "2026-08-12 23:18:04.047305",
+        "completed": "2026-08-12 23:18:04.232387",
+        "id": "cc74bd59-b7d2-48d9-9c8c-3f37af29e48b"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "camera",
+        "success": true,
+        "result": "Opened Camera.",
+        "error": "",
+        "started": "2026-08-12 23:18:17.679616",
+        "completed": "2026-08-12 23:18:17.735799",
+        "id": "64cb8b53-f5e8-4e98-9d3c-d45f6607c7fd"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-12 23:18:32.663559",
+        "completed": "2026-08-12 23:18:32.698768",
+        "id": "b425370b-1185-426e-9b83-c82313256861"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "notepad",
+        "success": true,
+        "result": "Opened Notepad.",
+        "error": "",
+        "started": "2026-08-12 23:18:32.700774",
+        "completed": "2026-08-12 23:18:33.512383",
+        "id": "ed547b52-2db0-4bd6-b5e5-947eaa7fa7ba"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-12 23:18:50.726654",
+        "completed": "2026-08-12 23:18:50.756957",
+        "id": "d9ed3d74-4e84-455c-a925-2700c5b8bb67"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-12 23:19:09.864298",
+        "completed": "2026-08-12 23:19:09.904356",
+        "id": "ccaebaa2-336c-49a3-b7c1-46f591c2a299"
+    },
+    {
+        "goal_id": "",
+        "action": "search",
+        "target": "python classes",
+        "success": true,
+        "result": "Searching Google for python classes.",
+        "error": "",
+        "started": "2026-08-12 23:19:09.921217",
+        "completed": "2026-08-12 23:19:10.148090",
+        "id": "dc86cd5f-3625-4ff1-805f-fa3dccce51ae"
+    },
+    {
+        "goal_id": "",
+        "action": "search",
+        "target": "python",
+        "success": true,
+        "result": "Searching Google for python.",
+        "error": "",
+        "started": "2026-08-12 23:19:26.429060",
+        "completed": "2026-08-12 23:19:27.459306",
+        "id": "24d7ad99-60ff-4d70-925e-6f107cf7938a"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "github",
+        "success": true,
+        "result": "Opened Github.",
+        "error": "",
+        "started": "2026-08-13 09:13:33.601741",
+        "completed": "2026-08-13 09:13:33.785409",
+        "id": "e7ca04e9-2bea-4765-b9c7-255f0e69d6cf"
     }
 ]
