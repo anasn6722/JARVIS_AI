@@ -504,5 +504,16 @@
         "started": "2026-08-13 14:38:11.029891",
         "completed": "2026-08-13 14:38:13.073514",
         "id": "bc61f1b7-fee1-427c-9f2d-2f8439cab8ec"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_type",
+        "target": "hello from jarvis",
+        "success": true,
+        "result": "Typed 'hello from jarvis'.",
+        "error": "",
+        "started": "2026-08-13 21:49:40.372957",
+        "completed": "2026-08-13 21:49:40.567896",
+        "id": "8402d821-7310-4442-a0bd-0d01f4915822"
     }
 ]

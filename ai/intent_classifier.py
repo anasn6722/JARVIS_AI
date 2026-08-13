@@ -123,6 +123,37 @@ class IntentClassifier:
         "scroll downwards",
     )
 
+        # =====================================================
+    # KEYBOARD CONTROL
+    # =====================================================
+
+    KEYBOARD_TYPE_PHRASES = (
+        "type ",
+        "type text",
+        "write ",
+        "enter text",
+        "write text",
+    )
+
+    KEYBOARD_PRESS_PHRASES = (
+        "press ",
+        "hit ",
+        "push ",
+    )
+
+    KEYBOARD_HOTKEY_PHRASES = (
+        "hotkey ",
+        "keyboard shortcut",
+        "key combination",
+        "press control",
+        "press ctrl",
+        "press alt",
+        "press shift",
+        "press windows",
+        "press win",
+        "press command",
+    )
+
     # =====================================================
     # WINDOW CONTROL
     # =====================================================
@@ -544,6 +575,47 @@ class IntentClassifier:
             return {
                 "destination": "BRAIN",
                 "intent": "mouse_click",
+            }
+
+        # =====================================================
+        # KEYBOARD CONTROL
+        # =====================================================
+
+        # -----------------------
+        # Keyboard Hotkey
+        # -----------------------
+
+        if IntentUtils.contains_any(
+            text,
+            self.KEYBOARD_HOTKEY_PHRASES,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "keyboard_hotkey",
+            }
+
+        # -----------------------
+        # Keyboard Type
+        # -----------------------
+
+        if text.startswith(
+            self.KEYBOARD_TYPE_PHRASES
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "keyboard_type",
+            }
+
+        # -----------------------
+        # Keyboard Press
+        # -----------------------
+
+        if text.startswith(
+            self.KEYBOARD_PRESS_PHRASES
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "keyboard_press",
             }
 
         # =====================================================

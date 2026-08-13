@@ -1,3 +1,6 @@
+from desktop_automation.controller.keyboard_controller import (
+    KeyboardController,
+)
 from desktop_automation.controller.mouse_controller import (
     MouseController,
 )
@@ -6,12 +9,20 @@ from desktop_automation.resolver.window_resolver import WindowResolver
 
 
 class DesktopController:
-    """High-level controller for desktop window automation."""
+    """High-level controller for Windows desktop automation."""
 
     def __init__(self):
         self.window_manager = WindowManager()
-        self.window_resolver = WindowResolver(self.window_manager)
+        self.window_resolver = WindowResolver(
+            self.window_manager
+        )
+
         self.mouse = MouseController()
+        self.keyboard = KeyboardController()
+
+    # =========================================================
+    # WINDOWS
+    # =========================================================
 
     def list_windows(self):
         """Return all visible desktop windows."""
@@ -21,9 +32,9 @@ class DesktopController:
         """Return the currently active window."""
         return self.window_manager.get_active_window()
 
-        
     def minimize_active_window(self):
         """Minimize the currently active window."""
+
         window = self.window_manager.get_active_window()
 
         if not window:
@@ -36,11 +47,14 @@ class DesktopController:
         if success:
             return True, f"Minimized {window['title']}."
 
-        return False, f"Could not minimize {window['title']}."
-
+        return (
+            False,
+            f"Could not minimize {window['title']}.",
+        )
 
     def maximize_active_window(self):
         """Maximize the currently active window."""
+
         window = self.window_manager.get_active_window()
 
         if not window:
@@ -53,11 +67,14 @@ class DesktopController:
         if success:
             return True, f"Maximized {window['title']}."
 
-        return False, f"Could not maximize {window['title']}."
-
+        return (
+            False,
+            f"Could not maximize {window['title']}.",
+        )
 
     def restore_active_window(self):
         """Restore the currently active window."""
+
         window = self.window_manager.get_active_window()
 
         if not window:
@@ -70,12 +87,14 @@ class DesktopController:
         if success:
             return True, f"Restored {window['title']}."
 
-        return False, f"Could not restore {window['title']}."
-
-
+        return (
+            False,
+            f"Could not restore {window['title']}.",
+        )
 
     def find_window(self, name):
         """Find a window by its natural name."""
+
         window = self.window_resolver.resolve(name)
 
         if not window:
@@ -85,6 +104,7 @@ class DesktopController:
 
     def close_window(self, name):
         """Find and close a window."""
+
         window = self.window_resolver.resolve(name)
 
         if not window:
@@ -97,25 +117,34 @@ class DesktopController:
         if success:
             return True, f"Closed {window['title']}."
 
-        return False, f"Could not close {window['title']}."
+        return (
+            False,
+            f"Could not close {window['title']}.",
+        )
 
-    
     def focus_window(self, name):
         """Find and focus a window by its natural name."""
+
         window = self.window_resolver.resolve(name)
 
         if not window:
             return False, f"Window not found: {name}"
 
-        success = self.window_manager.focus_window(window["hwnd"])
+        success = self.window_manager.focus_window(
+            window["hwnd"]
+        )
 
         if success:
             return True, f"Focused {window['title']}."
 
-        return False, f"Could not focus {window['title']}."
+        return (
+            False,
+            f"Could not focus {window['title']}.",
+        )
 
     def minimize_window(self, name):
         """Find and minimize a window."""
+
         window = self.window_resolver.resolve(name)
 
         if not window:
@@ -128,10 +157,14 @@ class DesktopController:
         if success:
             return True, f"Minimized {window['title']}."
 
-        return False, f"Could not minimize {window['title']}."
+        return (
+            False,
+            f"Could not minimize {window['title']}.",
+        )
 
     def maximize_window(self, name):
         """Find and maximize a window."""
+
         window = self.window_resolver.resolve(name)
 
         if not window:
@@ -144,10 +177,14 @@ class DesktopController:
         if success:
             return True, f"Maximized {window['title']}."
 
-        return False, f"Could not maximize {window['title']}."
+        return (
+            False,
+            f"Could not maximize {window['title']}.",
+        )
 
     def restore_window(self, name):
         """Find and restore a window."""
+
         window = self.window_resolver.resolve(name)
 
         if not window:
@@ -160,14 +197,17 @@ class DesktopController:
         if success:
             return True, f"Restored {window['title']}."
 
-        return False, f"Could not restore {window['title']}."
+        return (
+            False,
+            f"Could not restore {window['title']}.",
+        )
 
     # =========================================================
     # MOUSE
     # =========================================================
 
     def mouse_position(self):
-        """Return current mouse position."""
+        """Return the current mouse position."""
 
         x, y = self.mouse.position()
 
@@ -177,7 +217,7 @@ class DesktopController:
         )
 
     def mouse_move(self, target):
-        """Move mouse using 'x,y' coordinates."""
+        """Move the mouse using x,y coordinates."""
 
         try:
             x, y = self._parse_coordinates(target)
@@ -185,11 +225,7 @@ class DesktopController:
             return self.mouse.move(x, y)
 
         except (TypeError, ValueError) as error:
-        
-            return (
-                False,
-                str(error),
-            )
+            return False, str(error)
 
     def mouse_click(self, target=None):
         """Left-click at coordinates or current position."""
@@ -197,16 +233,16 @@ class DesktopController:
         try:
             if target:
                 x, y = self._parse_coordinates(target)
-                return self.mouse.left_click(x, y)
+
+                return self.mouse.left_click(
+                    x,
+                    y,
+                )
 
             return self.mouse.left_click()
 
         except (TypeError, ValueError) as error:
-        
-            return (
-                False,
-                str(error),
-            )
+            return False, str(error)
 
     def mouse_double_click(self, target=None):
         """Double-click at coordinates or current position."""
@@ -214,16 +250,16 @@ class DesktopController:
         try:
             if target:
                 x, y = self._parse_coordinates(target)
-                return self.mouse.double_click(x, y)
+
+                return self.mouse.double_click(
+                    x,
+                    y,
+                )
 
             return self.mouse.double_click()
 
         except (TypeError, ValueError) as error:
-        
-            return (
-                False,
-                str(error),
-            )
+            return False, str(error)
 
     def mouse_right_click(self, target=None):
         """Right-click at coordinates or current position."""
@@ -231,16 +267,16 @@ class DesktopController:
         try:
             if target:
                 x, y = self._parse_coordinates(target)
-                return self.mouse.right_click(x, y)
+
+                return self.mouse.right_click(
+                    x,
+                    y,
+                )
 
             return self.mouse.right_click()
 
         except (TypeError, ValueError) as error:
-        
-            return (
-                False,
-                str(error),
-            )
+            return False, str(error)
 
     def mouse_middle_click(self, target=None):
         """Middle-click at coordinates or current position."""
@@ -248,31 +284,124 @@ class DesktopController:
         try:
             if target:
                 x, y = self._parse_coordinates(target)
-                return self.mouse.middle_click(x, y)
+
+                return self.mouse.middle_click(
+                    x,
+                    y,
+                )
 
             return self.mouse.middle_click()
 
         except (TypeError, ValueError) as error:
-        
-            return (
-                False,
-                str(error),
-            )
+            return False, str(error)
 
     def mouse_scroll(self, target):
         """Scroll using a positive or negative integer."""
 
         try:
-            amount = int(str(target).strip())
+            amount = int(
+                str(target).strip()
+            )
 
         except (TypeError, ValueError):
-        
             return (
                 False,
                 "Scroll amount must be an integer.",
             )
 
         return self.mouse.scroll(amount)
+
+    # =========================================================
+    # KEYBOARD
+    # =========================================================
+
+    def keyboard_type(self, text):
+        """Type text into the currently focused application."""
+
+        if text is None:
+            return False, "Text is required."
+
+        text = str(text)
+
+        if not text:
+            return False, "Text is empty."
+
+        try:
+            return self.keyboard.type_text(
+                text
+            )
+
+        except (TypeError, ValueError, OSError) as error:
+            return False, str(error)
+
+    def keyboard_press(self, key):
+        """Press and release a single keyboard key."""
+
+        if not key:
+            return False, "A key is required."
+
+        try:
+            return self.keyboard.press(
+                str(key).strip()
+            )
+
+        except (TypeError, ValueError, OSError) as error:
+            return False, str(error)
+
+    def keyboard_hotkey(self, keys):
+        """
+        Press a keyboard combination.
+
+        Example targets:
+            ctrl+a
+            ctrl+c
+            ctrl+v
+            alt+tab
+        """
+
+        if not keys:
+            return False, "Keys are required."
+
+        if isinstance(keys, str):
+            normalized = (
+                keys
+                .replace(",", "+")
+                .strip()
+            )
+
+            parts = [
+                part.strip()
+                for part in normalized.split("+")
+                if part.strip()
+            ]
+
+        elif isinstance(keys, (list, tuple)):
+            parts = [
+                str(part).strip()
+                for part in keys
+                if str(part).strip()
+            ]
+
+        else:
+            return (
+                False,
+                "Keys must be a string or list.",
+            )
+
+        if not parts:
+            return False, "No keys provided."
+
+        try:
+            return self.keyboard.hotkey(
+                *parts
+            )
+
+        except (TypeError, ValueError, OSError) as error:
+            return False, str(error)
+
+    # =========================================================
+    # PARSING
+    # =========================================================
 
     @staticmethod
     def _parse_coordinates(target):
@@ -303,4 +432,3 @@ class DesktopController:
             ) from error
 
         return x, y
-

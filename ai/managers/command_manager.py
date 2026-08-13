@@ -37,7 +37,12 @@ class CommandManager:
             "mouse_middle_click",
             "mouse_scroll_up",
             "mouse_scroll_down",
-            }
+
+            # Keyboard
+            "keyboard_type",
+            "keyboard_press",
+            "keyboard_hotkey",
+        }
     
 
     def __init__(

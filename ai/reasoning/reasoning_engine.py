@@ -33,6 +33,11 @@ class ReasoningEngine:
         "restore_active_window",
         "active_window",
         "list_windows",
+
+        # Keyboard
+        "keyboard_type",
+        "keyboard_press",
+        "keyboard_hotkey",
     }
 
     def __init__(self, brain):

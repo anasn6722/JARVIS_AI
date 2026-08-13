@@ -26,6 +26,9 @@ class DesktopPlanner(Planner):
         "mouse_middle_click",
         "mouse_scroll_up",
         "mouse_scroll_down",
+        "keyboard_type",
+        "keyboard_press",
+        "keyboard_hotkey",
     }
 
     ACTIONS = {
@@ -50,6 +53,10 @@ class DesktopPlanner(Planner):
         "mouse_middle_click": "mouse_middle_click",
         "mouse_scroll_up": "mouse_scroll",
         "mouse_scroll_down": "mouse_scroll",
+        #keyboard control
+        "keyboard_type": "keyboard_type",
+        "keyboard_press": "keyboard_press",
+        "keyboard_hotkey": "keyboard_hotkey",
     }
 
     def can_plan(self, command):
@@ -154,6 +161,80 @@ class DesktopPlanner(Planner):
                 "restore_active_window",
             }:
                 target = None
+
+        # =====================================================
+        # KEYBOARD TARGETS
+        # =====================================================
+
+        if action == "keyboard_type":
+            text = command.original.strip()
+
+            prefixes = (
+                "type ",
+                "write ",
+                "enter text ",
+                "write text ",
+            )
+
+            target = ""
+
+            for prefix in prefixes:
+                if text.lower().startswith(prefix):
+                    target = text[len(prefix):].strip()
+                    break
+
+            if not target:
+                return []
+
+        elif action == "keyboard_press":
+            text = command.original.strip()
+
+            prefixes = (
+                "press ",
+                "hit ",
+                "push ",
+            )
+
+            target = ""
+
+            for prefix in prefixes:
+                if text.lower().startswith(prefix):
+                    target = text[len(prefix):].strip()
+                    break
+
+            if not target:
+                return []
+
+        elif action == "keyboard_hotkey":
+            text = command.original.strip()
+
+            # Examples:
+            # press ctrl+a
+            # press ctrl c
+            # hotkey ctrl+v
+            # press alt tab
+
+            text = text.lower()
+
+            for prefix in (
+                "hotkey ",
+                "press ",
+                "hit ",
+                "push ",
+            ):
+                if text.startswith(prefix):
+                    target = text[len(prefix):].strip()
+                    break
+
+            target = (
+                target
+                .replace("control", "ctrl")
+                .replace(" + ", "+")
+                .replace(" ", "+")
+            )
+
+            if not target:
+                return []
 
         # =====================================================
         # CREATE TASK

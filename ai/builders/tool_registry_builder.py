@@ -150,6 +150,28 @@ class ToolRegistryBuilder:
         )
 
         # =================================================
+        # KEYBOARD AUTOMATION
+        # =================================================
+        
+        brain.tool_registry.register(
+            "keyboard_type",
+            "Type text into the currently focused application.",
+            brain.desktop.keyboard_type,
+        )
+        
+        brain.tool_registry.register(
+            "keyboard_press",
+            "Press a keyboard key.",
+            brain.desktop.keyboard_press,
+        )
+        
+        brain.tool_registry.register(
+            "keyboard_hotkey",
+            "Press a keyboard shortcut such as ctrl+a, ctrl+c, or alt+tab.",
+            brain.desktop.keyboard_hotkey,
+        )
+
+        # =================================================
         # WEB
         # =================================================
 
