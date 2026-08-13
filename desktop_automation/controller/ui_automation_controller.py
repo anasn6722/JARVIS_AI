@@ -1,115 +1,34 @@
-import ctypes
-from ctypes import wintypes
-
+import comtypes.client
 import win32gui
 
 
 class UIAutomationController:
-    """Low-level Windows UI Automation foundation."""
+    """Windows UI Automation controller using comtypes."""
 
     CLSID_CUI_AUTOMATION = (
         "{FF48DBA4-60EF-4201-AA87-54103EEF594E}"
     )
 
-    IID_IUI_AUTOMATION = (
-        "{30CBE57D-D9D0-452A-AB13-7AC5AC4825EE}"
-    )
-
-    COINIT_APARTMENTTHREADED = 0x2
-
     def __init__(self):
-        self.ole32 = ctypes.WinDLL(
-            "ole32",
-            use_last_error=True,
-        )
-
-        self._initialize_com()
-
-        self.automation = self._create_automation()
-
-    # =========================================================
-    # COM
-    # =========================================================
-
-    def _initialize_com(self):
-        """Initialize COM for the current thread."""
-
-        result = self.ole32.CoInitializeEx(
-            None,
-            self.COINIT_APARTMENTTHREADED,
-        )
-
-        # S_OK = 0
-        # S_FALSE = 1
-        # RPC_E_CHANGED_MODE = 0x80010106
-        if result not in (0, 1):
-            raise OSError(
-                result,
-                "CoInitializeEx failed.",
+        self.UIAutomationCore = (
+            comtypes.client.GetModule(
+                "UIAutomationCore.dll"
             )
-
-    def _create_automation(self):
-        """
-        Create the native CUIAutomation COM object.
-
-        The ProgID approach is intentionally avoided because
-        CUIAutomation8.CUIAutomation8 was unavailable on this system.
-        """
-
-        clsid = ctypes.c_buffer(
-            16
         )
 
-        iid = ctypes.c_buffer(
-            16
-        )
-
-        if (
-            self.ole32.CLSIDFromString(
+        self.automation = (
+            comtypes.client.CreateObject(
                 self.CLSID_CUI_AUTOMATION,
-                clsid,
+                interface=self.UIAutomationCore.IUIAutomation,
             )
-            != 0
-        ):
-            raise OSError(
-                "CLSIDFromString failed."
-            )
-
-        if (
-            self.ole32.CLSIDFromString(
-                self.IID_IUI_AUTOMATION,
-                iid,
-            )
-            != 0
-        ):
-            raise OSError(
-                "IID conversion failed."
-            )
-
-        interface = ctypes.c_void_p()
-
-        result = self.ole32.CoCreateInstance(
-            clsid,
-            None,
-            1,
-            iid,
-            ctypes.byref(interface),
         )
-
-        if result != 0:
-            raise OSError(
-                result,
-                "CoCreateInstance failed.",
-            )
-
-        return interface
 
     # =========================================================
     # FOREGROUND WINDOW
     # =========================================================
 
     def foreground_window(self):
-        """Return foreground window metadata."""
+        """Return information about the foreground window."""
 
         hwnd = win32gui.GetForegroundWindow()
 
@@ -124,15 +43,213 @@ class UIAutomationController:
         }
 
     # =========================================================
+    # ELEMENT FROM HANDLE
+    # =========================================================
+
+    def element_from_handle(self, hwnd):
+        """Return the UI Automation element for an HWND."""
+
+        if not hwnd:
+            return None
+
+        return self.automation.ElementFromHandle(
+            hwnd
+        )
+
+    # =========================================================
+    # FOCUSED ELEMENT
+    # =========================================================
+
+    def focused_element(self):
+        """Return the currently focused UI element."""
+
+        return self.automation.GetFocusedElement()
+
+    # =========================================================
+    # ELEMENT FROM POINT
+    # =========================================================
+
+    def element_from_point(self, x, y):
+        """Return the UI Automation element at screen coordinates."""
+
+        point = self.UIAutomationCore.tagPOINT(
+            int(x),
+            int(y),
+        )
+
+        return self.automation.ElementFromPoint(
+            point
+        )
+
+    # =========================================================
+    # ELEMENT INFO
+    # =========================================================
+
+    @staticmethod
+    def element_info(element):
+        """Return basic semantic information for an element."""
+
+        if element is None:
+            return None
+
+        info = {
+            "name": "",
+            "automation_id": "",
+            "class_name": "",
+            "control_type": None,
+        }
+
+        try:
+            info["name"] = element.CurrentName
+        except Exception:
+            pass
+
+        try:
+            info["automation_id"] = (
+                element.CurrentAutomationId
+            )
+        except Exception:
+            pass
+
+        try:
+            info["class_name"] = (
+                element.CurrentClassName
+            )
+        except Exception:
+            pass
+
+        try:
+            info["control_type"] = (
+                element.CurrentControlType
+            )
+        except Exception:
+            pass
+
+        return info
+
+    # =========================================================
+    # ELEMENT RECTANGLE
+    # =========================================================
+
+    @staticmethod
+    def element_rectangle(element):
+        """Return an element's bounding rectangle."""
+
+        if element is None:
+            return None
+
+        try:
+            rect = element.CurrentBoundingRectangle
+
+            return {
+                "left": rect.left,
+                "top": rect.top,
+                "right": rect.right,
+                "bottom": rect.bottom,
+                "width": rect.right - rect.left,
+                "height": rect.bottom - rect.top,
+            }
+
+        except Exception:
+            return None
+
+    # =========================================================
+    # INSPECT ELEMENT
+    # =========================================================
+
+    def inspect_element(self, element):
+        """Return semantic information about one UI element."""
+
+        if element is None:
+            return None
+
+        info = self.element_info(
+            element
+        )
+
+        info["rect"] = self.element_rectangle(
+            element
+        )
+
+        return info
+
+    # =========================================================
+    # INSPECT FOREGROUND
+    # =========================================================
+
+    def inspect_foreground(self):
+        """
+        Inspect the UI Automation element represented by the
+        current foreground window.
+        """
+
+        window = self.foreground_window()
+
+        if not window:
+            return None
+
+        element = self.element_from_handle(
+            window["hwnd"]
+        )
+
+        if element is None:
+            return {
+                **window,
+                "ui": None,
+            }
+
+        return {
+            **window,
+            "ui": self.inspect_element(
+                element
+            ),
+        }
+
+    # =========================================================
+    # INSPECT FOCUSED ELEMENT
+    # =========================================================
+
+    def inspect_focused(self):
+        """Inspect the currently focused UI element."""
+
+        element = self.focused_element()
+
+        if element is None:
+            return None
+
+        return self.inspect_element(
+            element
+        )
+
+    # =========================================================
+    # INSPECT POINT
+    # =========================================================
+
+    def inspect_point(self, x, y):
+        """Inspect the UI element at screen coordinates."""
+
+        element = self.element_from_point(
+            x,
+            y,
+        )
+
+        if element is None:
+            return None
+
+        return self.inspect_element(
+            element
+        )
+
+    # =========================================================
     # CLOSE
     # =========================================================
 
     def close(self):
-        """Release COM resources."""
+        """Release the UI Automation COM object."""
 
-        if getattr(self, "automation", None):
-            # Final COM release will be handled later when we expose
-            # the actual IUIAutomation vtable methods.
+        if getattr(
+            self,
+            "automation",
+            None,
+        ) is not None:
             self.automation = None
-
-        self.ole32.CoUninitialize()
