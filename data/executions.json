@@ -449,5 +449,27 @@
         "started": "2026-08-13 13:17:02.454763",
         "completed": "2026-08-13 13:17:02.467181",
         "id": "421759ae-5173-4302-a0d8-e12453470bff"
+    },
+    {
+        "goal_id": "",
+        "action": "list_windows",
+        "target": "",
+        "success": true,
+        "result": "[{'hwnd': 263210, 'title': 'graph_runner.py - JARVIS_AI - Visual Studio Code'}, {'hwnd': 67392, 'title': 'JARVIS AI 4.0'}, {'hwnd': 67184, 'title': 'ChatGPT Classic'}, {'hwnd': 66830, 'title': 'Loki S2 (2023) Dual Audio [Hindi & English] Completed Web Series BluRay ESub 720p HEVC - VLC media player'}, {'hwnd': 197518, 'title': 'Home - File Explorer'}, {'hwnd': 131672, 'title': 'Settings'}, {'hwnd': 197194, 'title': 'Settings'}, {'hwnd': 197148, 'title': 'Windows Input Experience'}, {'hwnd': 66286, 'title': 'Windows Shell Experience Host'}, {'hwnd': 65936, 'title': 'Program Manager'}]",
+        "error": "",
+        "started": "2026-08-13 14:18:43.518475",
+        "completed": "2026-08-13 14:18:43.518475",
+        "id": "f654c116-e2c8-4f6a-82c2-5bf173a5d771"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "x",
+        "success": false,
+        "result": "I couldn't find an installed application called x.",
+        "error": "I couldn't find an installed application called x.",
+        "started": "2026-08-13 14:19:27.116425",
+        "completed": "2026-08-13 14:19:29.177912",
+        "id": "e0a10343-346f-44e6-a9f4-356c82c3804b"
     }
 ]
