@@ -131,101 +131,173 @@ class GraphRunner:
         node,
         goal_id=None,
     ):
-        """Execute one ready graph node."""
-
+        """Execute one ready graph node with retry support."""
+    
         if (
             node.completed
             or node.failed
             or node.blocked
         ):
             return False
-
+    
         if not node.ready:
             return False
-
+    
         started = datetime.now()
-
-        try:
-            print(
-                "Tool:",
-                node.task.action,
-                node.task.target,
-            )
-
-            # ====================================================
-            # EXECUTE TOOL
-            # ====================================================
-
-            if node.task.target:
-
-                raw_result = self.tool_executor.execute(
+    
+        while True:
+        
+            try:
+                print(
+                    "Tool:",
                     node.task.action,
                     node.task.target,
                 )
-
-            else:
-
-                raw_result = self.tool_executor.execute(
-                    node.task.action,
-                )
-
-            completed = datetime.now()
-
-            # ====================================================
-            # NORMALIZE TOOL RESULT
-            # ====================================================
-
-            if (
-                isinstance(raw_result, tuple)
-                and len(raw_result) == 2
-                and isinstance(raw_result[0], bool)
-            ):
-
-                success, message = raw_result
-
-                node.task.success = success
-                node.task.result = str(message)
-
-            else:
-
-                success = True
-
-                node.task.success = True
-                node.task.result = raw_result
-
-            # ====================================================
-            # HANDLE TOOL-LEVEL FAILURE
-            # ====================================================
-
-            if not success:
-
+    
+                # ====================================================
+                # EXECUTE TOOL
+                # ====================================================
+    
+                if node.task.target:
+                
+                    raw_result = self.tool_executor.execute(
+                        node.task.action,
+                        node.task.target,
+                    )
+    
+                else:
+                
+                    raw_result = self.tool_executor.execute(
+                        node.task.action,
+                    )
+    
+                completed = datetime.now()
+    
+                # ====================================================
+                # NORMALIZE RESULT
+                # ====================================================
+    
+                if (
+                    isinstance(raw_result, tuple)
+                    and len(raw_result) == 2
+                    and isinstance(raw_result[0], bool)
+                ):
+    
+                    success, message = raw_result
+    
+                    node.task.success = success
+                    node.task.result = str(message)
+    
+                else:
+                
+                    success = True
+    
+                    node.task.success = True
+                    node.task.result = raw_result
+    
+                # ====================================================
+                # SUCCESS
+                # ====================================================
+    
+                if success:
+                
+                    node.task.success = True
+                    node.task.error = ""
+                    node.task.completed = True
+    
+                    node.completed = True
+                    node.failed = False
+                    node.running = False
+    
+                    print(
+                        "Success:",
+                        True,
+                    )
+    
+                    print(
+                        "Result:",
+                        node.task.result,
+                    )
+    
+                    if self.execution_memory is not None:
+                    
+                        self.execution_memory.add(
+                            ExecutionRecord(
+                                goal_id=goal_id or "",
+                                action=node.task.action,
+                                target=node.task.target,
+                                success=True,
+                                result=str(
+                                    node.task.result
+                                ),
+                                error="",
+                                started=started,
+                                completed=completed,
+                            )
+                        )
+    
+                    return True
+    
+                # ====================================================
+                # TOOL-LEVEL FAILURE
+                # ====================================================
+    
+                node.task.success = False
+                node.task.completed = False
                 node.task.error = str(
                     node.task.result
                 )
-
-                node.task.completed = False
-                node.task.success = False
-
-                node.failed = True
-                node.completed = False
-
+    
                 print(
-                    "GRAPH NODE FAILED:",
+                    "TASK FAILED:",
                     node.task.action,
                     node.task.target,
                 )
-
+    
                 print(
                     "RESULT:",
                     node.task.result,
                 )
-
-                # ------------------------------------------------
-                # SAVE FAILED EXECUTION
-                # ------------------------------------------------
-
+    
+                # ====================================================
+                # RETRY
+                # ====================================================
+    
+                if self.retry_manager.should_retry(
+                    node.task
+                ):
+    
+                    print(
+                        "Retrying task..."
+                    )
+    
+                    self.retry_manager.retry(
+                        node.task
+                    )
+    
+                    print(
+                        "Retry attempt:",
+                        node.task.retry_count,
+                        "/",
+                        node.task.max_retries,
+                    )
+    
+                    continue
+                
+                # ====================================================
+                # PERMANENT FAILURE
+                # ====================================================
+    
+                node.failed = True
+                node.completed = False
+                node.running = False
+    
+                print(
+                    "Task failed permanently."
+                )
+    
                 if self.execution_memory is not None:
-
+                
                     self.execution_memory.add(
                         ExecutionRecord(
                             goal_id=goal_id or "",
@@ -242,101 +314,73 @@ class GraphRunner:
                             completed=completed,
                         )
                     )
-
+    
                 return False
-
-            # ====================================================
-            # SUCCESS
-            # ====================================================
-
-            node.task.error = ""
-            node.task.success = True
-            node.task.completed = True
-
-            node.completed = True
-            node.failed = False
-            node.running = False
-
-            print(
-                "Success:",
-                True,
-            )
-
-            print(
-                "Result:",
-                node.task.result,
-            )
-
-            # ====================================================
-            # SAVE SUCCESSFUL EXECUTION
-            # ====================================================
-
-            if self.execution_memory is not None:
-
-                self.execution_memory.add(
-                    ExecutionRecord(
-                        goal_id=goal_id or "",
-                        action=node.task.action,
-                        target=node.task.target,
-                        success=True,
-                        result=str(
-                            node.task.result
-                        ),
-                        error="",
-                        started=started,
-                        completed=completed,
-                    )
+    
+            except Exception as error:
+            
+                completed = datetime.now()
+    
+                node.task.success = False
+                node.task.completed = False
+                node.task.error = str(error)
+    
+                print(
+                    "TASK EXCEPTION:",
+                    node.task.action,
+                    node.task.target,
                 )
-
-            return True
-
-        except Exception as error:
-
-            completed = datetime.now()
-
-            # ====================================================
-            # HANDLE EXCEPTION FAILURE
-            # ====================================================
-
-            node.task.success = False
-            node.task.completed = False
-            node.task.error = str(error)
-
-            node.failed = True
-            node.completed = False
-            node.running = False
-
-            print(
-                "GRAPH NODE EXCEPTION:",
-                node.task.action,
-                node.task.target,
-            )
-
-            print(
-                "ERROR:",
-                error,
-            )
-
-            # ------------------------------------------------
-            # SAVE EXCEPTION
-            # ------------------------------------------------
-
-            if self.execution_memory is not None:
-
-                self.execution_memory.add(
-                    ExecutionRecord(
-                        goal_id=goal_id or "",
-                        action=node.task.action,
-                        target=node.task.target,
-                        success=False,
-                        result="",
-                        error=str(error),
-                        started=started,
-                        completed=completed,
-                    )
+    
+                print(
+                    "ERROR:",
+                    error,
                 )
-
-            return False
+    
+                # ====================================================
+                # RETRY EXCEPTION
+                # ====================================================
+    
+                if self.retry_manager.should_retry(
+                    node.task
+                ):
+    
+                    print(
+                        "Retrying after exception..."
+                    )
+    
+                    self.retry_manager.retry(
+                        node.task
+                    )
+    
+                    print(
+                        "Retry attempt:",
+                        node.task.retry_count,
+                        "/",
+                        node.task.max_retries,
+                    )
+    
+                    continue
+                
+                node.failed = True
+                node.completed = False
+                node.running = False
+    
+                if self.execution_memory is not None:
+                
+                    self.execution_memory.add(
+                        ExecutionRecord(
+                            goal_id=goal_id or "",
+                            action=node.task.action,
+                            target=node.task.target,
+                            success=False,
+                            result="",
+                            error=str(error),
+                            started=started,
+                            completed=completed,
+                        )
+                    )
+    
+                return False
 
     # ============================================================
     # BUILD GRAPH RESULT
