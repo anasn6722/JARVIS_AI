@@ -60,6 +60,7 @@ class EntityExtractor:
             "windows": [],
             "searches": [],
             "goals": [],
+            "coordinates": [],
         }
 
         # ========================================================
@@ -248,6 +249,29 @@ class EntityExtractor:
         if goal:
             entities["goals"].append(
                 goal
+            )
+
+        # ========================================================
+        # MOUSE COORDINATES
+        # ========================================================
+
+        coordinate_match = re.search(
+            r"\b(\d{1,5})\s*[, ]\s*(\d{1,5})\b",
+            text,
+        )
+
+        if coordinate_match:
+
+            x = int(
+                coordinate_match.group(1)
+            )
+
+            y = int(
+                coordinate_match.group(2)
+            )
+
+            entities["coordinates"].append(
+                f"{x},{y}"
             )
 
         # ========================================================

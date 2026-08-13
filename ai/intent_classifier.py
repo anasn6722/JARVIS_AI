@@ -60,6 +60,70 @@ class IntentClassifier:
     )
 
     # =====================================================
+    # MOUSE CONTROL
+    # =====================================================
+
+    MOUSE_POSITION_PHRASES = (
+        "mouse position",
+        "cursor position",
+        "where is my mouse",
+        "where is the mouse",
+        "where is my cursor",
+        "where is the cursor",
+    )
+
+    MOUSE_MOVE_PHRASES = (
+        "move mouse",
+        "move the mouse",
+        "move cursor",
+        "move the cursor",
+        "move mouse to",
+        "move the mouse to",
+        "move cursor to",
+        "move the cursor to",
+    )
+
+    MOUSE_DOUBLE_CLICK_PHRASES = (
+        "double click",
+        "double-click",
+        "double click at",
+        "double-click at",
+    )
+
+    MOUSE_RIGHT_CLICK_PHRASES = (
+        "right click",
+        "right-click",
+        "right click at",
+        "right-click at",
+    )
+
+    MOUSE_MIDDLE_CLICK_PHRASES = (
+        "middle click",
+        "middle-click",
+        "middle click at",
+        "middle-click at",
+    )
+
+    MOUSE_CLICK_PHRASES = (
+        "click",
+        "left click",
+        "left-click",
+        "click at",
+    )
+
+    MOUSE_SCROLL_UP_PHRASES = (
+        "scroll up",
+        "scroll upward",
+        "scroll upwards",
+    )
+
+    MOUSE_SCROLL_DOWN_PHRASES = (
+        "scroll down",
+        "scroll downward",
+        "scroll downwards",
+    )
+
+    # =====================================================
     # WINDOW CONTROL
     # =====================================================
 
@@ -404,6 +468,82 @@ class IntentClassifier:
             return {
                 "destination": "BRAIN",
                 "intent": "close_window",
+            }
+
+        # =====================================================
+        # MOUSE CONTROL
+        # =====================================================
+
+        if IntentUtils.contains_any(
+            text,
+            self.MOUSE_POSITION_PHRASES,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "mouse_position",
+            }
+
+        if IntentUtils.contains_any(
+            text,
+            self.MOUSE_DOUBLE_CLICK_PHRASES,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "mouse_double_click",
+            }
+
+        if IntentUtils.contains_any(
+            text,
+            self.MOUSE_RIGHT_CLICK_PHRASES,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "mouse_right_click",
+            }
+
+        if IntentUtils.contains_any(
+            text,
+            self.MOUSE_MIDDLE_CLICK_PHRASES,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "mouse_middle_click",
+            }
+
+        if IntentUtils.contains_any(
+            text,
+            self.MOUSE_SCROLL_UP_PHRASES,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "mouse_scroll_up",
+            }
+
+        if IntentUtils.contains_any(
+            text,
+            self.MOUSE_SCROLL_DOWN_PHRASES,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "mouse_scroll_down",
+            }
+
+        if IntentUtils.contains_any(
+            text,
+            self.MOUSE_MOVE_PHRASES,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "mouse_move",
+            }
+
+        if IntentUtils.contains_any(
+            text,
+            self.MOUSE_CLICK_PHRASES,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "mouse_click",
             }
 
         # =====================================================

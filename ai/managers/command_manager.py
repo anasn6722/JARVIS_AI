@@ -9,6 +9,36 @@ from ai.text_utils import TextUtils
 
 
 class CommandManager:
+    PLANNER_INTENTS = {
+            # Applications
+            "open",
+            "close",
+            "close_last",
+    
+            # Desktop windows
+            "focus_window",
+            "close_window",
+            "close_active_window",
+            "minimize_window",
+            "maximize_window",
+            "restore_window",
+            "minimize_active_window",
+            "maximize_active_window",
+            "restore_active_window",
+            "active_window",
+            "list_windows",
+    
+            # Mouse
+            "mouse_position",
+            "mouse_move",
+            "mouse_click",
+            "mouse_double_click",
+            "mouse_right_click",
+            "mouse_middle_click",
+            "mouse_scroll_up",
+            "mouse_scroll_down",
+            }
+    
 
     def __init__(
         self,
@@ -25,6 +55,8 @@ class CommandManager:
         self.command_splitter = CommandSplitter()
         self.context_resolver = ContextResolver(context)
         self.reference_resolver = reference_resolver
+
+        
 
     def process_single(
         self,
@@ -57,6 +89,10 @@ class CommandManager:
             intent=result["intent"],
             destination=result["destination"],
             entities=entities,
+            requires_planning=(
+                goal is not None
+                or result["intent"] in self.PLANNER_INTENTS
+            ),
         )
 
         command_data = self.reference_resolver.resolve(command_data)
@@ -92,7 +128,10 @@ class CommandManager:
             destination=result["destination"],
             entities=entities,
             goal=goal,
-            requires_planning=(goal is not None),
+            requires_planning=(
+                goal is not None
+                or result["intent"] in self.PLANNER_INTENTS
+            ),
         )
     
         command_data = self.reference_resolver.resolve(command_data)

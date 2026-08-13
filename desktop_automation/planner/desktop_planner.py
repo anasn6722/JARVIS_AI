@@ -2,9 +2,10 @@ from ai.planner.planner import Planner
 
 
 class DesktopPlanner(Planner):
-    """Plan desktop window automation commands."""
+    """Plan desktop window and mouse automation commands."""
 
     DESKTOP_INTENTS = {
+        # Window control
         "focus_window",
         "close_window",
         "close_active_window",
@@ -16,9 +17,19 @@ class DesktopPlanner(Planner):
         "restore_active_window",
         "active_window",
         "list_windows",
+        # Mouse control
+        "mouse_position",
+        "mouse_move",
+        "mouse_click",
+        "mouse_double_click",
+        "mouse_right_click",
+        "mouse_middle_click",
+        "mouse_scroll_up",
+        "mouse_scroll_down",
     }
 
     ACTIONS = {
+        # Window control
         "focus_window": "focus_window",
         "close_window": "close_window",
         "close_active_window": "close_active_window",
@@ -30,6 +41,15 @@ class DesktopPlanner(Planner):
         "restore_active_window": "restore_active_window",
         "active_window": "active_window",
         "list_windows": "list_windows",
+        # Mouse control
+        "mouse_position": "mouse_position",
+        "mouse_move": "mouse_move",
+        "mouse_click": "mouse_click",
+        "mouse_double_click": "mouse_double_click",
+        "mouse_right_click": "mouse_right_click",
+        "mouse_middle_click": "mouse_middle_click",
+        "mouse_scroll_up": "mouse_scroll",
+        "mouse_scroll_down": "mouse_scroll",
     }
 
     def can_plan(self, command):
@@ -53,11 +73,70 @@ class DesktopPlanner(Planner):
 
         target = None
 
-        if hasattr(command, "entities"):
-            entities = command.entities or {}
+        entities = getattr(
+            command,
+            "entities",
+            {},
+        ) or {}
 
-            windows = entities.get("windows", [])
-            apps = entities.get("apps", [])
+        # =====================================================
+        # MOUSE
+        # =====================================================
+
+        if action in {
+            "mouse_move",
+            "mouse_click",
+            "mouse_double_click",
+            "mouse_right_click",
+            "mouse_middle_click",
+        }:
+            coordinates = entities.get(
+                "coordinates",
+                [],
+            )
+
+            if coordinates:
+                target = coordinates[0]
+
+            # A click without coordinates means:
+            # click at the current cursor position.
+            elif action in {
+                "mouse_click",
+                "mouse_double_click",
+                "mouse_right_click",
+                "mouse_middle_click",
+            }:
+                target = None
+
+            else:
+                return []
+
+        elif action == "mouse_scroll":
+
+            if command.intent == "mouse_scroll_up":
+                target = "3"
+            else:
+                target = "-3"
+
+        elif action == "mouse_position":
+
+            target = None
+
+        # =====================================================
+        # WINDOWS
+        # =====================================================
+
+        else:
+
+            windows = entities.get(
+                "windows",
+                [],
+            )
+
+            apps = entities.get(
+                "apps",
+                [],
+            )
 
             if windows:
                 target = windows[0]
@@ -65,18 +144,21 @@ class DesktopPlanner(Planner):
             elif apps:
                 target = apps[0]
 
-        # Some desktop actions operate on the active window.
-        if action in {
-            "active_window",
-            "list_windows",
-            "close_active_window",
-            "minimize_active_window",
-            "maximize_active_window",
-            "restore_active_window",
-        }:
-            target = None
+            # Active-window actions don't require a target.
+            if action in {
+                "active_window",
+                "list_windows",
+                "close_active_window",
+                "minimize_active_window",
+                "maximize_active_window",
+                "restore_active_window",
+            }:
+                target = None
 
-        # Import here to avoid unnecessary circular imports.
+        # =====================================================
+        # CREATE TASK
+        # =====================================================
+
         from ai.agent.task import Task
 
         task = Task(

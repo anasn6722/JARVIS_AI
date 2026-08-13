@@ -104,6 +104,52 @@ class ToolRegistryBuilder:
         )
 
         # =================================================
+        # MOUSE AUTOMATION
+        # =================================================
+
+        brain.tool_registry.register(
+            "mouse_position",
+            "Get the current mouse cursor position.",
+            brain.desktop.mouse_position,
+        )
+
+        brain.tool_registry.register(
+            "mouse_move",
+            "Move the mouse cursor to x,y coordinates.",
+            brain.desktop.mouse_move,
+        )
+
+        brain.tool_registry.register(
+            "mouse_click",
+            "Left-click at x,y coordinates or current position.",
+            brain.desktop.mouse_click,
+        )
+
+        brain.tool_registry.register(
+            "mouse_double_click",
+            "Double-click at x,y coordinates or current position.",
+            brain.desktop.mouse_double_click,
+        )
+
+        brain.tool_registry.register(
+            "mouse_right_click",
+            "Right-click at x,y coordinates or current position.",
+            brain.desktop.mouse_right_click,
+        )
+
+        brain.tool_registry.register(
+            "mouse_middle_click",
+            "Middle-click at x,y coordinates or current position.",
+            brain.desktop.mouse_middle_click,
+        )
+
+        brain.tool_registry.register(
+            "mouse_scroll",
+            "Scroll vertically. Positive values scroll up; negative values scroll down.",
+            brain.desktop.mouse_scroll,
+        )
+
+        # =================================================
         # WEB
         # =================================================
 
