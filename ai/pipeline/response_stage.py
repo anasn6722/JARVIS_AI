@@ -16,3 +16,5 @@ class ResponseStage:
         self.brain.conversation_manager.remember_response(
             context.response
         )
+
+        context.stop = True

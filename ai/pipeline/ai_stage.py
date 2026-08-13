@@ -88,4 +88,3 @@ class AIStage:
         print("=" * 50)
 
         context.response = response
-        context.stop = True
