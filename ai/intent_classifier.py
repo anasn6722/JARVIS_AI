@@ -123,7 +123,7 @@ class IntentClassifier:
         "scroll downwards",
     )
 
-        # =====================================================
+    # =====================================================
     # KEYBOARD CONTROL
     # =====================================================
 
@@ -152,6 +152,33 @@ class IntentClassifier:
         "press windows",
         "press win",
         "press command",
+    )
+
+    # =====================================================
+    # SEMANTIC UI CONTROL
+    # =====================================================
+
+    UI_CLICK_PHRASES = (
+        "click",
+        "click on",
+        "press the button",
+        "select",
+        "select the",
+    )
+
+    UI_FOCUS_PHRASES = (
+        "focus",
+        "focus on",
+        "focus the",
+        "activate",
+        "activate the",
+    )
+
+    UI_FIND_PHRASES = (
+        "find",
+        "locate",
+        "show",
+        "describe",
     )
 
     # =====================================================
@@ -502,6 +529,42 @@ class IntentClassifier:
             }
 
         # =====================================================
+        # SEMANTIC UI CONTROL
+        # =====================================================
+
+        if (
+            text.startswith("click ")
+            or text.startswith("click on ")
+            or text.startswith("press the button ")
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "ui_click",
+            }
+
+        if (
+            text.startswith("focus ")
+            or text.startswith("focus on ")
+            or text.startswith("focus the ")
+            or text.startswith("activate ")
+            or text.startswith("activate the ")
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "ui_focus",
+            }
+
+        if (
+            text.startswith("find ")
+            or text.startswith("locate ")
+            or text.startswith("describe ")
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "ui_find",
+            }
+
+        # =====================================================
         # MOUSE CONTROL
         # =====================================================
 
@@ -617,6 +680,8 @@ class IntentClassifier:
                 "destination": "BRAIN",
                 "intent": "keyboard_press",
             }
+
+        
 
         # =====================================================
         # APPLICATIONS

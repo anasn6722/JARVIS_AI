@@ -29,6 +29,11 @@ class DesktopPlanner(Planner):
         "keyboard_type",
         "keyboard_press",
         "keyboard_hotkey",
+        "ui_find",
+        "ui_click",
+        "ui_focus",
+        "ui_click_at",
+        "ui_describe",
     }
 
     ACTIONS = {
@@ -57,6 +62,12 @@ class DesktopPlanner(Planner):
         "keyboard_type": "keyboard_type",
         "keyboard_press": "keyboard_press",
         "keyboard_hotkey": "keyboard_hotkey",
+        #UI
+        "ui_find": "ui_find",
+        "ui_click": "ui_click",
+        "ui_focus": "ui_focus",
+        "ui_click_at": "ui_click_at",
+        "ui_describe": "ui_describe",
     }
 
     def can_plan(self, command):
@@ -69,182 +80,100 @@ class DesktopPlanner(Planner):
 
     def plan(self, command):
         """Convert a Command object into desktop Task objects."""
-
+    
         if not self.can_plan(command):
             return []
-
+    
         action = self.ACTIONS.get(command.intent)
-
+    
         if not action:
             return []
-
+    
         target = None
-
-        entities = getattr(
-            command,
-            "entities",
-            {},
-        ) or {}
-
-        # =====================================================
-        # MOUSE
-        # =====================================================
-
-        if action in {
-            "mouse_move",
-            "mouse_click",
-            "mouse_double_click",
-            "mouse_right_click",
-            "mouse_middle_click",
-        }:
-            coordinates = entities.get(
-                "coordinates",
-                [],
-            )
-
-            if coordinates:
-                target = coordinates[0]
-
-            # A click without coordinates means:
-            # click at the current cursor position.
-            elif action in {
-                "mouse_click",
-                "mouse_double_click",
-                "mouse_right_click",
-                "mouse_middle_click",
-            }:
-                target = None
-
-            else:
-                return []
-
-        elif action == "mouse_scroll":
-
-            if command.intent == "mouse_scroll_up":
-                target = "3"
-            else:
-                target = "-3"
-
-        elif action == "mouse_position":
-
-            target = None
-
-        # =====================================================
-        # WINDOWS
-        # =====================================================
-
-        else:
-
-            windows = entities.get(
-                "windows",
-                [],
-            )
-
-            apps = entities.get(
-                "apps",
-                [],
-            )
-
+    
+        # =========================================================
+        # EXISTING WINDOW / APP TARGETS
+        # =========================================================
+    
+        if hasattr(command, "entities"):
+            entities = command.entities or {}
+    
+            windows = entities.get("windows", [])
+            apps = entities.get("apps", [])
+    
             if windows:
                 target = windows[0]
-
+    
             elif apps:
                 target = apps[0]
-
-            # Active-window actions don't require a target.
-            if action in {
-                "active_window",
-                "list_windows",
-                "close_active_window",
-                "minimize_active_window",
-                "maximize_active_window",
-                "restore_active_window",
-            }:
-                target = None
-
-        # =====================================================
-        # KEYBOARD TARGETS
-        # =====================================================
-
-        if action == "keyboard_type":
-            text = command.original.strip()
-
+    
+        # =========================================================
+        # ACTIVE WINDOW ACTIONS
+        # =========================================================
+    
+        if action in {
+            "active_window",
+            "list_windows",
+            "close_active_window",
+            "minimize_active_window",
+            "maximize_active_window",
+            "restore_active_window",
+        }:
+            target = None
+    
+        # =========================================================
+        # SEMANTIC UI ACTIONS
+        # =========================================================
+    
+        if action in {
+            "ui_find",
+            "ui_click",
+            "ui_focus",
+            "ui_describe",
+        }:
+            target = command.original.strip()
+    
             prefixes = (
-                "type ",
-                "write ",
-                "enter text ",
-                "write text ",
+                "press the button ",
+                "click on ",
+                "click ",
+                "focus on ",
+                "focus the ",
+                "focus ",
+                "activate the ",
+                "activate ",
+                "find ",
+                "locate ",
+                "describe ",
             )
-
-            target = ""
-
+    
+            normalized = target.lower()
+    
             for prefix in prefixes:
-                if text.lower().startswith(prefix):
-                    target = text[len(prefix):].strip()
+                if normalized.startswith(prefix):
+                    target = target[len(prefix):].strip()
                     break
-
-            if not target:
-                return []
-
-        elif action == "keyboard_press":
-            text = command.original.strip()
-
-            prefixes = (
-                "press ",
-                "hit ",
-                "push ",
-            )
-
-            target = ""
-
-            for prefix in prefixes:
-                if text.lower().startswith(prefix):
-                    target = text[len(prefix):].strip()
-                    break
-
-            if not target:
-                return []
-
-        elif action == "keyboard_hotkey":
-            text = command.original.strip()
-
-            # Examples:
-            # press ctrl+a
-            # press ctrl c
-            # hotkey ctrl+v
-            # press alt tab
-
-            text = text.lower()
-
-            for prefix in (
-                "hotkey ",
-                "press ",
-                "hit ",
-                "push ",
-            ):
-                if text.startswith(prefix):
-                    target = text[len(prefix):].strip()
-                    break
-
-            target = (
-                target
-                .replace("control", "ctrl")
-                .replace(" + ", "+")
-                .replace(" ", "+")
-            )
-
-            if not target:
-                return []
-
-        # =====================================================
+                
+        # =========================================================
+        # COORDINATE UI ACTION
+        # =========================================================
+    
+        if action == "ui_click_at":
+            entities = command.entities or {}
+            coordinates = entities.get("coordinates", [])
+    
+            if coordinates:
+                target = coordinates[0]
+    
+        # =========================================================
         # CREATE TASK
-        # =====================================================
-
+        # =========================================================
+    
         from ai.agent.task import Task
-
+    
         task = Task(
             action=action,
             target=target,
         )
-
+    
         return [task]

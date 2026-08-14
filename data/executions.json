@@ -515,5 +515,82 @@
         "started": "2026-08-13 21:49:40.372957",
         "completed": "2026-08-13 21:49:40.567896",
         "id": "8402d821-7310-4442-a0bd-0d01f4915822"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_click",
+        "target": null,
+        "success": false,
+        "result": "",
+        "error": "DesktopController.ui_click() missing 1 required positional argument: 'target'",
+        "started": "2026-08-14 18:50:16.210436",
+        "completed": "2026-08-14 18:50:18.225791",
+        "id": "c72fc724-93c3-40f8-8257-b7615efefd74"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_click",
+        "target": "file",
+        "success": false,
+        "result": "UI element has no usable bounding rectangle.",
+        "error": "UI element has no usable bounding rectangle.",
+        "started": "2026-08-14 18:53:38.761976",
+        "completed": "2026-08-14 18:53:40.947754",
+        "id": "8fe8b5b0-b8be-492b-aece-54d5b3ccd609"
+    },
+    {
+        "goal_id": "",
+        "action": "maximize_active_window",
+        "target": "",
+        "success": true,
+        "result": "Maximized desktop_planner.py - JARVIS_AI - Visual Studio Code.",
+        "error": "",
+        "started": "2026-08-14 18:53:51.074290",
+        "completed": "2026-08-14 18:53:51.074290",
+        "id": "c162a734-5d3e-4e4d-a508-064c4149b0f9"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_click",
+        "target": "file",
+        "success": false,
+        "result": "UI element has no usable bounding rectangle: file",
+        "error": "UI element has no usable bounding rectangle: file",
+        "started": "2026-08-14 18:57:45.700518",
+        "completed": "2026-08-14 18:57:47.815232",
+        "id": "9078436a-485d-4777-8267-4df97850022b"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_hotkey",
+        "target": "alt+f",
+        "success": true,
+        "result": "Pressed alt + f.",
+        "error": "",
+        "started": "2026-08-14 18:57:53.425013",
+        "completed": "2026-08-14 18:57:53.432275",
+        "id": "43e73ccf-ecde-4cd6-a4d8-0459a7bcfadf"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_click",
+        "target": "file",
+        "success": true,
+        "result": "Clicked File.",
+        "error": "",
+        "started": "2026-08-14 20:33:52.667042",
+        "completed": "2026-08-14 20:33:52.744253",
+        "id": "ec75c99d-189f-4409-80e7-4d375324e206"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_click",
+        "target": "file",
+        "success": true,
+        "result": "Clicked File.",
+        "error": "",
+        "started": "2026-08-14 20:34:25.056483",
+        "completed": "2026-08-14 20:34:25.127384",
+        "id": "9026738e-5c59-498d-8df6-27cef3e2a81b"
     }
 ]

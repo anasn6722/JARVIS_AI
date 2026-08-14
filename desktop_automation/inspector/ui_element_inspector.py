@@ -1,5 +1,3 @@
-from comtypes.automation import VARIANT
-
 from desktop_automation.controller.ui_automation_controller import (
     UIAutomationController,
 )
@@ -12,24 +10,16 @@ class UIElementInspector:
     Uses Windows UI Automation through UIAutomationController.
     """
 
-    # =========================================================
-    # UI AUTOMATION CONSTANTS
-    # =========================================================
-
     TREE_SCOPE_ELEMENT = 0x1
     TREE_SCOPE_CHILDREN = 0x2
     TREE_SCOPE_DESCENDANTS = 0x4
 
-    # UI Automation property IDs
     UIA_NAME_PROPERTY_ID = 30005
     UIA_AUTOMATION_ID_PROPERTY_ID = 30011
     UIA_CLASSNAME_PROPERTY_ID = 30012
     UIA_CONTROLTYPE_PROPERTY_ID = 30003
 
-    def __init__(
-        self,
-        controller=None,
-    ):
+    def __init__(self, controller=None):
         self.controller = (
             controller
             or UIAutomationController()
@@ -40,8 +30,6 @@ class UIElementInspector:
     # =========================================================
 
     def current_window(self):
-        """Return the current foreground window."""
-
         return self.controller.foreground_window()
 
     # =========================================================
@@ -49,11 +37,6 @@ class UIElementInspector:
     # =========================================================
 
     def current_element(self):
-        """
-        Return the UI Automation element representing the
-        current foreground window.
-        """
-
         window = self.current_window()
 
         if not window:
@@ -68,13 +51,32 @@ class UIElementInspector:
     # =========================================================
 
     def inspect(self, element):
-        """Convert an automation element into readable metadata."""
-
         if element is None:
             return None
 
         return self.controller.inspect_element(
             element
+        )
+
+    # =========================================================
+    # CREATE CONDITION
+    # =========================================================
+
+    def _property_condition(
+        self,
+        property_id,
+        value,
+    ):
+        """
+        Create a UI Automation property condition.
+
+        comtypes handles conversion of the Python value to the
+        appropriate VARIANT.
+        """
+
+        return self.controller.automation.CreatePropertyCondition(
+            property_id,
+            value,
         )
 
     # =========================================================
@@ -87,37 +89,72 @@ class UIElementInspector:
         root=None,
         descendants=True,
     ):
-        """
-        Find the first element whose Name matches `name`.
-        """
-
+        """Find an element by name, case-insensitively."""
+    
         if not name:
             return None
-
+    
         root = root or self.current_element()
-
+    
         if root is None:
             return None
-
-        condition = (
-            self.controller.automation.CreatePropertyCondition(
-                self.UIA_NAME_PROPERTY_ID,
-                VARIANT(str(name)),
-            )
+    
+        wanted = str(name).strip().lower()
+    
+        # ---------------------------------------------------------
+        # Search the UI tree directly.
+        #
+        # We intentionally inspect the actual CurrentName values
+        # instead of relying only on CreatePropertyCondition,
+        # because voice/text normalization can change casing.
+        # ---------------------------------------------------------
+    
+        elements = self.find_all(
+            root=root,
+            descendants=descendants,
         )
-
-        scope = (
-            self.TREE_SCOPE_DESCENDANTS
-            if descendants
-            else self.TREE_SCOPE_CHILDREN
-        )
-
-        element = root.FindFirst(
-            scope,
-            condition,
-        )
-
-        return element
+    
+        for element in elements:
+            try:
+                current_name = (
+                    element.CurrentName or ""
+                ).strip()
+    
+                if not current_name:
+                    continue
+                
+                if current_name.lower() != wanted:
+                    continue
+                
+                # -------------------------------------------------
+                # Make sure the element has usable bounds.
+                # -------------------------------------------------
+    
+                try:
+                    rect = element.CurrentBoundingRectangle
+    
+                    width = (
+                        int(rect.right)
+                        - int(rect.left)
+                    )
+    
+                    height = (
+                        int(rect.bottom)
+                        - int(rect.top)
+                    )
+    
+                    if width <= 0 or height <= 0:
+                        continue
+                    
+                except Exception:
+                    continue
+                
+                return element
+    
+            except Exception:
+                continue
+            
+        return None
 
     # =========================================================
     # FIND BY AUTOMATION ID
@@ -129,8 +166,6 @@ class UIElementInspector:
         root=None,
         descendants=True,
     ):
-        """Find the first element by AutomationId."""
-
         if not automation_id:
             return None
 
@@ -139,23 +174,52 @@ class UIElementInspector:
         if root is None:
             return None
 
-        condition = (
-            self.controller.automation.CreatePropertyCondition(
-                self.UIA_AUTOMATION_ID_PROPERTY_ID,
-                VARIANT(str(automation_id)),
-            )
-        )
-
         scope = (
             self.TREE_SCOPE_DESCENDANTS
             if descendants
             else self.TREE_SCOPE_CHILDREN
         )
 
-        return root.FindFirst(
-            scope,
-            condition,
+        try:
+            condition = self._property_condition(
+                self.UIA_AUTOMATION_ID_PROPERTY_ID,
+                str(automation_id),
+            )
+
+            return root.FindFirst(
+                scope,
+                condition,
+            )
+
+        except Exception:
+            pass
+
+        wanted = (
+            str(automation_id)
+            .strip()
+            .lower()
         )
+
+        for element in self.find_all(
+            root=root,
+            descendants=descendants,
+        ):
+            try:
+                current_id = (
+                    element.CurrentAutomationId
+                    or ""
+                )
+
+                if (
+                    current_id.strip().lower()
+                    == wanted
+                ):
+                    return element
+
+            except Exception:
+                continue
+
+        return None
 
     # =========================================================
     # FIND BY CLASS NAME
@@ -167,8 +231,6 @@ class UIElementInspector:
         root=None,
         descendants=True,
     ):
-        """Find the first element by ClassName."""
-
         if not class_name:
             return None
 
@@ -177,23 +239,55 @@ class UIElementInspector:
         if root is None:
             return None
 
-        condition = (
-            self.controller.automation.CreatePropertyCondition(
-                self.UIA_CLASSNAME_PROPERTY_ID,
-                VARIANT(str(class_name)),
-            )
-        )
-
         scope = (
             self.TREE_SCOPE_DESCENDANTS
             if descendants
             else self.TREE_SCOPE_CHILDREN
         )
 
-        return root.FindFirst(
-            scope,
-            condition,
+        try:
+            condition = self._property_condition(
+                self.UIA_CLASSNAME_PROPERTY_ID,
+                str(class_name),
+            )
+
+            element = root.FindFirst(
+                scope,
+                condition,
+            )
+
+            if element is not None:
+                return element
+
+        except Exception:
+            pass
+
+        wanted = (
+            str(class_name)
+            .strip()
+            .lower()
         )
+
+        for element in self.find_all(
+            root=root,
+            descendants=descendants,
+        ):
+            try:
+                current_class = (
+                    element.CurrentClassName
+                    or ""
+                )
+
+                if (
+                    current_class.strip().lower()
+                    == wanted
+                ):
+                    return element
+
+            except Exception:
+                continue
+
+        return None
 
     # =========================================================
     # FIND BY CONTROL TYPE
@@ -205,14 +299,6 @@ class UIElementInspector:
         root=None,
         descendants=True,
     ):
-        """
-        Find the first element by UI Automation ControlType.
-
-        Example:
-            50000 = Button
-            50020 = Edit
-        """
-
         root = root or self.current_element()
 
         if root is None:
@@ -225,56 +311,60 @@ class UIElementInspector:
         except (TypeError, ValueError):
             return None
 
-        condition = (
-            self.controller.automation.CreatePropertyCondition(
-                self.UIA_CONTROLTYPE_PROPERTY_ID,
-                VARIANT(control_type),
-            )
-        )
-
         scope = (
             self.TREE_SCOPE_DESCENDANTS
             if descendants
             else self.TREE_SCOPE_CHILDREN
         )
 
-        return root.FindFirst(
-            scope,
-            condition,
-        )
+        try:
+            condition = self._property_condition(
+                self.UIA_CONTROLTYPE_PROPERTY_ID,
+                control_type,
+            )
+
+            element = root.FindFirst(
+                scope,
+                condition,
+            )
+
+            if element is not None:
+                return element
+
+        except Exception:
+            pass
+
+        for element in self.find_all(
+            root=root,
+            descendants=descendants,
+        ):
+            try:
+                if (
+                    int(element.CurrentControlType)
+                    == control_type
+                ):
+                    return element
+
+            except Exception:
+                continue
+
+        return None
 
     # =========================================================
     # FIND AT POINT
     # =========================================================
 
-    def find_at_point(
-        self,
-        x,
-        y,
-    ):
-        """Find the UI element at screen coordinates."""
-
-        element = self.controller.element_from_point(
+    def find_at_point(self, x, y):
+        return self.controller.element_from_point(
             int(x),
             int(y),
         )
-
-        if element is None:
-            return None
-
-        return element
 
     # =========================================================
     # INSPECT AT POINT
     # =========================================================
 
-    def inspect_at_point(
-        self,
-        x,
-        y,
-    ):
-        """Inspect the UI element at screen coordinates."""
-
+    def inspect_at_point(self, x, y):
         element = self.find_at_point(
             x,
             y,
@@ -288,7 +378,7 @@ class UIElementInspector:
         )
 
     # =========================================================
-    # FIND ALL DESCENDANTS
+    # FIND ALL
     # =========================================================
 
     def find_all(
@@ -296,21 +386,10 @@ class UIElementInspector:
         root=None,
         descendants=True,
     ):
-        """
-        Return all UI Automation elements under a root.
-
-        Use this carefully: a modern application can expose
-        a large UI tree.
-        """
-
         root = root or self.current_element()
 
         if root is None:
             return []
-
-        condition = (
-            self.controller.automation.CreateTrueCondition()
-        )
 
         scope = (
             self.TREE_SCOPE_DESCENDANTS
@@ -318,10 +397,18 @@ class UIElementInspector:
             else self.TREE_SCOPE_CHILDREN
         )
 
-        collection = root.FindAll(
-            scope,
-            condition,
-        )
+        try:
+            condition = (
+                self.controller.automation.CreateTrueCondition()
+            )
+
+            collection = root.FindAll(
+                scope,
+                condition,
+            )
+
+        except Exception:
+            return []
 
         if collection is None:
             return []
@@ -359,13 +446,6 @@ class UIElementInspector:
         descendants=True,
         limit=100,
     ):
-        """
-        Inspect UI elements and return readable dictionaries.
-
-        `limit` prevents accidentally dumping thousands of
-        elements from a complex application.
-        """
-
         if limit <= 0:
             return []
 
@@ -404,16 +484,7 @@ class UIElementInspector:
         control_type=None,
         root=None,
     ):
-        """
-        Search for a UI element using the strongest available
-        semantic property.
-
-        Priority:
-            AutomationId
-            Name
-            ClassName
-            ControlType
-        """
+        # Prefer the most stable identifier.
 
         if automation_id:
             element = self.find_by_automation_id(
@@ -465,8 +536,6 @@ class UIElementInspector:
         control_type=None,
         root=None,
     ):
-        """Search and immediately return readable metadata."""
-
         element = self.search(
             name=name,
             automation_id=automation_id,
@@ -487,7 +556,5 @@ class UIElementInspector:
     # =========================================================
 
     def close(self):
-        """Release the underlying UI Automation controller."""
-
         if self.controller is not None:
             self.controller.close()

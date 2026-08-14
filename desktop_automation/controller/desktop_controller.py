@@ -1,3 +1,6 @@
+from desktop_automation.actions.ui_action_controller import (
+    UIActionController,
+)
 from desktop_automation.controller.keyboard_controller import (
     KeyboardController,
 )
@@ -5,6 +8,9 @@ from desktop_automation.controller.mouse_controller import (
     MouseController,
 )
 from desktop_automation.controller.window_manager import WindowManager
+from desktop_automation.inspector.ui_element_inspector import (
+    UIElementInspector,
+)
 from desktop_automation.resolver.window_resolver import WindowResolver
 
 
@@ -20,16 +26,29 @@ class DesktopController:
         self.mouse = MouseController()
         self.keyboard = KeyboardController()
 
+        # =====================================================
+        # SEMANTIC UI AUTOMATION
+        # =====================================================
+
+        self.ui_inspector = UIElementInspector()
+
+        self.ui_actions = UIActionController(
+            inspector=self.ui_inspector,
+            mouse=self.mouse,
+        )
+
     # =========================================================
     # WINDOWS
     # =========================================================
 
     def list_windows(self):
         """Return all visible desktop windows."""
+
         return self.window_manager.list_windows()
 
     def get_active_window(self):
         """Return the currently active window."""
+
         return self.window_manager.get_active_window()
 
     def minimize_active_window(self):
@@ -123,7 +142,7 @@ class DesktopController:
         )
 
     def focus_window(self, name):
-        """Find and focus a window by its natural name."""
+        """Find and focus a desktop window."""
 
         window = self.window_resolver.resolve(name)
 
@@ -352,7 +371,7 @@ class DesktopController:
         """
         Press a keyboard combination.
 
-        Example targets:
+        Examples:
             ctrl+a
             ctrl+c
             ctrl+v
@@ -396,8 +415,115 @@ class DesktopController:
                 *parts
             )
 
-        except (TypeError, ValueError, OSError) as error:
+        except (
+            TypeError,
+            ValueError,
+            OSError,
+        ) as error:
             return False, str(error)
+
+    # =========================================================
+    # SEMANTIC UI
+    # =========================================================
+
+    def ui_find(self, target):
+        """
+        Find a UI element by its visible semantic name.
+
+        Example:
+            File
+            Explorer (Ctrl+Shift+E)
+            Toggle Chat
+        """
+
+        if not target:
+            return False, "A UI element name is required."
+
+        info = self.ui_inspector.search_info(
+            name=str(target).strip()
+        )
+
+        if info is None:
+            return (
+                False,
+                f"UI element not found: {target}",
+            )
+
+        return (
+            True,
+            info,
+        )
+
+    def ui_click(self, target):
+        """
+        Find a UI element by name and click it.
+
+        Example:
+            ui_click("File")
+        """
+
+        if not target:
+            return False, "A UI element name is required."
+
+        return self.ui_actions.click_by_name(
+            str(target).strip()
+        )
+
+    def ui_focus(self, target):
+        """
+        Find a UI element by name and focus it.
+
+        Example:
+            ui_focus("Agent Status")
+        """
+
+        if not target:
+            return False, "A UI element name is required."
+
+        return self.ui_actions.focus_by_name(
+            str(target).strip()
+        )
+
+    def ui_click_at(self, target):
+        """
+        Inspect the UI element at x,y and click it.
+
+        Example:
+            ui_click_at("500,300")
+        """
+
+        try:
+            x, y = self._parse_coordinates(
+                target
+            )
+
+        except (TypeError, ValueError) as error:
+            return False, str(error)
+
+        return self.ui_actions.click_at_point(
+            x,
+            y,
+        )
+
+    def ui_describe(self, target):
+        """
+        Find a UI element by name and return its metadata.
+        """
+
+        if not target:
+            return False, "A UI element name is required."
+
+        info = self.ui_actions.describe_element(
+            name=str(target).strip()
+        )
+
+        if info is None:
+            return (
+                False,
+                f"UI element not found: {target}",
+            )
+
+        return True, info
 
     # =========================================================
     # PARSING
@@ -432,3 +558,13 @@ class DesktopController:
             ) from error
 
         return x, y
+
+    # =========================================================
+    # CLOSE
+    # =========================================================
+
+    def close(self):
+        """Release UI automation resources."""
+
+        if self.ui_inspector is not None:
+            self.ui_inspector.close()

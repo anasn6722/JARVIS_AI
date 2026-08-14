@@ -38,6 +38,12 @@ class ReasoningEngine:
         "keyboard_type",
         "keyboard_press",
         "keyboard_hotkey",
+        # Semantic UI
+        "ui_find",
+        "ui_click",
+        "ui_focus",
+        "ui_click_at",
+        "ui_describe",
     }
 
     def __init__(self, brain):

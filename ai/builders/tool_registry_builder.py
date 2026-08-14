@@ -172,6 +172,40 @@ class ToolRegistryBuilder:
         )
 
         # =================================================
+        # SEMANTIC UI AUTOMATION
+        # =================================================
+
+        brain.tool_registry.register(
+            "ui_find",
+            "Find a visible UI element by its name.",
+            brain.desktop.ui_find,
+        )
+
+        brain.tool_registry.register(
+            "ui_click",
+            "Find a visible UI element by name and click it.",
+            brain.desktop.ui_click,
+        )
+
+        brain.tool_registry.register(
+            "ui_focus",
+            "Find a visible UI element by name and focus it.",
+            brain.desktop.ui_focus,
+        )
+
+        brain.tool_registry.register(
+            "ui_click_at",
+            "Find the UI element at x,y coordinates and click it.",
+            brain.desktop.ui_click_at,
+        )
+
+        brain.tool_registry.register(
+            "ui_describe",
+            "Describe a visible UI element by name.",
+            brain.desktop.ui_describe,
+        )
+
+        # =================================================
         # WEB
         # =================================================
 
