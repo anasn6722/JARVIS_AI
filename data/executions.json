@@ -735,5 +735,49 @@
         "started": "2026-08-15 18:31:21.143354",
         "completed": "2026-08-15 18:31:21.495320",
         "id": "3171adcd-8c91-425e-9716-a0b26525b33d"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_type",
+        "target": "hello world",
+        "success": true,
+        "result": "Typed 'hello world'.",
+        "error": "",
+        "started": "2026-08-15 18:37:48.600648",
+        "completed": "2026-08-15 18:37:48.733638",
+        "id": "c44d90b3-d0df-4663-8540-cbab053d3d96"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_press",
+        "target": null,
+        "success": false,
+        "result": "",
+        "error": "DesktopController.keyboard_press() missing 1 required positional argument: 'key'",
+        "started": "2026-08-15 18:37:48.771202",
+        "completed": "2026-08-15 18:37:50.774168",
+        "id": "0e4e821a-5a84-4010-be4c-d78f7d0330e8"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_type",
+        "target": "hello world",
+        "success": true,
+        "result": "Typed 'hello world'.",
+        "error": "",
+        "started": "2026-08-15 18:40:45.768088",
+        "completed": "2026-08-15 18:40:45.895506",
+        "id": "a091d833-b57a-4c3f-b8b9-4dedb823386e"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_press",
+        "target": "enter",
+        "success": true,
+        "result": "Pressed enter.",
+        "error": "",
+        "started": "2026-08-15 18:40:45.895506",
+        "completed": "2026-08-15 18:40:45.899798",
+        "id": "47db468d-94ee-48db-9bb4-372fb863809b"
     }
 ]

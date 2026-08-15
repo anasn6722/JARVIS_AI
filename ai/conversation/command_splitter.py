@@ -38,6 +38,9 @@ class CommandSplitter:
 
         # Open + keyboard action
         r"^open\b.*\bpress\b",
+
+        # Type + keyboard action
+        r"^type\b.*\bpress\b",
     )
 
     # =========================================================
