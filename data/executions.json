@@ -647,5 +647,82 @@
         "started": "2026-08-15 10:42:33.289296",
         "completed": "2026-08-15 10:42:33.714396",
         "id": "ae40b5c0-eef5-4e01-9165-ed8be874120e"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-15 12:58:09.036338",
+        "completed": "2026-08-15 12:58:09.066812",
+        "id": "9cb611bf-4bad-4044-8e1c-6b860ceaa49f"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "terminal",
+        "success": false,
+        "result": "I couldn't find an installed application called terminal.",
+        "error": "I couldn't find an installed application called terminal.",
+        "started": "2026-08-15 12:58:18.862364",
+        "completed": "2026-08-15 12:58:20.927977",
+        "id": "cd98cdc3-3652-4b3f-9132-cab67189fba3"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "cmd",
+        "success": true,
+        "result": "Opened Cmd.",
+        "error": "",
+        "started": "2026-08-15 12:58:24.909668",
+        "completed": "2026-08-15 12:58:24.941129",
+        "id": "61e84ccc-e60c-4a7d-a879-6e799c554d52"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_hotkey",
+        "target": "ctrl+shift+f",
+        "success": true,
+        "result": "Pressed ctrl + shift + f.",
+        "error": "",
+        "started": "2026-08-15 13:02:55.768227",
+        "completed": "2026-08-15 13:02:55.784380",
+        "id": "2fcd7da6-e99f-4d62-92ee-9f3d1e3649d9"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_type",
+        "target": "python",
+        "success": true,
+        "result": "Typed 'python'.",
+        "error": "",
+        "started": "2026-08-15 13:03:03.020916",
+        "completed": "2026-08-15 13:03:03.094136",
+        "id": "6dc69901-330b-48dd-b5f6-b16787e00540"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_press",
+        "target": "enter",
+        "success": true,
+        "result": "Pressed enter.",
+        "error": "",
+        "started": "2026-08-15 13:03:03.094136",
+        "completed": "2026-08-15 13:03:03.094136",
+        "id": "cdd78b19-90c4-43b0-861c-9f45d97c2b3a"
+    },
+    {
+        "goal_id": "",
+        "action": "search_ui",
+        "target": "Python",
+        "success": true,
+        "result": "Searched for 'Python'.",
+        "error": "",
+        "started": "2026-08-15 13:05:36.450346",
+        "completed": "2026-08-15 13:05:36.809535",
+        "id": "84206efd-4c84-4c14-bb25-5894544f50ae"
     }
 ]

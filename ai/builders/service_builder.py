@@ -210,14 +210,16 @@ class ServiceBuilder:
         # =====================================================
         
         brain.planner_registry = PlannerRegistry()
+
+        brain.planner_registry.register(
+            DesktopPlanner()
+        )
         
         brain.planner_registry.register(
             AppPlanner()
         )
         
-        brain.planner_registry.register(
-            DesktopPlanner()
-        )
+        
         
         brain.planner_registry.register(
             SearchPlanner()
