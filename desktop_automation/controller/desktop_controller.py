@@ -39,6 +39,7 @@ class DesktopController:
             inspector=self.ui_inspector,
             mouse=self.mouse,
         )
+
         self.ui_target_resolver = UITargetResolver()
 
     # =========================================================
@@ -453,9 +454,116 @@ class DesktopController:
                 f"UI element not found: {target}",
             )
 
-        return (
-            True,
-            info,
+        return True, info
+
+    def ui_find_descriptor(self, target):
+        """
+        Find a UI element and return its semantic descriptor.
+
+        The descriptor contains stable information that can be
+        used later to re-resolve the element safely.
+        """
+
+        if not target:
+            return False, "A UI element name is required."
+
+        info = self.ui_inspector.search_info(
+            name=str(target).strip()
+        )
+
+        if info is None:
+            return (
+                False,
+                f"UI element not found: {target}",
+            )
+
+        return True, info
+
+    def ui_click_descriptor(self, descriptor):
+        """
+        Re-resolve a previously discovered UI descriptor
+        and click it.
+        """
+
+        if not isinstance(descriptor, dict):
+            return (
+                False,
+                "UI descriptor must be a dictionary.",
+            )
+
+        name = str(
+            descriptor.get("name") or ""
+        ).strip()
+
+        automation_id = str(
+            descriptor.get("automation_id") or ""
+        ).strip()
+
+        class_name = str(
+            descriptor.get("class_name") or ""
+        ).strip()
+
+        control_type = descriptor.get(
+            "control_type"
+        )
+
+        element = None
+
+        # -----------------------------------------------------
+        # Prefer AutomationId.
+        # -----------------------------------------------------
+
+        if automation_id:
+            element = (
+                self.ui_inspector.find_by_automation_id(
+                    automation_id
+                )
+            )
+
+        # -----------------------------------------------------
+        # Fall back to exact name.
+        # -----------------------------------------------------
+
+        if element is None and name:
+            element = (
+                self.ui_inspector.find_by_name(
+                    name
+                )
+            )
+
+        # -----------------------------------------------------
+        # Fall back to class name.
+        # -----------------------------------------------------
+
+        if element is None and class_name:
+            element = (
+                self.ui_inspector.find_by_class(
+                    class_name
+                )
+            )
+
+        # -----------------------------------------------------
+        # Fall back to control type.
+        # -----------------------------------------------------
+
+        if (
+            element is None
+            and control_type is not None
+        ):
+            element = (
+                self.ui_inspector.find_by_control_type(
+                    control_type
+                )
+            )
+
+        if element is None:
+            return (
+                False,
+                "UI element could not be re-resolved.",
+            )
+
+        return self.ui_actions.click_element(
+            element
         )
 
     def ui_click(self, target):
@@ -591,6 +699,10 @@ class DesktopController:
 
         return x, y
 
+    # =========================================================
+    # UI TYPE
+    # =========================================================
+
     def ui_type(self, target):
         """
         Type into a semantic UI target.
@@ -616,6 +728,16 @@ class DesktopController:
 
         element_name = element_name.strip()
         text = text.strip()
+
+        if not element_name:
+            return (
+                False,
+                "UI element name is required.",
+            )
+
+        if not text:
+            return False, "Text is empty."
+
         resolved = self.ui_target_resolver.resolve(
             element_name
         )
@@ -630,33 +752,15 @@ class DesktopController:
             return self.ui_actions.type_into_search_action(
                 text
             )
-        
+
         return self.ui_actions.type_into_name(
             resolved.target,
             text,
         )
 
-        # =========================================================
-        # SPECIALIZED SEARCH ACTION
-        # =========================================================
-
-        if element_name.lower() in {
-            "search",
-            "search box",
-            "search panel",
-        }:
-            return self.ui_actions.type_into_search_action(
-                text
-            )
-
-        # =========================================================
-        # GENERIC UI ELEMENT
-        # =========================================================
-
-        return self.ui_actions.type_into_name(
-            element_name,
-            text,
-        )
+    # =========================================================
+    # SEARCH
+    # =========================================================
 
     def search_ui(self, query):
         """
@@ -675,9 +779,9 @@ class DesktopController:
         if not query:
             return False, "Search query is empty."
 
-        # =========================================================
-        # OPEN SEARCH
-        # =========================================================
+        # -----------------------------------------------------
+        # Open Search.
+        # -----------------------------------------------------
 
         success, message = self.keyboard.hotkey(
             "ctrl",
@@ -695,11 +799,13 @@ class DesktopController:
 
         time.sleep(0.2)
 
-        # =========================================================
-        # VERIFY FOCUSED ELEMENT
-        # =========================================================
+        # -----------------------------------------------------
+        # Verify focused element.
+        # -----------------------------------------------------
 
-        focused = self.ui_inspector.controller.focused_element()
+        focused = (
+            self.ui_inspector.controller.focused_element()
+        )
 
         if focused is None:
             return (
@@ -726,9 +832,9 @@ class DesktopController:
             focused_class,
         )
 
-        # =========================================================
-        # TYPE QUERY
-        # =========================================================
+        # -----------------------------------------------------
+        # Type query.
+        # -----------------------------------------------------
 
         success, message = self.keyboard.type_text(
             query
@@ -739,9 +845,9 @@ class DesktopController:
                 f"Could not type search query: {message}"
             )
 
-        # =========================================================
-        # SUBMIT SEARCH
-        # =========================================================
+        # -----------------------------------------------------
+        # Submit search.
+        # -----------------------------------------------------
 
         success, message = self.keyboard.press(
             "enter"
@@ -755,6 +861,7 @@ class DesktopController:
         return True, (
             f"Searched for '{query}'."
         )
+
     # =========================================================
     # CLOSE
     # =========================================================

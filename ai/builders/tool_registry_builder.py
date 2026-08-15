@@ -186,6 +186,17 @@ class ToolRegistryBuilder:
             "Find a visible UI element by name and click it.",
             brain.desktop.ui_click,
         )
+        brain.tool_registry.register(
+            "ui_find_descriptor",
+            "Find a visible UI element and return its semantic descriptor.",
+            brain.desktop.ui_find_descriptor,
+        )
+        
+        brain.tool_registry.register(
+            "ui_click_descriptor",
+            "Re-resolve a semantic UI descriptor and click the element.",
+            brain.desktop.ui_click_descriptor,
+        )
 
         brain.tool_registry.register(
             "ui_focus",
@@ -198,6 +209,7 @@ class ToolRegistryBuilder:
             "Find the UI element at x,y coordinates and click it.",
             brain.desktop.ui_click_at,
         )
+        
 
         brain.tool_registry.register(
             "ui_describe",
@@ -214,6 +226,7 @@ class ToolRegistryBuilder:
             "Search the current desktop application using its visible search interface.",
             brain.desktop.search_ui,
         )
+
 
         # =================================================
         # WEB
