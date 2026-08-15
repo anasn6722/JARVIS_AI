@@ -11,6 +11,9 @@ from desktop_automation.controller.window_manager import WindowManager
 from desktop_automation.inspector.ui_element_inspector import (
     UIElementInspector,
 )
+from desktop_automation.resolver.ui_target_resolver import (
+    UITargetResolver,
+)
 from desktop_automation.resolver.window_resolver import WindowResolver
 
 
@@ -36,6 +39,7 @@ class DesktopController:
             inspector=self.ui_inspector,
             mouse=self.mouse,
         )
+        self.ui_target_resolver = UITargetResolver()
 
     # =========================================================
     # WINDOWS
@@ -455,33 +459,61 @@ class DesktopController:
         )
 
     def ui_click(self, target):
-        """
-        Find a UI element by name and click it.
-
-        Example:
-            ui_click("File")
-        """
+        """Find and click a semantic UI target."""
 
         if not target:
             return False, "A UI element name is required."
 
+        resolved = self.ui_target_resolver.resolve(
+            target
+        )
+
+        if resolved is None:
+            return False, (
+                f"Could not resolve UI target: {target}"
+            )
+
+        # Search is a capability rather than a fixed button click.
+        if resolved.capability == "search_ui":
+            return self.keyboard.hotkey(
+                "ctrl",
+                "shift",
+                "f",
+            )
+
         return self.ui_actions.click_by_name(
-            str(target).strip()
+            resolved.target
         )
 
     def ui_focus(self, target):
-        """
-        Find a UI element by name and focus it.
-
-        Example:
-            ui_focus("Agent Status")
-        """
+        """Find and focus a semantic UI target."""
 
         if not target:
             return False, "A UI element name is required."
 
+        resolved = self.ui_target_resolver.resolve(
+            target
+        )
+
+        if resolved is None:
+            return False, (
+                f"Could not resolve UI target: {target}"
+            )
+
+        if resolved.capability == "search_ui":
+            success, message = self.keyboard.hotkey(
+                "ctrl",
+                "shift",
+                "f",
+            )
+
+            if success:
+                return True, "Focused Search."
+
+            return False, message
+
         return self.ui_actions.focus_by_name(
-            str(target).strip()
+            resolved.target
         )
 
     def ui_click_at(self, target):
@@ -584,12 +616,25 @@ class DesktopController:
 
         element_name = element_name.strip()
         text = text.strip()
+        resolved = self.ui_target_resolver.resolve(
+            element_name
+        )
 
-        if not element_name:
-            return False, "UI element name is required."
+        if resolved is None:
+            return False, (
+                f"Could not resolve UI target: "
+                f"{element_name}"
+            )
 
-        if not text:
-            return False, "Text is required."
+        if resolved.capability == "search_ui":
+            return self.ui_actions.type_into_search_action(
+                text
+            )
+        
+        return self.ui_actions.type_into_name(
+            resolved.target,
+            text,
+        )
 
         # =========================================================
         # SPECIALIZED SEARCH ACTION
@@ -617,96 +662,96 @@ class DesktopController:
         """
         Open the application's Search interface, type the query,
         and submit it.
-    
+
         VS Code exposes Search through Ctrl+Shift+F, which is more
         reliable than depending on a changing UI element name.
         """
-    
+
         if query is None:
             return False, "Search query is required."
-    
+
         query = str(query).strip()
-    
+
         if not query:
             return False, "Search query is empty."
-    
+
         # =========================================================
         # OPEN SEARCH
         # =========================================================
-    
+
         success, message = self.keyboard.hotkey(
             "ctrl",
             "shift",
             "f",
         )
-    
+
         if not success:
             return False, (
                 f"Could not open Search: {message}"
             )
-    
+
         # Give the application time to update its UI.
         import time
-    
+
         time.sleep(0.2)
-    
+
         # =========================================================
         # VERIFY FOCUSED ELEMENT
         # =========================================================
-    
+
         focused = self.ui_inspector.controller.focused_element()
-    
+
         if focused is None:
             return (
                 False,
                 "Search opened, but no focused input was found.",
             )
-    
+
         try:
             focused_name = (
                 focused.CurrentName or ""
             )
-    
+
             focused_class = (
                 focused.CurrentClassName or ""
             )
-    
+
         except Exception:
             focused_name = ""
             focused_class = ""
-    
+
         print(
             "Focused after Search:",
             focused_name,
             focused_class,
         )
-    
+
         # =========================================================
         # TYPE QUERY
         # =========================================================
-    
+
         success, message = self.keyboard.type_text(
             query
         )
-    
+
         if not success:
             return False, (
                 f"Could not type search query: {message}"
             )
-    
+
         # =========================================================
         # SUBMIT SEARCH
         # =========================================================
-    
+
         success, message = self.keyboard.press(
             "enter"
         )
-    
+
         if not success:
             return False, (
                 f"Could not submit search: {message}"
             )
-    
+
         return True, (
             f"Searched for '{query}'."
         )
