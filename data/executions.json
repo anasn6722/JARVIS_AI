@@ -779,5 +779,27 @@
         "started": "2026-08-15 18:40:45.895506",
         "completed": "2026-08-15 18:40:45.899798",
         "id": "47db468d-94ee-48db-9bb4-372fb863809b"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_type",
+        "target": "hello world",
+        "success": true,
+        "result": "Typed 'hello world'.",
+        "error": "",
+        "started": "2026-08-15 18:48:56.878704",
+        "completed": "2026-08-15 18:48:57.008926",
+        "id": "90bfa2f7-3e8e-4d0e-8a84-2149d6d694ca"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_press",
+        "target": "enter",
+        "success": true,
+        "result": "Pressed enter.",
+        "error": "",
+        "started": "2026-08-15 18:48:57.010931",
+        "completed": "2026-08-15 18:48:57.010931",
+        "id": "0b1d4096-1b2c-480c-ba47-f69cd6ea2dd9"
     }
 ]

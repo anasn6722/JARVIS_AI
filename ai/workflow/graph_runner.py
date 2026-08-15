@@ -3,6 +3,7 @@ from datetime import datetime
 from ai.memory.execution.execution_record import ExecutionRecord
 from ai.workflow.workflow_context import WorkflowContext
 from ai.workflow.workflow_status import WorkflowStatus
+from desktop_automation.planner.task_context import TaskContext
 
 
 class GraphRunner:
@@ -14,11 +15,14 @@ class GraphRunner:
         events,
         retry_manager,
         execution_memory=None,
-    ):
+    ):  
         self.tool_executor = tool_executor
         self.events = events
         self.retry_manager = retry_manager
         self.execution_memory = execution_memory
+
+        # Context shared by tasks during one graph execution.
+        self.task_context = TaskContext()
 
     # ============================================================
     # RUN GRAPH
@@ -41,6 +45,7 @@ class GraphRunner:
                 node.task.target,
             )
 
+        self.task_context.clear()
         context = WorkflowContext([])
         context.status = WorkflowStatus.RUNNING
 
@@ -217,6 +222,39 @@ class GraphRunner:
                     print(
                         "Result:",
                         node.task.result,
+                    )
+                    # ====================================================
+                    # PUBLISH TASK RESULT TO CONTEXT
+                    # ====================================================
+                    
+                    self.task_context.set(
+                        "last_result",
+                        node.task.result,
+                    )
+                    
+                    self.task_context.set(
+                        "last_action",
+                        node.task.action,
+                    )
+                    
+                    self.task_context.set(
+                        "last_target",
+                        node.task.target,
+                    )
+                    
+                    self.task_context.set(
+                        f"task:{node.task.id}",
+                        node.task.result,
+                    )
+                    
+                    self.task_context.set(
+                        f"result:{node.task.action}",
+                        node.task.result,
+                    )
+                    
+                    print(
+                        "TASK CONTEXT:",
+                        self.task_context.snapshot(),
                     )
     
                     if self.execution_memory is not None:
