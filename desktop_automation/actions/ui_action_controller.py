@@ -1,3 +1,6 @@
+from desktop_automation.controller.keyboard_controller import (
+    KeyboardController,
+)
 from desktop_automation.controller.mouse_controller import (
     MouseController,
 )
@@ -39,6 +42,7 @@ class UIActionController:
         self.automation = (
             self.inspector.controller.automation
         )
+        self.keyboard = KeyboardController()
 
     # =========================================================
     # CLICK ELEMENT
@@ -372,6 +376,124 @@ class UIActionController:
             class_name=class_name,
             control_type=control_type,
         )
+
+    def type_into_name(self, name, text):
+        """
+        Find a UI element by name, focus it, then type text into it.
+        """
+
+        if not name:
+            return False, "A UI element name is required."
+
+        if text is None:
+            return False, "Text is required."
+
+        text = str(text)
+
+        if not text:
+            return False, "Text is empty."
+
+        element = self.inspector.find_by_name(
+            str(name).strip()
+        )
+
+        if element is None:
+            return False, (
+                f"UI element not found: {name}"
+            )
+
+        success, message = self.focus_element(
+            element
+        )
+
+        if not success:
+            return False, message
+
+        try:
+            success, message = self.keyboard.type_text(
+                text
+            )
+        except (TypeError, ValueError, OSError) as error:
+            return False, str(error)
+
+        if success:
+            return True, (
+                f"Typed text into {element.CurrentName or name}."
+            )
+
+        return False, message
+
+    def type_into_search_action(self, text):
+        """
+        Activate the VS Code Search action, then type into the
+        resulting focused input control.
+        """
+    
+        if text is None:
+            return False, "Text is required."
+    
+        text = str(text)
+    
+        if not text:
+            return False, "Text is empty."
+    
+        element = self.inspector.find_by_name(
+            "Search (Ctrl+Shift+F)"
+        )
+    
+        if element is None:
+            return False, (
+                "Search action was not found."
+            )
+    
+        success, message = self.click_element(
+            element
+        )
+    
+        if not success:
+            return False, message
+    
+        # Give VS Code a moment to update its UI.
+        import time
+    
+        time.sleep(0.15)
+    
+        focused = (
+            self.inspector.controller
+            .focused_element()
+        )
+    
+        if focused is None:
+            return False, (
+                "Search was opened, but no focused "
+                "input was detected."
+            )
+    
+        try:
+            focused_name = (
+                focused.CurrentName or ""
+            )
+    
+            focused_class = (
+                focused.CurrentClassName or ""
+            )
+    
+            print(
+                "Focused after Search:",
+                focused_name,
+                focused_class,
+            )
+    
+        except Exception:
+            pass
+        
+        try:
+            return self.keyboard.type_text(
+                text
+            )
+    
+        except (TypeError, ValueError, OSError) as error:
+            return False, str(error)
 
     # =========================================================
     # CLOSE

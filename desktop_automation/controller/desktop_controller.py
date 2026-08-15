@@ -559,6 +559,60 @@ class DesktopController:
 
         return x, y
 
+    def ui_type(self, target):
+        """
+        Type into a semantic UI target.
+    
+        Supported:
+            Search||text
+            exact UI element||text
+        """
+    
+        if not target:
+            return False, "UI typing target is required."
+    
+        if "||" not in target:
+            return (
+                False,
+                "UI typing target must use: element||text",
+            )
+    
+        element_name, text = target.split(
+            "||",
+            1,
+        )
+    
+        element_name = element_name.strip()
+        text = text.strip()
+    
+        if not element_name:
+            return False, "UI element name is required."
+    
+        if not text:
+            return False, "Text is required."
+    
+        # =========================================================
+        # SPECIALIZED SEARCH ACTION
+        # =========================================================
+    
+        if element_name.lower() in {
+            "search",
+            "search box",
+            "search panel",
+        }:
+            return self.ui_actions.type_into_search_action(
+                text
+            )
+    
+        # =========================================================
+        # GENERIC UI ELEMENT
+        # =========================================================
+    
+        return self.ui_actions.type_into_name(
+            element_name,
+            text,
+        )
+
     # =========================================================
     # CLOSE
     # =========================================================

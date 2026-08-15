@@ -34,6 +34,7 @@ class DesktopPlanner(Planner):
         "ui_focus",
         "ui_click_at",
         "ui_describe",
+        "ui_type",
     }
 
     ACTIONS = {
@@ -68,6 +69,7 @@ class DesktopPlanner(Planner):
         "ui_focus": "ui_focus",
         "ui_click_at": "ui_click_at",
         "ui_describe": "ui_describe",
+        "ui_type": "ui_type",
     }
 
     def can_plan(self, command):
@@ -153,6 +155,43 @@ class DesktopPlanner(Planner):
                 if normalized.startswith(prefix):
                     target = target[len(prefix):].strip()
                     break
+
+
+        if action == "ui_type":
+            original = command.original.strip()
+    
+            normalized = original.lower()
+    
+            prefix = "type "
+    
+            if not normalized.startswith(prefix):
+                return []
+    
+            body = original[len(prefix):].strip()
+    
+            marker = " in "
+    
+            marker_index = body.lower().rfind(
+                marker
+            )
+    
+            if marker_index == -1:
+                return []
+    
+            text_to_type = body[:marker_index].strip()
+            element_name = body[
+                marker_index + len(marker):
+            ].strip()
+    
+            if element_name.lower().startswith("the "):
+                element_name = element_name[4:].strip()
+    
+            if not text_to_type or not element_name:
+                return []
+    
+            target = (
+                f"{element_name}||{text_to_type}"
+            )
                 
         # =========================================================
         # COORDINATE UI ACTION

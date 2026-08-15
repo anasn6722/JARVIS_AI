@@ -592,5 +592,38 @@
         "started": "2026-08-14 20:34:25.056483",
         "completed": "2026-08-14 20:34:25.127384",
         "id": "9026738e-5c59-498d-8df6-27cef3e2a81b"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_type",
+        "target": "search box||hello from jarvis",
+        "success": false,
+        "result": "UI element not found: search box",
+        "error": "UI element not found: search box",
+        "started": "2026-08-15 10:06:49.807404",
+        "completed": "2026-08-15 10:06:52.120848",
+        "id": "d92499ef-691b-4605-ac3b-844f80fd7778"
+    },
+    {
+        "goal_id": "",
+        "action": "focus_window",
+        "target": "chrome",
+        "success": false,
+        "result": "Window not found: chrome",
+        "error": "Window not found: chrome",
+        "started": "2026-08-15 10:06:58.644816",
+        "completed": "2026-08-15 10:07:00.664510",
+        "id": "a47ae3eb-390c-4b73-8f7a-e15352d373c9"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_type",
+        "target": "search||hello from jarvis",
+        "success": true,
+        "result": "Typed 'hello from jarvis'.",
+        "error": "",
+        "started": "2026-08-15 10:26:30.643632",
+        "completed": "2026-08-15 10:26:31.101493",
+        "id": "0387ac15-25d4-4cd6-b8aa-df5514507025"
     }
 ]

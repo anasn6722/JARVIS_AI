@@ -204,6 +204,11 @@ class ToolRegistryBuilder:
             "Describe a visible UI element by name.",
             brain.desktop.ui_describe,
         )
+        brain.tool_registry.register(
+            "ui_type",
+            "Focus a visible UI element by name and type text into it.",
+            brain.desktop.ui_type,
+        )
 
         # =================================================
         # WEB
