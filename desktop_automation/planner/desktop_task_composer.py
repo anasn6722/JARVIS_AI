@@ -6,8 +6,8 @@ class DesktopTaskComposer:
     Compose deterministic desktop tasks from natural-language
     desktop commands.
 
-    This layer handles common multi-step patterns while keeping
-    execution deterministic and independent of the LLM.
+    This layer handles common multi-step desktop patterns while
+    keeping execution deterministic and independent of the LLM.
     """
 
     SEARCH_PREFIXES = (
@@ -48,6 +48,16 @@ class DesktopTaskComposer:
             type hello world and press enter
                 -> keyboard_type("hello world")
                 -> keyboard_press("enter")
+
+            find File and click it
+                -> ui_find_descriptor("File")
+                -> ui_click_descriptor("$LAST_UI")
+
+            find File, click it, then find Explorer and click it
+                -> ui_find_descriptor("File")
+                -> ui_click_descriptor("$LAST_UI")
+                -> ui_find_descriptor("Explorer")
+                -> ui_click_descriptor("$LAST_UI")
         """
 
         if not text:
@@ -58,7 +68,18 @@ class DesktopTaskComposer:
         if not text:
             return []
 
-        normalized = text.lower()
+        normalized = text.lower().strip()
+
+        # =====================================================
+        # FIND + CLICK UI CHAIN
+        # =====================================================
+
+        ui_tasks = self._compose_find_click_chain(
+            text
+        )
+
+        if ui_tasks:
+            return ui_tasks
 
         # =====================================================
         # SIMPLE SEARCH COMMAND
@@ -88,7 +109,7 @@ class DesktopTaskComposer:
             )
 
             if typed_text:
-                # search_ui is already an atomic operation:
+                # search_ui is already atomic:
                 # open/focus/type/submit are handled internally.
                 return [
                     Task(
@@ -136,6 +157,288 @@ class DesktopTaskComposer:
                 )
 
         return []
+
+    # =========================================================
+    # FIND + CLICK COMPOSITION
+    # =========================================================
+
+    def _compose_find_click_chain(self, text):
+        """
+        Compose semantic UI find/click sequences.
+
+        Supported forms:
+
+            find File and click it
+            find File, click it
+            find File then click it
+
+            find File, click it, then find Explorer and click it
+        """
+
+        segments = self._split_ui_sequence(
+            text
+        )
+
+        if not segments:
+            return []
+
+        tasks = []
+
+        index = 0
+
+        while index < len(segments):
+
+            current = segments[index].strip()
+
+            if not current:
+                index += 1
+                continue
+
+            # -------------------------------------------------
+            # FIND COMMAND
+            # -------------------------------------------------
+
+            if self._starts_with_find(
+                current
+            ):
+                name = self._extract_find_target(
+                    current
+                )
+
+                if not name:
+                    return []
+
+                tasks.append(
+                    Task(
+                        action="ui_find_descriptor",
+                        target=name,
+                    )
+                )
+
+                index += 1
+
+                # -------------------------------------------------
+                # FOLLOWING CLICK COMMAND
+                # -------------------------------------------------
+
+                if index < len(segments):
+                    next_segment = segments[
+                        index
+                    ].strip()
+
+                    if self._is_click_current(
+                        next_segment
+                    ):
+                        tasks.append(
+                            Task(
+                                action="ui_click_descriptor",
+                                target="$LAST_UI",
+                            )
+                        )
+
+                        index += 1
+
+                continue
+
+            # -------------------------------------------------
+            # IGNORE STANDALONE CLICK-IT
+            # -------------------------------------------------
+
+            if self._is_click_current(
+                current
+            ):
+                # A standalone "click it" has no known context
+                # unless a previous find created LAST_UI.
+                tasks.append(
+                    Task(
+                        action="ui_click_descriptor",
+                        target="$LAST_UI",
+                    )
+                )
+
+                index += 1
+                continue
+
+            return []
+
+        # Require at least one semantic UI task.
+        if not tasks:
+            return []
+
+        # At least one find task must exist.
+        if not any(
+            task.action
+            == "ui_find_descriptor"
+            for task in tasks
+        ):
+            return []
+
+        return self._sequence(
+            tasks
+        )
+
+    # =========================================================
+    # UI SEQUENCE SPLITTING
+    # =========================================================
+
+    @staticmethod
+    def _split_ui_sequence(text):
+        """
+        Split UI action chains on explicit sequence markers.
+
+        Examples:
+
+            find File and click it
+                -> ["find File", "click it"]
+
+            find File, click it, then find Explorer and click it
+                -> [
+                    "find File",
+                    "click it",
+                    "find Explorer",
+                    "click it",
+                ]
+        """
+
+        normalized = str(text).strip()
+
+        if not normalized:
+            return []
+
+        # Normalize commas surrounding "then".
+        normalized = normalized.replace(
+            ", then ",
+            " then ",
+        )
+
+        # Explicit "then" is always a safe boundary here.
+        parts = [
+            part.strip()
+            for part in normalized.split(
+                " then "
+            )
+            if part.strip()
+        ]
+
+        result = []
+
+        for part in parts:
+
+            # Split "find X and click it".
+            lower = part.lower()
+
+            marker = " and click"
+
+            if marker in lower:
+                index = lower.find(
+                    marker
+                )
+
+                left = part[
+                    :index
+                ].strip()
+
+                right = part[
+                    index + len(" and "):
+                ].strip()
+
+                if left:
+                    result.append(
+                        left
+                    )
+
+                if right:
+                    result.append(
+                        right
+                    )
+
+                continue
+
+            # Split comma-separated UI steps.
+            comma_parts = [
+                value.strip()
+                for value in part.split(",")
+                if value.strip()
+            ]
+
+            result.extend(
+                comma_parts
+            )
+
+        return result
+
+    # =========================================================
+    # FIND HELPERS
+    # =========================================================
+
+    @staticmethod
+    def _starts_with_find(text):
+        """Return True when a segment starts with find/locate."""
+
+        normalized = text.lower().strip()
+
+        return (
+            normalized.startswith("find ")
+            or normalized.startswith("locate ")
+        )
+
+    @staticmethod
+    def _extract_find_target(text):
+        """Extract the semantic UI target from a find command."""
+
+        value = text.strip()
+
+        normalized = value.lower()
+
+        prefixes = (
+            "find ",
+            "locate ",
+        )
+
+        for prefix in prefixes:
+            if normalized.startswith(
+                prefix
+            ):
+                target = value[
+                    len(prefix):
+                ].strip()
+
+                # Remove harmless trailing click wording.
+                suffixes = (
+                    " and click it",
+                    " and click",
+                )
+
+                lower_target = target.lower()
+
+                for suffix in suffixes:
+                    if lower_target.endswith(
+                        suffix
+                    ):
+                        target = target[
+                            :-len(suffix)
+                        ].strip()
+                        break
+
+                return target.rstrip(" ,")
+
+        return ""
+
+    @staticmethod
+    def _is_click_current(text):
+        """
+        Return True for commands referring to the previously
+        discovered UI element.
+        """
+
+        normalized = text.lower().strip()
+
+        return normalized in {
+            "click it",
+            "click",
+            "press it",
+            "activate it",
+        }
 
     # =========================================================
     # SEARCH QUERY
@@ -204,7 +507,6 @@ class DesktopTaskComposer:
             index + len(marker):
         ].strip()
 
-        # Remove trailing Enter instructions.
         suffixes = (
             " and press enter",
             " then press enter",
@@ -223,7 +525,6 @@ class DesktopTaskComposer:
                 ].strip()
                 break
 
-        # Remove a separator comma left before "and".
         value = value.rstrip(" ,")
 
         return value
@@ -249,8 +550,6 @@ class DesktopTaskComposer:
         if not value:
             return ""
 
-        # "in Search" belongs to ui_type rather than
-        # ordinary keyboard typing.
         lower_value = value.lower()
 
         marker = " in "

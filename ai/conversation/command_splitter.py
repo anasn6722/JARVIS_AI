@@ -41,6 +41,9 @@ class CommandSplitter:
 
         # Type + keyboard action
         r"^type\b.*\bpress\b",
+
+        # Find + click
+        r"^(?:find|locate)\b.*\bclick\b",
     )
 
     # =========================================================
