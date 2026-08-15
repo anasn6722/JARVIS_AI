@@ -163,13 +163,22 @@ class GraphRunner:
                 # EXECUTE TOOL
                 # ====================================================
     
-                if node.task.target:
+                resolved_target = self._resolve_target(
+                    node.task.target
+                )
+                
+                print(
+                    "Resolved target:",
+                    resolved_target,
+                )
+                
+                if resolved_target is not None:
                 
                     raw_result = self.tool_executor.execute(
                         node.task.action,
-                        node.task.target,
+                        resolved_target,
                     )
-    
+                
                 else:
                 
                     raw_result = self.tool_executor.execute(
@@ -226,32 +235,32 @@ class GraphRunner:
                     # ====================================================
                     # PUBLISH TASK RESULT TO CONTEXT
                     # ====================================================
-                    
+
                     self.task_context.set(
                         "last_result",
                         node.task.result,
                     )
-                    
+
                     self.task_context.set(
                         "last_action",
                         node.task.action,
                     )
-                    
+
                     self.task_context.set(
                         "last_target",
                         node.task.target,
                     )
-                    
+
                     self.task_context.set(
                         f"task:{node.task.id}",
                         node.task.result,
                     )
-                    
+
                     self.task_context.set(
                         f"result:{node.task.action}",
                         node.task.result,
                     )
-                    
+
                     print(
                         "TASK CONTEXT:",
                         self.task_context.snapshot(),
@@ -455,3 +464,62 @@ class GraphRunner:
             return "No results were produced."
 
         return "\n".join(responses)
+
+    def _resolve_target(self, target):
+        """
+        Resolve context references in a task target.
+
+        Supported references:
+
+            $LAST_RESULT
+            $LAST_ACTION
+            $LAST_TARGET
+
+        Also supports:
+
+            $RESULT:<action>
+
+        Example:
+
+            $RESULT:ui_find
+        """
+
+        if target is None:
+            return None
+
+        if not isinstance(target, str):
+            return target
+
+        value = target.strip()
+
+        if not value.startswith("$"):
+            return target
+
+        if value == "$LAST_RESULT":
+            return self.task_context.get(
+                "last_result"
+            )
+
+        if value == "$LAST_ACTION":
+            return self.task_context.get(
+                "last_action"
+            )
+
+        if value == "$LAST_TARGET":
+            return self.task_context.get(
+                "last_target"
+            )
+
+        if value.startswith("$RESULT:"):
+            action = value[
+                len("$RESULT:"):
+            ].strip()
+
+            if not action:
+                return None
+
+            return self.task_context.get(
+                f"result:{action}"
+            )
+
+        return target

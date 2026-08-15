@@ -801,5 +801,27 @@
         "started": "2026-08-15 18:48:57.010931",
         "completed": "2026-08-15 18:48:57.010931",
         "id": "0b1d4096-1b2c-480c-ba47-f69cd6ea2dd9"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_type",
+        "target": "hello world",
+        "success": true,
+        "result": "Typed 'hello world'.",
+        "error": "",
+        "started": "2026-08-15 18:53:59.491738",
+        "completed": "2026-08-15 18:53:59.621130",
+        "id": "e9efa553-6a8f-4e41-bd0f-c29c85cde416"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_press",
+        "target": "enter",
+        "success": true,
+        "result": "Pressed enter.",
+        "error": "",
+        "started": "2026-08-15 18:53:59.624677",
+        "completed": "2026-08-15 18:53:59.624677",
+        "id": "fda855d9-ae78-4b4d-a603-c2eec4315da5"
     }
 ]
