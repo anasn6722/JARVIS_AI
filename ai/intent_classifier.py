@@ -577,6 +577,8 @@ class IntentClassifier:
                 "intent": "ui_type",
             }
 
+        
+
         # =====================================================
         # MOUSE CONTROL
         # =====================================================
@@ -771,6 +773,21 @@ class IntentClassifier:
                 "intent": "identity",
             }
 
+        # =====================================================
+        # DESKTOP UI SEARCH
+        # =====================================================
+
+        if (
+            (
+                text.startswith("search for ")
+                or text.startswith("search ")
+            )
+            and "google" not in text
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "search_ui",
+            }
         # =====================================================
         # GOOGLE SEARCH
         # =====================================================

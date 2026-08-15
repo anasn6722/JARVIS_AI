@@ -45,6 +45,7 @@ class ReasoningEngine:
         "ui_click_at",
         "ui_describe",
         "ui_type",
+        "search_ui",
     }
 
     def __init__(self, brain):

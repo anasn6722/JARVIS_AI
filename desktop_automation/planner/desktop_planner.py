@@ -35,6 +35,7 @@ class DesktopPlanner(Planner):
         "ui_click_at",
         "ui_describe",
         "ui_type",
+        "search_ui",
     }
 
     ACTIONS = {
@@ -70,6 +71,7 @@ class DesktopPlanner(Planner):
         "ui_click_at": "ui_click_at",
         "ui_describe": "ui_describe",
         "ui_type": "ui_type",
+        "search_ui": "search_ui",
     }
 
     def can_plan(self, command):
@@ -159,39 +161,58 @@ class DesktopPlanner(Planner):
 
         if action == "ui_type":
             original = command.original.strip()
-    
+
             normalized = original.lower()
-    
+
             prefix = "type "
-    
+
             if not normalized.startswith(prefix):
                 return []
-    
+
             body = original[len(prefix):].strip()
-    
+
             marker = " in "
-    
+
             marker_index = body.lower().rfind(
                 marker
             )
-    
+
             if marker_index == -1:
                 return []
-    
+
             text_to_type = body[:marker_index].strip()
             element_name = body[
                 marker_index + len(marker):
             ].strip()
-    
+
             if element_name.lower().startswith("the "):
                 element_name = element_name[4:].strip()
-    
+
             if not text_to_type or not element_name:
                 return []
-    
+
             target = (
                 f"{element_name}||{text_to_type}"
             )
+
+
+        if action == "search_ui":
+            original = command.original.strip()
+
+            prefixes = (
+                "search for ",
+                "search ",
+            )
+
+            target = original
+
+            for prefix in prefixes:
+                if original.lower().startswith(prefix):
+                    target = original[len(prefix):].strip()
+                    break
+                
+            if not target:
+                return []       
                 
         # =========================================================
         # COORDINATE UI ACTION

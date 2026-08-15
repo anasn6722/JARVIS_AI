@@ -209,6 +209,11 @@ class ToolRegistryBuilder:
             "Focus a visible UI element by name and type text into it.",
             brain.desktop.ui_type,
         )
+        brain.tool_registry.register(
+            "search_ui",
+            "Search the current desktop application using its visible search interface.",
+            brain.desktop.search_ui,
+        )
 
         # =================================================
         # WEB

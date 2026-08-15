@@ -562,39 +562,39 @@ class DesktopController:
     def ui_type(self, target):
         """
         Type into a semantic UI target.
-    
+
         Supported:
             Search||text
             exact UI element||text
         """
-    
+
         if not target:
             return False, "UI typing target is required."
-    
+
         if "||" not in target:
             return (
                 False,
                 "UI typing target must use: element||text",
             )
-    
+
         element_name, text = target.split(
             "||",
             1,
         )
-    
+
         element_name = element_name.strip()
         text = text.strip()
-    
+
         if not element_name:
             return False, "UI element name is required."
-    
+
         if not text:
             return False, "Text is required."
-    
+
         # =========================================================
         # SPECIALIZED SEARCH ACTION
         # =========================================================
-    
+
         if element_name.lower() in {
             "search",
             "search box",
@@ -603,16 +603,113 @@ class DesktopController:
             return self.ui_actions.type_into_search_action(
                 text
             )
-    
+
         # =========================================================
         # GENERIC UI ELEMENT
         # =========================================================
-    
+
         return self.ui_actions.type_into_name(
             element_name,
             text,
         )
 
+    def search_ui(self, query):
+        """
+        Open the application's Search interface, type the query,
+        and submit it.
+    
+        VS Code exposes Search through Ctrl+Shift+F, which is more
+        reliable than depending on a changing UI element name.
+        """
+    
+        if query is None:
+            return False, "Search query is required."
+    
+        query = str(query).strip()
+    
+        if not query:
+            return False, "Search query is empty."
+    
+        # =========================================================
+        # OPEN SEARCH
+        # =========================================================
+    
+        success, message = self.keyboard.hotkey(
+            "ctrl",
+            "shift",
+            "f",
+        )
+    
+        if not success:
+            return False, (
+                f"Could not open Search: {message}"
+            )
+    
+        # Give the application time to update its UI.
+        import time
+    
+        time.sleep(0.2)
+    
+        # =========================================================
+        # VERIFY FOCUSED ELEMENT
+        # =========================================================
+    
+        focused = self.ui_inspector.controller.focused_element()
+    
+        if focused is None:
+            return (
+                False,
+                "Search opened, but no focused input was found.",
+            )
+    
+        try:
+            focused_name = (
+                focused.CurrentName or ""
+            )
+    
+            focused_class = (
+                focused.CurrentClassName or ""
+            )
+    
+        except Exception:
+            focused_name = ""
+            focused_class = ""
+    
+        print(
+            "Focused after Search:",
+            focused_name,
+            focused_class,
+        )
+    
+        # =========================================================
+        # TYPE QUERY
+        # =========================================================
+    
+        success, message = self.keyboard.type_text(
+            query
+        )
+    
+        if not success:
+            return False, (
+                f"Could not type search query: {message}"
+            )
+    
+        # =========================================================
+        # SUBMIT SEARCH
+        # =========================================================
+    
+        success, message = self.keyboard.press(
+            "enter"
+        )
+    
+        if not success:
+            return False, (
+                f"Could not submit search: {message}"
+            )
+    
+        return True, (
+            f"Searched for '{query}'."
+        )
     # =========================================================
     # CLOSE
     # =========================================================

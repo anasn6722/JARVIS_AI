@@ -625,5 +625,27 @@
         "started": "2026-08-15 10:26:30.643632",
         "completed": "2026-08-15 10:26:31.101493",
         "id": "0387ac15-25d4-4cd6-b8aa-df5514507025"
+    },
+    {
+        "goal_id": "",
+        "action": "search_ui",
+        "target": "python tutorials",
+        "success": true,
+        "result": "Pressed enter.",
+        "error": "",
+        "started": "2026-08-15 10:39:51.074832",
+        "completed": "2026-08-15 10:39:52.804881",
+        "id": "d7e60b4f-c476-471d-932e-1c1256904666"
+    },
+    {
+        "goal_id": "",
+        "action": "search_ui",
+        "target": "python tutorials",
+        "success": true,
+        "result": "Searched for 'python tutorials'.",
+        "error": "",
+        "started": "2026-08-15 10:42:33.289296",
+        "completed": "2026-08-15 10:42:33.714396",
+        "id": "ae40b5c0-eef5-4e01-9165-ed8be874120e"
     }
 ]
