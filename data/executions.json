@@ -724,5 +724,16 @@
         "started": "2026-08-15 13:05:36.450346",
         "completed": "2026-08-15 13:05:36.809535",
         "id": "84206efd-4c84-4c14-bb25-5894544f50ae"
+    },
+    {
+        "goal_id": "",
+        "action": "search_ui",
+        "target": "Python",
+        "success": true,
+        "result": "Searched for 'Python'.",
+        "error": "",
+        "started": "2026-08-15 18:31:21.143354",
+        "completed": "2026-08-15 18:31:21.495320",
+        "id": "3171adcd-8c91-425e-9716-a0b26525b33d"
     }
 ]
