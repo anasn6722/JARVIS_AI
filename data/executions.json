@@ -1890,5 +1890,27 @@
         "started": "2026-08-16 21:13:34.508765",
         "completed": "2026-08-16 21:13:34.676916",
         "id": "1972f39e-1ca3-48dc-bc75-b8d8fb0c6c37"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "youtube",
+        "success": true,
+        "result": "Opened Youtube.",
+        "error": "",
+        "started": "2026-08-16 21:26:31.611063",
+        "completed": "2026-08-16 21:26:32.657116",
+        "id": "4a2c4d6c-b1b9-4e52-8296-4840606e28f1"
+    },
+    {
+        "goal_id": "",
+        "action": "search_ui",
+        "target": "hoshyariyan on youtube",
+        "success": true,
+        "result": "Searched for 'hoshyariyan on youtube'.",
+        "error": "",
+        "started": "2026-08-16 21:27:01.693263",
+        "completed": "2026-08-16 21:27:02.194133",
+        "id": "4afdabaa-7ef9-4903-abcc-4a2952e46ed1"
     }
 ]

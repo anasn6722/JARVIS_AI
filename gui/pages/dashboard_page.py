@@ -23,6 +23,9 @@ from config.states import AssistantState
 from core import app_state
 from core.hud_state import hud_state
 from core.system import System
+from gui.widgets.diagnostics_panel import (
+    DiagnosticsPanel,
+)
 from gui.widgets.hud_activity_panel import (
     HudActivityPanel,
 )
@@ -646,6 +649,18 @@ class DashboardPage(QWidget):
             self.activity_panel
         )
 
+        # -----------------------------------------------------
+        # DIAGNOSTICS PANEL
+        # -----------------------------------------------------
+
+        self.diagnostics_panel = (
+            DiagnosticsPanel()
+        )
+
+        center_row.addWidget(
+            self.diagnostics_panel
+        )
+
         center_row.addStretch()
 
         layout.addLayout(
@@ -763,6 +778,7 @@ class DashboardPage(QWidget):
         snapshot = hud_state.snapshot()
 
         self.activity_panel.refresh()
+        self.diagnostics_panel.update()
 
         hud_runtime_state = (
             snapshot["state"]

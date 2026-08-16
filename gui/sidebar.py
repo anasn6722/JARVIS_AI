@@ -18,9 +18,7 @@ class Sidebar(QWidget):
             "jarvisSidebar"
         )
 
-        self.setFixedWidth(
-            235
-        )
+        self.setFixedWidth(165)
 
         self.setStyleSheet(
             """
@@ -59,10 +57,10 @@ class Sidebar(QWidget):
                 color: #6fa3ac;
                 border: 1px solid transparent;
                 border-radius: 8px;
-                padding: 10px 12px;
-                font-size: 11px;
+                padding: 8px 8px;
+                font-size: 9px;
                 font-weight: 700;
-                letter-spacing: 1px;
+                letter-spacing: 0px;
             }
 
             QPushButton.navButton:hover {
@@ -109,10 +107,10 @@ class Sidebar(QWidget):
         )
 
         layout.setContentsMargins(
+            10,
             14,
-            18,
-            14,
-            14,
+            10,
+            12,
         )
 
         layout.setSpacing(
@@ -124,7 +122,7 @@ class Sidebar(QWidget):
         # =====================================================
 
         brand = QLabel(
-            "J A R V I S"
+            "JARVIS"
         )
 
         brand.setObjectName(
@@ -341,7 +339,7 @@ class Sidebar(QWidget):
         )
 
         button.setMinimumHeight(
-            40
+            34
         )
 
         return button

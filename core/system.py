@@ -27,7 +27,7 @@ class System:
 
     @staticmethod
     def cpu_usage():
-        return psutil.cpu_percent(interval=1)
+        return psutil.cpu_percent(interval=None)
 
     @staticmethod
     def ram_percent():
