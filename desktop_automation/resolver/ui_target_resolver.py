@@ -37,12 +37,12 @@ class UITargetResolver:
         "the search view": "Search",
 
         # Explorer
-        "explorer": "Explorer (Ctrl+Shift+E)",
-        "the explorer": "Explorer (Ctrl+Shift+E)",
-        "explorer button": "Explorer (Ctrl+Shift+E)",
-        "explorer icon": "Explorer (Ctrl+Shift+E)",
-        "the explorer icon": "Explorer (Ctrl+Shift+E)",
-        "file explorer": "Explorer (Ctrl+Shift+E)",
+        "explorer": "Explorer",
+        "the explorer": "Explorer",
+        "explorer button": "Explorer",
+        "explorer icon": "Explorer",
+        "the explorer icon": "Explorer",
+        "file explorer": "Explorer",
 
         # File
         "file": "File",
@@ -81,6 +81,7 @@ class UITargetResolver:
 
     CAPABILITIES = {
         "Search": "search_ui",
+        "Explorer": "explorer_ui",
     }
 
     # =========================================================

@@ -437,74 +437,187 @@ class DesktopController:
 
         Example:
             File
-            Explorer (Ctrl+Shift+E)
+            Explorer
             Toggle Chat
         """
 
         if not target:
             return False, "A UI element name is required."
 
+        target = str(target).strip()
+
+        resolved = self.ui_target_resolver.resolve(
+            target
+        )
+
+        if resolved is None:
+            return False, (
+                f"Could not resolve UI target: {target}"
+            )
+
+        # Capability-based Search.
+        if resolved.capability == "search_ui":
+            info = self.ui_inspector.search_info(
+                name="Search (Ctrl+Shift+F)"
+            )
+
+            if info is not None:
+                return True, info
+
+            return False, "Search UI element not found."
+
+        # Capability-based Explorer.
+        if resolved.capability == "explorer_ui":
+            info = self.ui_inspector.search_info(
+                name="Explorer (Ctrl+Shift+E)"
+            )
+
+            if info is not None:
+                return True, info
+
+            return False, "Explorer UI element not found."
+
         info = self.ui_inspector.search_info(
-            name=str(target).strip()
+            name=resolved.target
         )
 
         if info is None:
             return (
                 False,
-                f"UI element not found: {target}",
+                f"UI element not found: {resolved.target}",
             )
 
         return True, info
 
     def ui_find_descriptor(self, target):
         """
-        Find a UI element using semantic UI resolution and return
-        its descriptor.
+        Find a UI target and return a semantic descriptor.
+
+        Capability-based targets are represented by a stable
+        descriptor even when their visible UI Automation element
+        is temporarily unavailable.
         """
-    
+
         if not target:
             return False, "A UI element name is required."
-    
+
         target = str(target).strip()
-    
+
         resolved = self.ui_target_resolver.resolve(
             target
         )
-    
+
         if resolved is None:
             return False, (
                 f"Could not resolve UI target: {target}"
             )
-    
-        # Search capability is handled by a keyboard shortcut,
-        # so there may not be a single named button target.
+
+        # =====================================================
+        # SEARCH CAPABILITY
+        # =====================================================
+
         if resolved.capability == "search_ui":
-            target_name = "Search (Ctrl+Shift+F)"
-        else:
-            target_name = resolved.target
-    
+            info = self.ui_inspector.search_info(
+                name="Search (Ctrl+Shift+F)"
+            )
+
+            if info is not None:
+                info["capability"] = "search_ui"
+                info["semantic_target"] = "Search"
+
+                return True, info
+
+            return True, {
+                "name": "Search",
+                "automation_id": "",
+                "class_name": "",
+                "control_type": None,
+                "capability": "search_ui",
+                "semantic_target": "Search",
+            }
+
+        # =====================================================
+        # EXPLORER CAPABILITY
+        # =====================================================
+
+        if resolved.capability == "explorer_ui":
+            info = self.ui_inspector.search_info(
+                name="Explorer (Ctrl+Shift+E)"
+            )
+
+            if info is not None:
+                info["capability"] = "explorer_ui"
+                info["semantic_target"] = "Explorer"
+
+                return True, info
+
+            return True, {
+                "name": "Explorer",
+                "automation_id": "",
+                "class_name": "",
+                "control_type": None,
+                "capability": "explorer_ui",
+                "semantic_target": "Explorer",
+            }
+
+        # =====================================================
+        # NORMAL UI TARGET
+        # =====================================================
+
         info = self.ui_inspector.search_info(
-            name=target_name
+            name=resolved.target
         )
-    
+
         if info is None:
             return (
                 False,
-                f"UI element not found: {target_name}",
+                f"UI element not found: {resolved.target}",
             )
-    
+
+        info["semantic_target"] = resolved.target
+
         return True, info
 
     def ui_click_descriptor(self, descriptor):
         """
         Re-resolve a previously discovered UI descriptor
         and click it.
+
+        Capability-based descriptors can execute stable
+        keyboard shortcuts when the visible UI Automation
+        element is unavailable.
         """
 
         if not isinstance(descriptor, dict):
             return (
                 False,
                 "UI descriptor must be a dictionary.",
+            )
+
+        capability = str(
+            descriptor.get("capability") or ""
+        ).strip().lower()
+
+        # =====================================================
+        # SEARCH CAPABILITY
+        # =====================================================
+
+        if capability == "search_ui":
+            return self.keyboard.hotkey(
+                "ctrl",
+                "shift",
+                "f",
+            )
+
+        # =====================================================
+        # EXPLORER CAPABILITY
+        # =====================================================
+
+        if capability == "explorer_ui":
+            return self.keyboard.hotkey(
+                "ctrl",
+                "shift",
+                "e",
             )
 
         name = str(
@@ -525,9 +638,9 @@ class DesktopController:
 
         element = None
 
-        # -----------------------------------------------------
-        # Prefer AutomationId.
-        # -----------------------------------------------------
+        # =====================================================
+        # PREFER AUTOMATION ID
+        # =====================================================
 
         if automation_id:
             element = (
@@ -536,9 +649,9 @@ class DesktopController:
                 )
             )
 
-        # -----------------------------------------------------
-        # Fall back to exact name.
-        # -----------------------------------------------------
+        # =====================================================
+        # FALLBACK: NAME
+        # =====================================================
 
         if element is None and name:
             element = (
@@ -547,9 +660,9 @@ class DesktopController:
                 )
             )
 
-        # -----------------------------------------------------
-        # Fall back to class name.
-        # -----------------------------------------------------
+        # =====================================================
+        # FALLBACK: CLASS
+        # =====================================================
 
         if element is None and class_name:
             element = (
@@ -558,9 +671,9 @@ class DesktopController:
                 )
             )
 
-        # -----------------------------------------------------
-        # Fall back to control type.
-        # -----------------------------------------------------
+        # =====================================================
+        # FALLBACK: CONTROL TYPE
+        # =====================================================
 
         if (
             element is None
@@ -625,6 +738,19 @@ class DesktopController:
         if not text:
             return False, "Text is empty."
 
+        capability = str(
+            descriptor.get("capability") or ""
+        ).strip().lower()
+
+        # =====================================================
+        # SEARCH CAPABILITY
+        # =====================================================
+
+        if capability == "search_ui":
+            return self.ui_actions.type_into_search_action(
+                text
+            )
+
         name = str(
             descriptor.get("name") or ""
         ).strip()
@@ -643,12 +769,20 @@ class DesktopController:
 
         element = None
 
+        # =====================================================
+        # PREFER AUTOMATION ID
+        # =====================================================
+
         if automation_id:
             element = (
                 self.ui_inspector.find_by_automation_id(
                     automation_id
                 )
             )
+
+        # =====================================================
+        # FALLBACK: NAME
+        # =====================================================
 
         if element is None and name:
             element = (
@@ -657,12 +791,20 @@ class DesktopController:
                 )
             )
 
+        # =====================================================
+        # FALLBACK: CLASS
+        # =====================================================
+
         if element is None and class_name:
             element = (
                 self.ui_inspector.find_by_class(
                     class_name
                 )
             )
+
+        # =====================================================
+        # FALLBACK: CONTROL TYPE
+        # =====================================================
 
         if (
             element is None
@@ -700,12 +842,26 @@ class DesktopController:
                 f"Could not resolve UI target: {target}"
             )
 
-        # Search is a capability rather than a fixed button click.
+        # =====================================================
+        # SEARCH CAPABILITY
+        # =====================================================
+
         if resolved.capability == "search_ui":
             return self.keyboard.hotkey(
                 "ctrl",
                 "shift",
                 "f",
+            )
+
+        # =====================================================
+        # EXPLORER CAPABILITY
+        # =====================================================
+
+        if resolved.capability == "explorer_ui":
+            return self.keyboard.hotkey(
+                "ctrl",
+                "shift",
+                "e",
             )
 
         return self.ui_actions.click_by_name(
@@ -727,6 +883,10 @@ class DesktopController:
                 f"Could not resolve UI target: {target}"
             )
 
+        # =====================================================
+        # SEARCH CAPABILITY
+        # =====================================================
+
         if resolved.capability == "search_ui":
             success, message = self.keyboard.hotkey(
                 "ctrl",
@@ -736,6 +896,22 @@ class DesktopController:
 
             if success:
                 return True, "Focused Search."
+
+            return False, message
+
+        # =====================================================
+        # EXPLORER CAPABILITY
+        # =====================================================
+
+        if resolved.capability == "explorer_ui":
+            success, message = self.keyboard.hotkey(
+                "ctrl",
+                "shift",
+                "e",
+            )
+
+            if success:
+                return True, "Focused Explorer."
 
             return False, message
 
@@ -827,6 +1003,7 @@ class DesktopController:
         Type into a semantic UI target.
 
         Supported:
+
             Search||text
             exact UI element||text
         """
@@ -878,7 +1055,7 @@ class DesktopController:
         )
 
     # =========================================================
-    # SEARCH
+    # SEARCH UI
     # =========================================================
 
     def search_ui(self, query):
@@ -898,9 +1075,9 @@ class DesktopController:
         if not query:
             return False, "Search query is empty."
 
-        # -----------------------------------------------------
-        # Open Search.
-        # -----------------------------------------------------
+        # =====================================================
+        # OPEN SEARCH
+        # =====================================================
 
         success, message = self.keyboard.hotkey(
             "ctrl",
@@ -918,9 +1095,9 @@ class DesktopController:
 
         time.sleep(0.2)
 
-        # -----------------------------------------------------
-        # Verify focused element.
-        # -----------------------------------------------------
+        # =====================================================
+        # VERIFY FOCUSED ELEMENT
+        # =====================================================
 
         focused = (
             self.ui_inspector.controller.focused_element()
@@ -951,9 +1128,9 @@ class DesktopController:
             focused_class,
         )
 
-        # -----------------------------------------------------
-        # Type query.
-        # -----------------------------------------------------
+        # =====================================================
+        # TYPE QUERY
+        # =====================================================
 
         success, message = self.keyboard.type_text(
             query
@@ -964,9 +1141,9 @@ class DesktopController:
                 f"Could not type search query: {message}"
             )
 
-        # -----------------------------------------------------
-        # Submit search.
-        # -----------------------------------------------------
+        # =====================================================
+        # SUBMIT SEARCH
+        # =====================================================
 
         success, message = self.keyboard.press(
             "enter"
