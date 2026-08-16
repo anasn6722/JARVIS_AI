@@ -1868,5 +1868,27 @@
         "started": "2026-08-16 21:07:26.441065",
         "completed": "2026-08-16 21:07:26.491099",
         "id": "12c5bf9b-cf4c-4cfd-a6fd-0b1ff43c862c"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-16 21:13:21.467067",
+        "completed": "2026-08-16 21:13:21.499953",
+        "id": "289972e1-2498-47c9-9148-4cca2c1f56c3"
+    },
+    {
+        "goal_id": "",
+        "action": "close",
+        "target": "chrome",
+        "success": true,
+        "result": "Closed Chrome.",
+        "error": "",
+        "started": "2026-08-16 21:13:34.508765",
+        "completed": "2026-08-16 21:13:34.676916",
+        "id": "1972f39e-1ca3-48dc-bc75-b8d8fb0c6c37"
     }
 ]

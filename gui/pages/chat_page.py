@@ -20,133 +20,282 @@ from config.states import AssistantState
 from core import app_state
 from core.app_state import speech_manager
 from gui.widgets.chat_container import ChatContainer
+from gui.widgets.command_console import CommandConsole
 from voice.voice_manager import VoiceManager
 
 
 class ChatPage(QWidget):
+    """JARVIS holographic command console."""
 
     def __init__(self):
         super().__init__()
 
-        # Brain
         self.brain = Brain()
-        
 
-        # Assistant State
+        self.current_command = ""
+
         app_state.state_machine.change(
             AssistantState.SLEEPING
         )
 
-        # Listening Animation
-        self.animation_timer = QTimer()
+        # =====================================================
+        # PAGE STYLE
+        # =====================================================
+
+        self.setObjectName(
+            "chatPage"
+        )
+
+        self.setStyleSheet(
+            """
+            QWidget#chatPage {
+                background: transparent;
+            }
+
+            QLabel#chatTitle {
+                color: #7cecff;
+                font-size: 27px;
+                font-weight: 700;
+                letter-spacing: 2px;
+            }
+
+            QLabel#chatSubtitle {
+                color: #4f8f9b;
+                font-size: 10px;
+                font-weight: 600;
+                letter-spacing: 1px;
+            }
+
+            QLabel#voiceStatus {
+                color: #73f7dc;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 1px;
+            }
+
+            QLineEdit#commandInput {
+                background-color: rgba(4, 20, 26, 240);
+                color: #d7fbff;
+                border: 1px solid #1a5c68;
+                border-radius: 9px;
+                padding: 11px 14px;
+                font-family: Consolas;
+                font-size: 12px;
+            }
+
+            QLineEdit#commandInput:focus {
+                border: 1px solid #43d9ea;
+            }
+
+            QPushButton#sendButton {
+                background-color: #0b4f5c;
+                color: #cfffff;
+                border: 1px solid #35bccc;
+                border-radius: 9px;
+                padding: 10px 20px;
+                font-weight: 700;
+            }
+
+            QPushButton#sendButton:hover {
+                background-color: #106d7b;
+            }
+
+            QPushButton#voiceButton {
+                background-color: #07434c;
+                color: #8df7ff;
+                border: 1px solid #31c4d4;
+                border-radius: 9px;
+                font-size: 18px;
+            }
+
+            QPushButton#voiceButton:hover {
+                background-color: #0c6370;
+            }
+
+            QScrollArea#chatScroll {
+                border: 1px solid #123e48;
+                border-radius: 10px;
+                background: rgba(2, 11, 15, 190);
+            }
+            """
+        )
+
+        # =====================================================
+        # TIMERS
+        # =====================================================
+
+        self.animation_timer = QTimer(
+            self
+        )
+
         self.animation_timer.timeout.connect(
             self.animate_listening
         )
 
         self.animation_step = 0
 
+        self.sleep_timer = QTimer(
+            self
+        )
 
-        # Sleep Timer
-        self.sleep_timer = QTimer()
         self.sleep_timer.timeout.connect(
             self.check_sleep_timeout
         )
-        self.sleep_timer.start(1000)
 
+        self.sleep_timer.start(
+            1000
+        )
 
-        # Main Layout
-        layout = QVBoxLayout()
+        # =====================================================
+        # MAIN LAYOUT
+        # =====================================================
 
+        layout = QVBoxLayout(self)
 
-        # Title
-        title = QLabel("💬 JARVIS Chat")
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.setContentsMargins(
+            20,
+            18,
+            20,
+            18,
+        )
 
-        title.setStyleSheet("""
-            font-size:24px;
-            font-weight:bold;
-            color:white;
-        """)
+        layout.setSpacing(8)
 
+        # =====================================================
+        # HEADER
+        # =====================================================
 
-        # Voice Status
-        self.voice_status = QLabel("Ready")
+        title = QLabel(
+            "JARVIS // COMMAND CONSOLE"
+        )
+
+        title.setObjectName(
+            "chatTitle"
+        )
+
+        title.setAlignment(
+            Qt.AlignmentFlag.AlignCenter
+        )
+
+        subtitle = QLabel(
+            "NATURAL LANGUAGE INTERFACE // "
+            "VOICE + TEXT // DESKTOP CONTROL"
+        )
+
+        subtitle.setObjectName(
+            "chatSubtitle"
+        )
+
+        subtitle.setAlignment(
+            Qt.AlignmentFlag.AlignCenter
+        )
+
+        layout.addWidget(
+            title
+        )
+
+        layout.addWidget(
+            subtitle
+        )
+
+        # =====================================================
+        # STATUS
+        # =====================================================
+
+        self.voice_status = QLabel(
+            "● READY"
+        )
+
+        self.voice_status.setObjectName(
+            "voiceStatus"
+        )
+
         self.voice_status.setAlignment(
             Qt.AlignmentFlag.AlignCenter
         )
 
-        self.voice_status.setStyleSheet("""
-            QLabel{
-                color:#4CAF50;
-                font-size:14px;
-                font-weight:bold;
-            }
-        """)
+        layout.addWidget(
+            self.voice_status
+        )
 
+        # =====================================================
+        # COMMAND CONSOLE
+        # =====================================================
 
-        # Chat Container
-        self.chat_container = ChatContainer()
+        self.command_console = (
+            CommandConsole()
+        )
 
+        layout.addWidget(
+            self.command_console
+        )
 
-        # Scroll Area
+        # =====================================================
+        # CHAT
+        # =====================================================
+
+        self.chat_container = (
+            ChatContainer()
+        )
+
         self.scroll = QScrollArea()
-        self.scroll.setWidgetResizable(True)
+
+        self.scroll.setObjectName(
+            "chatScroll"
+        )
+
+        self.scroll.setWidgetResizable(
+            True
+        )
+
         self.scroll.setWidget(
             self.chat_container
         )
 
-        self.scroll.setStyleSheet("""
-            QScrollArea{
-                border:none;
-                background:#1E1E1E;
-            }
-        """)
-
-
-        # Input
-        self.input_box = QLineEdit()
-        self.input_box.setPlaceholderText(
-            "Type your message here..."
+        layout.addWidget(
+            self.scroll,
+            1,
         )
 
+        # =====================================================
+        # INPUT
+        # =====================================================
 
-        # Buttons
+        self.input_box = QLineEdit()
+
+        self.input_box.setObjectName(
+            "commandInput"
+        )
+
+        self.input_box.setPlaceholderText(
+            "Enter JARVIS command..."
+        )
+
         self.send_button = QPushButton(
-            "Send"
+            "EXECUTE"
+        )
+
+        self.send_button.setObjectName(
+            "sendButton"
         )
 
         self.voice_button = QPushButton(
             "🎤"
         )
 
-        self.voice_button.setFixedWidth(60)
+        self.voice_button.setObjectName(
+            "voiceButton"
+        )
 
+        self.voice_button.setFixedWidth(
+            58
+        )
 
-        self.voice_button.setStyleSheet("""
-        QPushButton{
-            background:#00BCD4;
-            color:white;
-            font-size:20px;
-            border-radius:10px;
-            padding:8px;
-        }
-
-        QPushButton:hover{
-            background:#00ACC1;
-        }
-
-        QPushButton:pressed{
-            background:#00838F;
-        }
-
-        QPushButton:disabled{
-            background:#555555;
-        }
-        """)
-
-
-        # Bottom Layout
         bottom_layout = QHBoxLayout()
+
+        bottom_layout.setSpacing(
+            8
+        )
 
         bottom_layout.addWidget(
             self.input_box
@@ -160,26 +309,14 @@ class ChatPage(QWidget):
             self.send_button
         )
 
-
-        # Assemble
-        layout.addWidget(title)
-        layout.addWidget(
-            self.voice_status
-        )
-
-        layout.addWidget(
-            self.scroll
-        )
-
         layout.addLayout(
             bottom_layout
         )
 
+        # =====================================================
+        # CONNECTIONS
+        # =====================================================
 
-        self.setLayout(layout)
-
-
-        # Events
         self.send_button.clicked.connect(
             self.send_message
         )
@@ -188,11 +325,16 @@ class ChatPage(QWidget):
             self.send_message
         )
 
+        # =====================================================
+        # WELCOME
+        # =====================================================
 
         self.show_welcome_message()
 
+        # =====================================================
+        # VOICE MANAGER
+        # =====================================================
 
-        # Wake Word Thread
         self.voice_manager = VoiceManager()
 
         self.voice_manager.wake_detected.connect(
@@ -205,189 +347,269 @@ class ChatPage(QWidget):
 
         self.voice_manager.start()
 
-
+    # =========================================================
+    # SEND
+    # =========================================================
 
     def send_message(self):
-
-        command = self.input_box.text().strip()
+        command = (
+            self.input_box.text()
+            .strip()
+        )
 
         if not command:
             return
 
-
         self.current_command = command
 
+        self.command_console.show_command(
+            command
+        )
+
+        self.command_console.show_processing()
 
         self.chat_container.add_message(
             "🧑 You",
             command,
-            True
+            True,
         )
 
-
-        self.scroll_to_bottom()
-
-
-        if command != "__WAKE__":
-
-            self.chat_container.add_message(
-                "🤖 JARVIS",
-                "Typing...",
-                False
-            )
-
+        self.chat_container.add_message(
+            "🤖 JARVIS",
+            "Processing...",
+            False,
+        )
 
         self.scroll_to_bottom()
 
         self.input_box.clear()
 
-
         QTimer.singleShot(
             CHAT_TYPING_DELAY,
-            self.generate_response
+            self.generate_response,
         )
 
-
+    # =========================================================
+    # GENERATE RESPONSE
+    # =========================================================
 
     def generate_response(self):
+        if (
+            self.current_command
+            == "__WAKE__"
+        ):
 
-        if self.current_command == "__WAKE__":
+            response = "Yes?"
 
             speech_manager.say(
-                "Yes?"
+                response
             )
-
 
             app_state.state_machine.change(
                 AssistantState.AWAKE
             )
 
-            app_state.last_active = time.time()
+            app_state.last_active = (
+                time.time()
+            )
 
+            self.command_console.show_response(
+                response
+            )
 
             self.chat_container.add_message(
                 "🤖 JARVIS",
-                "Yes?",
-                False
+                response,
+                False,
             )
 
             self.scroll_to_bottom()
 
             return
 
+        # =====================================================
+        # THINKING
+        # =====================================================
 
-
-        # Thinking
         app_state.state_machine.change(
             AssistantState.THINKING
         )
 
-
-        response = self.brain.process(
-            self.current_command
+        self.voice_status.setText(
+            "● THINKING"
         )
-        print("Brain response:", response)
 
-
-        if not response:
-
-            response = (
-                "Sorry, I couldn't process that request."
+        try:
+            response = self.brain.process(
+                self.current_command
             )
 
+            print(
+                "Brain response:",
+                response,
+            )
+
+        except Exception as error:
+            print(
+                "Brain error:",
+                error,
+            )
+
+            response = (
+                "Sorry, I couldn't "
+                "process that request."
+            )
+
+            self.command_console.show_error(
+                response
+            )
+
+        if not response:
+            response = (
+                "Sorry, I couldn't "
+                "process that request."
+            )
+
+        # =====================================================
+        # COMMAND CONSOLE
+        # =====================================================
+
+        self.command_console.show_response(
+            response
+        )
+
+        # =====================================================
+        # CHAT
+        # =====================================================
 
         self.chat_container.add_message(
             "🤖 JARVIS",
             response,
-            False
+            False,
         )
-
 
         self.scroll_to_bottom()
 
+        # =====================================================
+        # SPEAK
+        # =====================================================
 
+        self.voice_status.setText(
+            "● SPEAKING"
+        )
 
-        # Speaking
-        
-        speech_manager.say(response)
-        app_state.last_active = time.time()
+        speech_manager.say(
+            response
+        )
 
+        app_state.last_active = (
+            time.time()
+        )
 
+    # =========================================================
+    # WELCOME
+    # =========================================================
 
     def show_welcome_message(self):
+        response = (
+            "Hello Anas! 👋\n"
+            "Welcome back.\n"
+            "How can I help you today?"
+        )
+
+        self.command_console.show_response(
+            response
+        )
 
         self.chat_container.add_message(
             "🤖 JARVIS",
-            "Hello Anas! 👋\nWelcome back.\nHow can I help you today?",
-            False
+            response,
+            False,
         )
 
         self.scroll_to_bottom()
 
+    # =========================================================
+    # VOICE COMMAND
+    # =========================================================
 
     def voice_finished(self, text):
+        app_state.last_active = (
+            time.time()
+        )
 
-        app_state.last_active = time.time()
         self.animation_timer.stop()
 
         self.voice_button.setEnabled(
             True
         )
 
-
         self.voice_status.setText(
-            "Ready"
+            "● READY"
         )
-
 
         if not text:
 
+            message = (
+                "Sorry, I couldn't hear you."
+            )
+
+            self.command_console.show_error(
+                message
+            )
+
             self.chat_container.add_message(
                 "🤖 JARVIS",
-                "Sorry, I couldn't hear you.",
-                False
+                message,
+                False,
             )
 
             self.scroll_to_bottom()
 
             return
 
-
-
         self.input_box.setText(
             text
         )
 
-
         self.send_message()
 
-
         app_state.state_machine.change(
             AssistantState.AWAKE
         )
 
+    # =========================================================
+    # WAKE WORD
+    # =========================================================
 
-        
-
-
-
-    def on_wake_detected(self, command):
-
+    def on_wake_detected(
+        self,
+        command,
+    ):
         app_state.state_machine.change(
             AssistantState.AWAKE
         )
-    
-        app_state.last_active = time.time()
-    
-        speech_manager.say("Yes?")
-    
+
+        app_state.last_active = (
+            time.time()
+        )
+
+        speech_manager.say(
+            "Yes?"
+        )
+
         if command:
-            self.input_box.setText(command)
+            self.input_box.setText(
+                command
+            )
+
             self.send_message()
 
+    # =========================================================
+    # SCROLL
+    # =========================================================
 
     def scroll_to_bottom(self):
-
         scrollbar = (
             self.scroll.verticalScrollBar()
         )
@@ -396,64 +618,73 @@ class ChatPage(QWidget):
             scrollbar.maximum()
         )
 
-
+    # =========================================================
+    # LISTENING ANIMATION
+    # =========================================================
 
     def animate_listening(self):
-
         dots = "." * (
-            (self.animation_step % 3) + 1
+            (
+                self.animation_step
+                % 3
+            )
+            + 1
         )
-
 
         self.voice_status.setText(
-            f"🎙️ Listening{dots}"
+            f"● LISTENING{dots}"
         )
-
 
         self.animation_step += 1
 
-
+    # =========================================================
+    # SLEEP
+    # =========================================================
 
     def check_sleep_timeout(self):
-
         elapsed = (
             time.time()
-            -
-            app_state.last_active
+            - app_state.last_active
         )
-
 
         if not app_state.state_machine.is_awake():
             return
 
-
-
         if elapsed > AWAKE_TIMEOUT:
-
 
             app_state.state_machine.change(
                 AssistantState.SLEEPING
             )
 
-
             self.voice_status.setText(
-                "😴 Sleeping"
+                "● SLEEPING"
             )
 
+            message = (
+                "Going back to sleep."
+            )
+
+            self.command_console.show_response(
+                message
+            )
 
             self.chat_container.add_message(
                 "🤖 JARVIS",
-                "Going back to sleep.",
-                False
+                message,
+                False,
             )
-
 
             self.scroll_to_bottom()
 
-    
-    def closeEvent(self, event):
+    # =========================================================
+    # CLOSE
+    # =========================================================
 
-        if hasattr(self, "voice_manager"):
+    def closeEvent(self, event):
+        if hasattr(
+            self,
+            "voice_manager",
+        ):
             self.voice_manager.stop()
             self.voice_manager.wait()
 
