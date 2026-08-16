@@ -104,23 +104,38 @@ class MainWindow(QMainWindow):
         # =====================================================
 
         self.sidebar.dashboard_btn.clicked.connect(
-            lambda: self.pages.setCurrentIndex(0)
+            lambda: self._show_page(
+                0,
+                self.sidebar.dashboard_btn,
+            )
         )
 
         self.sidebar.chat_btn.clicked.connect(
-            lambda: self.pages.setCurrentIndex(1)
+            lambda: self._show_page(
+                1,
+                self.sidebar.chat_btn,
+            )
         )
 
         self.sidebar.voice_btn.clicked.connect(
-            lambda: self.pages.setCurrentIndex(2)
+            lambda: self._show_page(
+                2,
+                self.sidebar.voice_btn,
+            )
         )
 
         self.sidebar.memory_btn.clicked.connect(
-            lambda: self.pages.setCurrentIndex(3)
+            lambda: self._show_page(
+                3,
+                self.sidebar.memory_btn,
+            )
         )
 
         self.sidebar.settings_btn.clicked.connect(
-            lambda: self.pages.setCurrentIndex(4)
+            lambda: self._show_page(
+                4,
+                self.sidebar.settings_btn,
+            )
         )
 
     # =========================================================
@@ -181,6 +196,23 @@ class MainWindow(QMainWindow):
         layout.addWidget(right_label)
 
         return frame
+
+    # =========================================================
+    # PAGE NAVIGATION
+    # =========================================================
+
+    def _show_page(
+        self,
+        index,
+        button,
+    ):
+        self.pages.setCurrentIndex(
+            index
+        )
+
+        self.sidebar.set_active(
+            button
+        )
 
     # =========================================================
     # CLOSE EVENT
