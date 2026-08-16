@@ -1,7 +1,6 @@
 import math
 
 from PySide6.QtCore import (
-    QPointF,
     Qt,
     QTimer,
 )
@@ -20,24 +19,66 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from config.states import AssistantState
+from core import app_state
 from core.system import System
 from gui.widgets.info_card import InfoCard
 
 
 class JarvisCore(QWidget):
-    """Animated central JARVIS HUD core."""
+    """Animated JARVIS core driven by the assistant state."""
+
+    STATE_CONFIG = {
+        AssistantState.SLEEPING: {
+            "label": "SLEEPING",
+            "color": QColor(70, 120, 130),
+            "speed": 0.35,
+            "pulse": 2.0,
+            "glow": 0.55,
+        },
+        AssistantState.AWAKE: {
+            "label": "AWAKE",
+            "color": QColor(70, 220, 235),
+            "speed": 0.9,
+            "pulse": 5.0,
+            "glow": 1.0,
+        },
+        AssistantState.LISTENING: {
+            "label": "LISTENING",
+            "color": QColor(90, 245, 205),
+            "speed": 1.7,
+            "pulse": 9.0,
+            "glow": 1.2,
+        },
+        AssistantState.THINKING: {
+            "label": "THINKING",
+            "color": QColor(90, 195, 255),
+            "speed": 2.5,
+            "pulse": 13.0,
+            "glow": 1.35,
+        },
+        AssistantState.SPEAKING: {
+            "label": "SPEAKING",
+            "color": QColor(130, 240, 255),
+            "speed": 2.0,
+            "pulse": 11.0,
+            "glow": 1.3,
+        },
+    }
 
     def __init__(self):
         super().__init__()
 
         self.setMinimumSize(
-            420,
-            420,
+            460,
+            460,
         )
 
-        self.angle = 0
-        self.pulse = 0
-        self.pulse_direction = 1
+        self.angle = 0.0
+        self.wave = 0.0
+        self.current_state = (
+            AssistantState.SLEEPING
+        )
 
         self.timer = QTimer(self)
 
@@ -48,24 +89,43 @@ class JarvisCore(QWidget):
         self.timer.start(30)
 
     # =========================================================
+    # STATE
+    # =========================================================
+
+    def set_state(self, state):
+        """Update the visual state of the core."""
+
+        if not isinstance(
+            state,
+            AssistantState,
+        ):
+            return
+
+        if self.current_state == state:
+            return
+
+        self.current_state = state
+
+        self.update()
+
+    # =========================================================
     # ANIMATION
     # =========================================================
 
     def _animate(self):
-        self.angle = (
-            self.angle + 1
-        ) % 360
-
-        self.pulse += (
-            0.7
-            * self.pulse_direction
+        config = self.STATE_CONFIG.get(
+            self.current_state,
+            self.STATE_CONFIG[
+                AssistantState.SLEEPING
+            ],
         )
 
-        if self.pulse >= 10:
-            self.pulse_direction = -1
+        self.angle = (
+            self.angle
+            + config["speed"]
+        ) % 360
 
-        elif self.pulse <= 0:
-            self.pulse_direction = 1
+        self.wave += 0.08
 
         self.update()
 
@@ -82,45 +142,71 @@ class JarvisCore(QWidget):
             QPainter.RenderHint.Antialiasing
         )
 
-        center = QPointF(
-            self.width() / 2,
-            self.height() / 2,
+        width = self.width()
+        height = self.height()
+
+        center_x = width / 2
+        center_y = height / 2
+
+        center = (
+            center_x,
+            center_y,
         )
+
+        config = self.STATE_CONFIG.get(
+            self.current_state,
+            self.STATE_CONFIG[
+                AssistantState.SLEEPING
+            ],
+        )
+
+        color = config["color"]
+
+        pulse = (
+            math.sin(self.wave)
+            * config["pulse"]
+        )
+
+        # =====================================================
+        # OUTER GLOW
+        # =====================================================
 
         base_radius = min(
-            self.width(),
-            self.height(),
-        ) * 0.28
+            width,
+            height,
+        ) * 0.25
 
-        # =====================================================
-        # BACKGROUND GLOW
-        # =====================================================
-
-        glow_radius = (
-            base_radius
-            + self.pulse
-            + 34
+        glow_strength = (
+            config["glow"]
         )
 
-        for index in range(7):
+        for index in range(9):
             radius = (
-                glow_radius
+                base_radius
+                + 70
                 - index * 8
+                + pulse * 0.25
             )
 
-            alpha = max(
-                0,
-                36 - index * 5,
+            alpha = int(
+                max(
+                    4,
+                    34
+                    * glow_strength
+                    * (1 - index / 10),
+                )
+            )
+
+            glow_color = QColor(
+                color.red(),
+                color.green(),
+                color.blue(),
+                alpha,
             )
 
             painter.setBrush(
                 QBrush(
-                    QColor(
-                        0,
-                        220,
-                        255,
-                        alpha,
-                    )
+                    glow_color
                 )
             )
 
@@ -129,81 +215,105 @@ class JarvisCore(QWidget):
             )
 
             painter.drawEllipse(
-                center,
-                radius,
-                radius,
+                center_x - radius,
+                center_y - radius,
+                radius * 2,
+                radius * 2,
             )
 
         # =====================================================
-        # OUTER RINGS
+        # OUTER HUD RING
         # =====================================================
 
         self._draw_circle(
             painter,
             center,
-            base_radius + 55,
+            base_radius + 68,
+            color,
             1,
             70,
         )
 
+        # =====================================================
+        # ROTATING SEGMENTS
+        # =====================================================
+
         self._draw_arc(
             painter,
             center,
-            base_radius + 68,
+            base_radius + 82,
             self.angle,
-            95,
+            70,
+            color,
             2,
+            220,
         )
 
         self._draw_arc(
             painter,
             center,
-            base_radius + 68,
+            base_radius + 82,
             self.angle + 180,
-            55,
+            45,
+            color,
             2,
-        )
-
-        self._draw_circle(
-            painter,
-            center,
-            base_radius + 38,
-            1,
-            100,
+            180,
         )
 
         self._draw_arc(
             painter,
             center,
-            base_radius + 38,
-            -self.angle * 1.5,
-            75,
+            base_radius + 58,
+            -self.angle * 1.6,
+            90,
+            color,
             2,
-        )
-
-        self._draw_circle(
-            painter,
-            center,
-            base_radius + 20,
-            1,
-            120,
+            200,
         )
 
         # =====================================================
-        # INNER CORE
+        # SECONDARY RING
+        # =====================================================
+
+        self._draw_circle(
+            painter,
+            center,
+            base_radius + 42,
+            color,
+            1,
+            110,
+        )
+
+        # =====================================================
+        # INNER ROTATING RING
+        # =====================================================
+
+        self._draw_arc(
+            painter,
+            center,
+            base_radius + 32,
+            self.angle * 2,
+            120,
+            color,
+            2,
+            230,
+        )
+
+        # =====================================================
+        # CENTRAL CORE
         # =====================================================
 
         core_radius = (
             base_radius
-            + self.pulse
+            + pulse
         )
 
         painter.setBrush(
             QBrush(
                 QColor(
                     4,
-                    30,
-                    38,
+                    25,
+                    33,
                     245,
                 )
             )
@@ -212,27 +322,28 @@ class JarvisCore(QWidget):
         painter.setPen(
             QPen(
                 QColor(
-                    75,
-                    228,
-                    247,
-                    220,
+                    color.red(),
+                    color.green(),
+                    color.blue(),
+                    230,
                 ),
                 2,
             )
         )
 
         painter.drawEllipse(
-            center,
-            core_radius,
-            core_radius,
+            center_x - core_radius,
+            center_y - core_radius,
+            core_radius * 2,
+            core_radius * 2,
         )
 
         # =====================================================
-        # CORE INNER CIRCLE
+        # INNER CORE
         # =====================================================
 
         inner_radius = (
-            core_radius * 0.70
+            core_radius * 0.68
         )
 
         painter.setBrush(
@@ -249,9 +360,9 @@ class JarvisCore(QWidget):
         painter.setPen(
             QPen(
                 QColor(
-                    108,
-                    241,
-                    255,
+                    color.red(),
+                    color.green(),
+                    color.blue(),
                     200,
                 ),
                 2,
@@ -259,27 +370,40 @@ class JarvisCore(QWidget):
         )
 
         painter.drawEllipse(
-            center,
-            inner_radius,
-            inner_radius,
+            center_x - inner_radius,
+            center_y - inner_radius,
+            inner_radius * 2,
+            inner_radius * 2,
         )
 
         # =====================================================
-        # CENTRAL ENERGY POINT
+        # ENERGY CENTER
         # =====================================================
 
         energy_radius = (
-            19
-            + self.pulse * 0.55
+            15
+            + abs(
+                math.sin(self.wave)
+            ) * 8
+            * config["glow"]
         )
 
         painter.setBrush(
             QBrush(
                 QColor(
-                    110,
-                    245,
-                    255,
-                    245,
+                    min(
+                        color.red() + 80,
+                        255,
+                    ),
+                    min(
+                        color.green() + 10,
+                        255,
+                    ),
+                    min(
+                        color.blue() + 10,
+                        255,
+                    ),
+                    235,
                 )
             )
         )
@@ -289,26 +413,27 @@ class JarvisCore(QWidget):
         )
 
         painter.drawEllipse(
-            center,
-            energy_radius,
-            energy_radius,
+            center_x - energy_radius,
+            center_y - energy_radius,
+            energy_radius * 2,
+            energy_radius * 2,
         )
 
         # =====================================================
-        # CENTER TEXT
+        # STATE TEXT
         # =====================================================
 
         painter.setPen(
             QColor(
                 225,
-                251,
+                250,
                 255,
             )
         )
 
         font = QFont(
             "Segoe UI",
-            15,
+            13,
         )
 
         font.setBold(True)
@@ -316,9 +441,39 @@ class JarvisCore(QWidget):
         painter.setFont(font)
 
         painter.drawText(
-            self.rect(),
+            int(center_x - 100),
+            int(center_y - 7),
+            200,
+            25,
             Qt.AlignmentFlag.AlignCenter,
             "J A R V I S",
+        )
+
+        state_font = QFont(
+            "Segoe UI",
+            8,
+        )
+
+        state_font.setBold(True)
+
+        painter.setFont(state_font)
+
+        painter.setPen(
+            QColor(
+                color.red(),
+                color.green(),
+                color.blue(),
+                230,
+            )
+        )
+
+        painter.drawText(
+            int(center_x - 100),
+            int(center_y + 20),
+            200,
+            20,
+            Qt.AlignmentFlag.AlignCenter,
+            config["label"],
         )
 
         painter.end()
@@ -332,28 +487,31 @@ class JarvisCore(QWidget):
         painter,
         center,
         radius,
+        color,
         width,
         alpha,
     ):
         pen = QPen(
             QColor(
-                55,
-                208,
-                229,
+                color.red(),
+                color.green(),
+                color.blue(),
                 alpha,
             ),
             width,
         )
 
         painter.setPen(pen)
+
         painter.setBrush(
             Qt.BrushStyle.NoBrush
         )
 
         painter.drawEllipse(
-            center,
-            radius,
-            radius,
+            center[0] - radius,
+            center[1] - radius,
+            radius * 2,
+            radius * 2,
         )
 
     # =========================================================
@@ -367,14 +525,16 @@ class JarvisCore(QWidget):
         radius,
         angle,
         span,
+        color,
         width,
+        alpha,
     ):
         pen = QPen(
             QColor(
-                91,
-                235,
-                255,
-                210,
+                color.red(),
+                color.green(),
+                color.blue(),
+                alpha,
             ),
             width,
         )
@@ -385,25 +545,18 @@ class JarvisCore(QWidget):
             Qt.BrushStyle.NoBrush
         )
 
-        rect = (
-            center.x() - radius,
-            center.y() - radius,
-            radius * 2,
-            radius * 2,
-        )
-
         painter.drawArc(
-            int(rect[0]),
-            int(rect[1]),
-            int(rect[2]),
-            int(rect[3]),
+            int(center[0] - radius),
+            int(center[1] - radius),
+            int(radius * 2),
+            int(radius * 2),
             int(-angle * 16),
             int(-span * 16),
         )
 
 
 class DashboardPage(QWidget):
-    """Main JARVIS HUD dashboard."""
+    """Live JARVIS HUD dashboard."""
 
     def __init__(self):
         super().__init__()
@@ -420,21 +573,21 @@ class DashboardPage(QWidget):
 
             QLabel#dashboardTitle {
                 color: #7cecff;
-                font-size: 28px;
+                font-size: 27px;
                 font-weight: 700;
                 letter-spacing: 2px;
             }
 
             QLabel#dashboardSubtitle {
                 color: #4f8f9b;
-                font-size: 11px;
+                font-size: 10px;
                 font-weight: 600;
                 letter-spacing: 1px;
             }
 
             QLabel#coreStatus {
                 color: #73f7dc;
-                font-size: 12px;
+                font-size: 11px;
                 font-weight: 700;
                 letter-spacing: 1px;
             }
@@ -454,7 +607,7 @@ class DashboardPage(QWidget):
             18,
         )
 
-        layout.setSpacing(10)
+        layout.setSpacing(8)
 
         # =====================================================
         # HEADER
@@ -473,8 +626,8 @@ class DashboardPage(QWidget):
         )
 
         subtitle = QLabel(
-            "SYSTEM TELEMETRY • AI CORE • "
-            "DESKTOP CONTROL"
+            "NEURAL CORE // SYSTEM TELEMETRY // "
+            "DESKTOP AUTOMATION"
         )
 
         subtitle.setObjectName(
@@ -489,31 +642,19 @@ class DashboardPage(QWidget):
         layout.addWidget(subtitle)
 
         # =====================================================
-        # CORE AREA
+        # CORE
         # =====================================================
 
         center_row = QHBoxLayout()
 
-        center_row.setContentsMargins(
-            0,
-            0,
-            0,
-            0,
-        )
-
         center_row.addStretch()
 
-        core_container = QVBoxLayout()
+        core_layout = QVBoxLayout()
 
         self.core = JarvisCore()
 
-        self.core.setMinimumSize(
-            460,
-            460,
-        )
-
         core_status = QLabel(
-            "● CORE ONLINE"
+            "● SLEEPING"
         )
 
         core_status.setObjectName(
@@ -524,22 +665,24 @@ class DashboardPage(QWidget):
             Qt.AlignmentFlag.AlignCenter
         )
 
-        core_container.addWidget(
+        self.core_status = core_status
+
+        core_layout.addWidget(
             self.core
         )
 
-        core_container.addWidget(
-            core_status
+        core_layout.addWidget(
+            self.core_status
         )
 
-        center_widget = QWidget()
+        core_widget = QWidget()
 
-        center_widget.setLayout(
-            core_container
+        core_widget.setLayout(
+            core_layout
         )
 
         center_row.addWidget(
-            center_widget
+            core_widget
         )
 
         center_row.addStretch()
@@ -550,13 +693,13 @@ class DashboardPage(QWidget):
         )
 
         # =====================================================
-        # TELEMETRY CARDS
+        # TELEMETRY
         # =====================================================
 
         grid = QGridLayout()
 
-        grid.setHorizontalSpacing(14)
-        grid.setVerticalSpacing(14)
+        grid.setHorizontalSpacing(12)
+        grid.setVerticalSpacing(12)
 
         self.cpu_card = InfoCard(
             "CPU LOAD",
@@ -607,23 +750,26 @@ class DashboardPage(QWidget):
         )
 
         # =====================================================
-        # SYSTEM TIMER
+        # TELEMETRY TIMER
         # =====================================================
 
         self.timer = QTimer(self)
 
         self.timer.timeout.connect(
-            self.update_system_info
+            self.update_hud
         )
 
         self.timer.start(1000)
 
+        # Initial state
+        self.update_hud()
+
     # =========================================================
-    # TELEMETRY
+    # HUD UPDATE
     # =========================================================
 
-    def update_system_info(self):
-        """Refresh CPU and RAM telemetry."""
+    def update_hud(self):
+        """Update telemetry and reflect the real assistant state."""
 
         cpu = System.cpu_usage()
         ram_used = System.ram_used()
@@ -638,3 +784,51 @@ class DashboardPage(QWidget):
             f"{ram_used} GB",
             ram_percent,
         )
+
+        state = app_state.state_machine.state
+
+        self.core.set_state(
+            state
+        )
+
+        state_name = (
+            state.name
+        )
+
+        self.core_status.setText(
+            f"● {state_name}"
+        )
+
+        # AI / voice indicators
+        if state in {
+            AssistantState.THINKING,
+            AssistantState.LISTENING,
+            AssistantState.SPEAKING,
+        }:
+            self.ai_card.update_value(
+                "ACTIVE",
+                100,
+            )
+        else:
+            self.ai_card.update_value(
+                "ONLINE",
+                75,
+            )
+
+        if state == AssistantState.SPEAKING:
+            self.voice_card.update_value(
+                "SPEAKING",
+                100,
+            )
+
+        elif state == AssistantState.LISTENING:
+            self.voice_card.update_value(
+                "LISTENING",
+                100,
+            )
+
+        else:
+            self.voice_card.update_value(
+                "READY",
+                65,
+            )
