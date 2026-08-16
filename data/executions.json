@@ -1219,5 +1219,71 @@
         "started": "2026-08-16 15:45:50.565567",
         "completed": "2026-08-16 15:45:50.565567",
         "id": "344d20d9-b1f4-4545-8b2a-51846c018934"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_find_descriptor",
+        "target": "Search",
+        "success": true,
+        "result": "{'name': 'Search (Ctrl+Shift+F)', 'automation_id': '', 'class_name': 'action-item icon', 'control_type': 50019, 'rect': {'left': 0, 'top': 83, 'right': 48, 'bottom': 132, 'width': 48, 'height': 49}, 'capability': 'search_ui', 'semantic_target': 'Search'}",
+        "error": "",
+        "started": "2026-08-16 15:51:02.779393",
+        "completed": "2026-08-16 15:51:02.875585",
+        "id": "edbf2f2e-1539-4885-9eca-a55a92d03472"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_type_descriptor",
+        "target": "$LAST_UI||Python",
+        "success": true,
+        "result": "Typed 'Python'.",
+        "error": "",
+        "started": "2026-08-16 15:51:02.879648",
+        "completed": "2026-08-16 15:51:03.154488",
+        "id": "54b3b390-f2cc-4892-8410-7fccf9c83351"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_press",
+        "target": "enter",
+        "success": true,
+        "result": "Pressed enter.",
+        "error": "",
+        "started": "2026-08-16 15:51:03.158712",
+        "completed": "2026-08-16 15:51:03.159745",
+        "id": "6db3d3ec-dfab-41fd-b5e4-abb374f3b580"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_find_descriptor",
+        "target": "Search",
+        "success": true,
+        "result": "{'name': 'Search (Ctrl+Shift+F)', 'automation_id': '', 'class_name': 'action-item icon', 'control_type': 50019, 'rect': {'left': 0, 'top': 83, 'right': 48, 'bottom': 132, 'width': 48, 'height': 49}, 'capability': 'search_ui', 'semantic_target': 'Search'}",
+        "error": "",
+        "started": "2026-08-16 15:55:12.599600",
+        "completed": "2026-08-16 15:55:12.697476",
+        "id": "f12f5244-1f88-40d4-a5aa-7c6afa5b230e"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_type_descriptor",
+        "target": "$LAST_UI||Python",
+        "success": true,
+        "result": "Typed 'Python'.",
+        "error": "",
+        "started": "2026-08-16 15:55:12.697476",
+        "completed": "2026-08-16 15:55:12.989963",
+        "id": "f31fd9d6-fb9d-424a-a529-55117922c8a0"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_press",
+        "target": "enter",
+        "success": true,
+        "result": "Pressed enter.",
+        "error": "",
+        "started": "2026-08-16 15:55:12.994373",
+        "completed": "2026-08-16 15:55:12.995462",
+        "id": "de3892a9-da57-48a7-9264-89f7f6d25afb"
     }
 ]

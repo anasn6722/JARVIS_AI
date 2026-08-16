@@ -425,13 +425,13 @@ class VerificationStage:
             f"'{semantic_target}' could not be verified."
         )
 
+
     def _verify_keyboard_press(self, task, context):
         """
-        Verify keyboard presses that terminate a semantic UI
-        workflow.
+        Verify Enter when it completes a UI typing workflow.
 
-        Enter is treated specially when its preceding task is
-        ui_type_descriptor.
+        For Search workflows, verify that VS Code actually
+        produced a search-result state.
         """
 
         key = str(
@@ -489,15 +489,84 @@ class VerificationStage:
 
             if (
                 parent_task.action
-                == "ui_type_descriptor"
-                and parent_task.success
+                != "ui_type_descriptor"
+                or not parent_task.success
             ):
-                print(
-                    "UI ACTION VERIFIED: "
-                    "Enter submitted after UI typing."
+                continue
+
+            # -------------------------------------------------
+            # Extract the typed text.
+            #
+            # Example:
+            # $LAST_UI||Python
+            # -------------------------------------------------
+
+            typed_text = self._extract_ui_type_text(
+                parent_task.target
+            )
+
+            # -------------------------------------------------
+            # Determine whether this was Search.
+            # -------------------------------------------------
+
+            descriptor = self._get_task_descriptor(
+                parent_task,
+                context,
+            )
+
+            if not isinstance(
+                descriptor,
+                dict,
+            ):
+                return (
+                    "Enter was pressed, but the previous UI "
+                    "typing descriptor could not be identified."
                 )
 
-                return None
+            capability = str(
+                descriptor.get("capability") or ""
+            ).strip().lower()
+
+            # -------------------------------------------------
+            # Search outcome verification
+            # -------------------------------------------------
+
+            if capability == "search_ui":
+
+                controller = self._get_ui_controller()
+
+                if controller is None:
+                    return (
+                        "Search was submitted, but the desktop "
+                        "controller was unavailable for outcome "
+                        "verification."
+                    )
+
+                if self._is_search_result_state(
+                    controller,
+                    typed_text,
+                ):
+                    print(
+                        "SEARCH OUTCOME VERIFIED:",
+                        typed_text or "query",
+                    )
+                    return None
+
+                return (
+                    "Enter was pressed, but a completed Search "
+                    "result state could not be detected."
+                )
+
+            # -------------------------------------------------
+            # Generic UI typing
+            # -------------------------------------------------
+
+            print(
+                "UI ACTION VERIFIED: "
+                "Enter submitted after UI typing."
+            )
+
+            return None
 
         return None
     # =========================================================
@@ -627,3 +696,101 @@ class VerificationStage:
 
         except Exception:
             return False
+        
+
+    @staticmethod
+    def _extract_ui_type_text(target):
+        """
+        Extract text from:
+
+            $LAST_UI||Python
+        """
+
+        if not isinstance(
+            target,
+            str,
+        ):
+            return ""
+
+        marker = "||"
+
+        if marker not in target:
+            return ""
+
+        return target.split(
+            marker,
+            1,
+        )[1].strip()
+
+    @staticmethod
+    def _is_search_result_state(
+        controller,
+        expected_query="",
+    ):
+        """
+        Detect the VS Code Search result state.
+
+        Current observed VS Code state:
+
+            Search returned 20000 results in 18 files
+        """
+
+        try:
+            items = (
+                controller
+                .ui_inspector
+                .inspect_all(
+                    limit=1000
+                )
+            )
+
+        except Exception:
+            return False
+
+        expected_query = (
+            str(expected_query)
+            .strip()
+            .lower()
+        )
+
+        for item in items:
+
+            if not isinstance(
+                item,
+                dict,
+            ):
+                continue
+
+            name = str(
+                item.get("name") or ""
+            ).strip()
+
+            lower_name = name.lower()
+
+            # -------------------------------------------------
+            # Search result status
+            # -------------------------------------------------
+
+            if (
+                lower_name.startswith(
+                    "search returned "
+                )
+                and " results" in lower_name
+            ):
+                return True
+
+            # -------------------------------------------------
+            # Query-specific fallback.
+            # -------------------------------------------------
+
+            if (
+                expected_query
+                and expected_query in lower_name
+                and (
+                    "result" in lower_name
+                    or "file" in lower_name
+                )
+            ):
+                return True
+
+        return False
