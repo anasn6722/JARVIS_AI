@@ -955,5 +955,60 @@
         "started": "2026-08-16 11:57:06.310878",
         "completed": "2026-08-16 11:57:06.433941",
         "id": "5da657fe-c39a-4ec5-967b-d56027e64763"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_find_descriptor",
+        "target": "Search",
+        "success": true,
+        "result": "{'name': 'Search (Ctrl+Shift+F)', 'automation_id': '', 'class_name': 'action-item icon', 'control_type': 50019, 'rect': {'left': 0, 'top': 83, 'right': 48, 'bottom': 132, 'width': 48, 'height': 49}}",
+        "error": "",
+        "started": "2026-08-16 11:58:31.768250",
+        "completed": "2026-08-16 11:58:31.852606",
+        "id": "a2a34d04-dbdb-4f38-af28-53d3c024eaa6"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_type_descriptor",
+        "target": "$LAST_UI||Python",
+        "success": true,
+        "result": "Typed 'Python' into Search (Ctrl+Shift+F).",
+        "error": "",
+        "started": "2026-08-16 11:58:31.859106",
+        "completed": "2026-08-16 11:58:31.986952",
+        "id": "3005587d-3c28-4088-9f38-c279ff7db833"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_press",
+        "target": "enter",
+        "success": true,
+        "result": "Pressed enter.",
+        "error": "",
+        "started": "2026-08-16 11:58:31.990985",
+        "completed": "2026-08-16 11:58:31.990985",
+        "id": "b11546bb-c89f-402b-9be4-15dc85ab081d"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-16 11:59:51.005020",
+        "completed": "2026-08-16 11:59:51.032381",
+        "id": "8991dd35-40f7-47ae-ba5c-84e85a684bcc"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "github",
+        "success": true,
+        "result": "Opened Github.",
+        "error": "",
+        "started": "2026-08-16 12:00:03.058116",
+        "completed": "2026-08-16 12:00:04.105746",
+        "id": "52ee000c-8691-4fed-80f9-66d06e4f607c"
     }
 ]
