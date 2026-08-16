@@ -552,6 +552,28 @@ class GraphRunner:
             )
 
         # ========================================================
+        # LAST UI + TEXT
+        # ========================================================
+
+        if value.startswith("$LAST_UI||"):
+
+            text = value[
+                len("$LAST_UI||"):
+            ].strip()
+
+            descriptor = self.task_context.get(
+                "last_ui"
+            )
+
+            if descriptor is None:
+                return None
+
+            return {
+                "descriptor": descriptor,
+                "text": text,
+            }
+
+        # ========================================================
         # LAST UI DESCRIPTOR
         # ========================================================
 
@@ -580,6 +602,7 @@ class GraphRunner:
             return self.task_context.get(
                 "last_target"
             )
+
 
         # ========================================================
         # ACTION-SPECIFIC RESULT

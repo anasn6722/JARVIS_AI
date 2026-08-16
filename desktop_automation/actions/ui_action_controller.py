@@ -423,6 +423,54 @@ class UIActionController:
 
         return False, message
 
+    def type_into_element(self, element, text):
+        """
+        Focus an already-resolved UI Automation element,
+        then type text into it.
+        """
+
+        if element is None:
+            return False, "UI element not found."
+
+        if text is None:
+            return False, "Text is required."
+
+        text = str(text)
+
+        if not text:
+            return False, "Text is empty."
+
+        success, message = self.focus_element(
+            element
+        )
+
+        if not success:
+            return False, message
+
+        try:
+            success, message = self.keyboard.type_text(
+                text
+            )
+
+        except (
+            TypeError,
+            ValueError,
+            OSError,
+        ) as error:
+            return False, str(error)
+
+        if success:
+            try:
+                name = element.CurrentName or "UI element"
+            except Exception:
+                name = "UI element"
+
+            return True, (
+                f"Typed '{text}' into {name}."
+            )
+
+        return False, message
+
     def type_into_search_action(self, text):
         """
         Activate the VS Code Search action, then type into the

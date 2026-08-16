@@ -199,6 +199,12 @@ class ToolRegistryBuilder:
         )
 
         brain.tool_registry.register(
+            "ui_type_descriptor",
+            "Re-resolve a semantic UI descriptor and type text into it.",
+            brain.desktop.ui_type_descriptor,
+        )
+
+        brain.tool_registry.register(
             "ui_focus",
             "Find a visible UI element by name and focus it.",
             brain.desktop.ui_focus,

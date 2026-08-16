@@ -458,25 +458,41 @@ class DesktopController:
 
     def ui_find_descriptor(self, target):
         """
-        Find a UI element and return its semantic descriptor.
-
-        The descriptor contains stable information that can be
-        used later to re-resolve the element safely.
+        Find a UI element using semantic UI resolution and return
+        its descriptor.
         """
-
+    
         if not target:
             return False, "A UI element name is required."
-
-        info = self.ui_inspector.search_info(
-            name=str(target).strip()
+    
+        target = str(target).strip()
+    
+        resolved = self.ui_target_resolver.resolve(
+            target
         )
-
+    
+        if resolved is None:
+            return False, (
+                f"Could not resolve UI target: {target}"
+            )
+    
+        # Search capability is handled by a keyboard shortcut,
+        # so there may not be a single named button target.
+        if resolved.capability == "search_ui":
+            target_name = "Search (Ctrl+Shift+F)"
+        else:
+            target_name = resolved.target
+    
+        info = self.ui_inspector.search_info(
+            name=target_name
+        )
+    
         if info is None:
             return (
                 False,
-                f"UI element not found: {target}",
+                f"UI element not found: {target_name}",
             )
-
+    
         return True, info
 
     def ui_click_descriptor(self, descriptor):
@@ -564,6 +580,109 @@ class DesktopController:
 
         return self.ui_actions.click_element(
             element
+        )
+
+    def ui_type_descriptor(self, payload):
+        """
+        Re-resolve a semantic UI descriptor and type text into it.
+
+        Expected payload:
+
+            {
+                "descriptor": {
+                    "name": "Search",
+                    ...
+                },
+                "text": "Python"
+            }
+        """
+
+        if not isinstance(payload, dict):
+            return (
+                False,
+                "UI typing payload must be a dictionary.",
+            )
+
+        descriptor = payload.get(
+            "descriptor"
+        )
+
+        text = payload.get(
+            "text"
+        )
+
+        if not isinstance(descriptor, dict):
+            return (
+                False,
+                "UI descriptor is required.",
+            )
+
+        if text is None:
+            return False, "Text is required."
+
+        text = str(text)
+
+        if not text:
+            return False, "Text is empty."
+
+        name = str(
+            descriptor.get("name") or ""
+        ).strip()
+
+        automation_id = str(
+            descriptor.get("automation_id") or ""
+        ).strip()
+
+        class_name = str(
+            descriptor.get("class_name") or ""
+        ).strip()
+
+        control_type = descriptor.get(
+            "control_type"
+        )
+
+        element = None
+
+        if automation_id:
+            element = (
+                self.ui_inspector.find_by_automation_id(
+                    automation_id
+                )
+            )
+
+        if element is None and name:
+            element = (
+                self.ui_inspector.find_by_name(
+                    name
+                )
+            )
+
+        if element is None and class_name:
+            element = (
+                self.ui_inspector.find_by_class(
+                    class_name
+                )
+            )
+
+        if (
+            element is None
+            and control_type is not None
+        ):
+            element = (
+                self.ui_inspector.find_by_control_type(
+                    control_type
+                )
+            )
+
+        if element is None:
+            return (
+                False,
+                "UI element could not be re-resolved.",
+            )
+
+        return self.ui_actions.type_into_element(
+            element,
+            text,
         )
 
     def ui_click(self, target):

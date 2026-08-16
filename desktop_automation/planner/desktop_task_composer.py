@@ -71,6 +71,17 @@ class DesktopTaskComposer:
         normalized = text.lower().strip()
 
         # =====================================================
+        # FIND + TYPE UI CHAIN
+        # =====================================================
+
+        ui_type_tasks = self._compose_find_type_chain(
+            text
+        )
+
+        if ui_type_tasks:
+            return ui_type_tasks
+
+        # =====================================================
         # FIND + CLICK UI CHAIN
         # =====================================================
 
@@ -157,6 +168,145 @@ class DesktopTaskComposer:
                 )
 
         return []
+
+    # =========================================================
+    # FIND + TYPE COMPOSITION
+    # =========================================================
+
+    def _compose_find_type_chain(self, text):
+        """
+        Compose UI find + type + optional Enter commands.
+
+        Supported:
+
+            find Search and type Python
+            find Search, type Python
+            find Search, type Python, and press Enter
+            locate Search and type Python
+        """
+
+        original = str(text).strip()
+
+        if not original:
+            return []
+
+        normalized = (
+            " ".join(
+                original.lower().split()
+            )
+        )
+
+        if not normalized.startswith(
+            ("find ", "locate ")
+        ):
+            return []
+
+        # -----------------------------------------------------
+        # Locate the type boundary.
+        # Supports:
+        #
+        #   and type
+        #   , type
+        #   type
+        # -----------------------------------------------------
+
+        boundaries = (
+            " and type ",
+            ", type ",
+            " type ",
+        )
+
+        boundary_index = -1
+        boundary_length = 0
+
+        for boundary in boundaries:
+            index = normalized.find(
+                boundary
+            )
+
+            if index != -1:
+                if (
+                    boundary_index == -1
+                    or index < boundary_index
+                ):
+                    boundary_index = index
+                    boundary_length = len(
+                        boundary
+                    )
+
+        if boundary_index == -1:
+            return []
+
+        find_part = original[
+            :boundary_index
+        ].strip()
+
+        type_part = original[
+            boundary_index + boundary_length:
+        ].strip()
+
+        if not find_part or not type_part:
+            return []
+
+        element_name = (
+            self._extract_find_target(
+                find_part
+            )
+        )
+
+        if not element_name:
+            return []
+
+        # -----------------------------------------------------
+        # Remove optional Enter instruction.
+        # -----------------------------------------------------
+
+        wants_enter = self._contains_enter(
+            type_part.lower()
+        )
+
+        if wants_enter:
+            type_text = self._extract_type_text(
+                f"type {type_part}"
+            )
+        else:
+            type_text = type_part
+
+        type_text = type_text.strip(
+            " ,"
+        )
+
+        if not type_text:
+            return []
+
+        tasks = [
+            Task(
+                action="ui_find_descriptor",
+                target=element_name,
+            ),
+            Task(
+                action="ui_type_descriptor",
+                target=(
+                    f"$LAST_UI||{type_text}"
+                ),
+            ),
+        ]
+
+        # -----------------------------------------------------
+        # Optional Enter.
+        # -----------------------------------------------------
+
+        if wants_enter:
+            tasks.append(
+                Task(
+                    action="keyboard_press",
+                    target="enter",
+                )
+            )
+
+        return self._sequence(
+            tasks
+        )
 
     # =========================================================
     # FIND + CLICK COMPOSITION

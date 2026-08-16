@@ -889,5 +889,71 @@
         "started": "2026-08-15 20:33:48.477387",
         "completed": "2026-08-15 20:33:48.546222",
         "id": "6ae6fd95-6991-4921-96a7-9fd53ddedeed"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_find_descriptor",
+        "target": "search",
+        "success": true,
+        "result": "{'name': 'Search (Ctrl+Shift+F)', 'automation_id': '', 'class_name': 'action-item icon', 'control_type': 50019, 'rect': {'left': 0, 'top': 83, 'right': 48, 'bottom': 132, 'width': 48, 'height': 49}}",
+        "error": "",
+        "started": "2026-08-16 11:51:49.174544",
+        "completed": "2026-08-16 11:51:49.241733",
+        "id": "51ab1d47-0019-4a43-bed0-715fca347008"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_type",
+        "target": "python",
+        "success": true,
+        "result": "Typed 'python'.",
+        "error": "",
+        "started": "2026-08-16 11:51:49.270054",
+        "completed": "2026-08-16 11:51:49.338547",
+        "id": "46070aef-721b-47eb-90d5-e622f52acb46"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_find_descriptor",
+        "target": "search",
+        "success": true,
+        "result": "{'name': 'Search (Ctrl+Shift+F)', 'automation_id': '', 'class_name': 'action-item icon', 'control_type': 50019, 'rect': {'left': 0, 'top': 83, 'right': 48, 'bottom': 132, 'width': 48, 'height': 49}}",
+        "error": "",
+        "started": "2026-08-16 11:55:23.862893",
+        "completed": "2026-08-16 11:55:23.932514",
+        "id": "cd138cf0-4dde-465e-97f6-cd1bc4eb98b0"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_type",
+        "target": "python",
+        "success": true,
+        "result": "Typed 'python'.",
+        "error": "",
+        "started": "2026-08-16 11:55:23.962692",
+        "completed": "2026-08-16 11:55:24.035310",
+        "id": "4ca6daab-b859-4e99-810f-60089d8d3fff"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_find_descriptor",
+        "target": "Search",
+        "success": true,
+        "result": "{'name': 'Search (Ctrl+Shift+F)', 'automation_id': '', 'class_name': 'action-item icon', 'control_type': 50019, 'rect': {'left': 0, 'top': 83, 'right': 48, 'bottom': 132, 'width': 48, 'height': 49}}",
+        "error": "",
+        "started": "2026-08-16 11:57:06.211476",
+        "completed": "2026-08-16 11:57:06.308550",
+        "id": "7268431b-3ad8-469f-9b6d-3adda80a05f6"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_type_descriptor",
+        "target": "$LAST_UI||Python",
+        "success": true,
+        "result": "Typed 'Python' into Search (Ctrl+Shift+F).",
+        "error": "",
+        "started": "2026-08-16 11:57:06.310878",
+        "completed": "2026-08-16 11:57:06.433941",
+        "id": "5da657fe-c39a-4ec5-967b-d56027e64763"
     }
 ]

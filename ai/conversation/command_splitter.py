@@ -44,6 +44,9 @@ class CommandSplitter:
 
         # Find + click
         r"^(?:find|locate)\b.*\bclick\b",
+
+        # Find + type
+        r"^(?:find|locate)\b.*\btype\b",
     )
 
     # =========================================================
