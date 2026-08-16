@@ -112,6 +112,12 @@ QPushButton:pressed {
     border: 1px solid #68e9fa;
 }
 
+QPushButton:checked {
+    background-color: #10343d;
+    border: 1px solid #35c6da;
+    color: #8ff7ff;
+}
+
 /* =========================================================
    INPUTS
    ========================================================= */

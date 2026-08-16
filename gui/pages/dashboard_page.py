@@ -778,7 +778,7 @@ class DashboardPage(QWidget):
         snapshot = hud_state.snapshot()
 
         self.activity_panel.refresh()
-        self.diagnostics_panel.update()
+        self.diagnostics_panel.refresh()
 
         hud_runtime_state = (
             snapshot["state"]
