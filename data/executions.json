@@ -1692,5 +1692,71 @@
         "started": "2026-08-16 16:09:14.566058",
         "completed": "2026-08-16 16:09:14.566058",
         "id": "6f3dd923-c529-48f1-88ff-8a8b28e1d260"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-16 16:12:30.833615",
+        "completed": "2026-08-16 16:12:30.849739",
+        "id": "a43b982d-5deb-4fce-99e2-a7e2522506c0"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_find_descriptor",
+        "target": "File",
+        "success": true,
+        "result": "{'name': 'File', 'automation_id': '', 'class_name': 'menubar-menu-button', 'control_type': 50011, 'rect': {'left': 35, 'top': 0, 'right': 71, 'bottom': 35, 'width': 36, 'height': 35}, 'semantic_target': 'File'}",
+        "error": "",
+        "started": "2026-08-16 16:12:45.325543",
+        "completed": "2026-08-16 16:12:45.397090",
+        "id": "3c3af798-d217-433e-bf98-6e9ab613186a"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_click_descriptor",
+        "target": "$LAST_UI",
+        "success": true,
+        "result": "Clicked at (53, 17).",
+        "error": "",
+        "started": "2026-08-16 16:12:45.405271",
+        "completed": "2026-08-16 16:12:45.457040",
+        "id": "26874090-3198-4443-af83-d72da91a9dac"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_find_descriptor",
+        "target": "Search",
+        "success": true,
+        "result": "{'name': 'Search (Ctrl+Shift+F)', 'automation_id': '', 'class_name': 'action-item icon', 'control_type': 50019, 'rect': {'left': 0, 'top': 83, 'right': 48, 'bottom': 132, 'width': 48, 'height': 49}, 'capability': 'search_ui', 'semantic_target': 'Search'}",
+        "error": "",
+        "started": "2026-08-16 16:13:05.425619",
+        "completed": "2026-08-16 16:13:05.506402",
+        "id": "f2e59d5e-2481-4099-beb9-94402acaee11"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_type_descriptor",
+        "target": "$LAST_UI||Python",
+        "success": true,
+        "result": "Typed 'Python'.",
+        "error": "",
+        "started": "2026-08-16 16:13:05.509011",
+        "completed": "2026-08-16 16:13:05.809816",
+        "id": "c4af245b-21a4-4ac4-8957-ded4a9bdda68"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_press",
+        "target": "enter",
+        "success": true,
+        "result": "Pressed enter.",
+        "error": "",
+        "started": "2026-08-16 16:13:05.819867",
+        "completed": "2026-08-16 16:13:05.819867",
+        "id": "170715b3-7416-4fad-ae55-354a7ddf9473"
     }
 ]
