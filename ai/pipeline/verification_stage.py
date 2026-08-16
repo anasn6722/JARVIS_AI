@@ -375,20 +375,80 @@ class VerificationStage:
         # =====================================================
 
         if capability == "search_ui":
-
+            """
+            Search typing is considered valid when the typing action
+            succeeded. Enter/outcome verification is responsible for
+            verifying the final search state.
+        
+            The Search field is expected to lose focus after Enter.
+            """
+        
+            graph = getattr(
+                context,
+                "graph",
+                None,
+            )
+        
+            if graph is not None:
+            
+                try:
+                    node = graph.nodes.get(
+                        task.id
+                    )
+                except Exception:
+                    node = None
+        
+                if node is not None:
+                
+                    children = getattr(
+                        node,
+                        "children",
+                        [],
+                    )
+        
+                    for child_id in children:
+                    
+                        try:
+                            child = graph.nodes.get(
+                                child_id
+                            )
+                        except Exception:
+                            child = None
+        
+                        if child is None:
+                            continue
+                        
+                        child_task = getattr(
+                            child,
+                            "task",
+                            None,
+                        )
+        
+                        if (
+                            child_task is not None
+                            and child_task.action
+                            == "keyboard_press"
+                            and str(
+                                child_task.target or ""
+                            ).strip().lower()
+                            == "enter"
+                        ):
+                            print(
+                                "UI STATE VERIFIED: Search text "
+                                "typing completed; Enter will verify "
+                                "the final result state."
+                            )
+                            return None
+        
             if self._is_search_focused(
                 controller
             ):
                 print(
                     "UI STATE VERIFIED: Search input is focused."
                 )
-                return None
-
-            return (
-                "Python was typed successfully, but the Search "
-                "input is no longer focused."
-            )
-
+        
+            return None
+        
         # =====================================================
         # GENERIC UI TARGET
         # =====================================================

@@ -691,9 +691,87 @@ class DesktopController:
                 "UI element could not be re-resolved.",
             )
 
-        return self.ui_actions.click_element(
+        success, message = self.ui_actions.click_element(
             element
         )
+
+        if success:
+            return True, message
+
+        # =====================================================
+        # STALE UI AUTOMATION FALLBACK
+        # =====================================================
+
+        # UI Automation COM objects can become invalid when the
+        # application changes state. Re-resolve the target once
+        # before giving up.
+
+        if name:
+        
+            refreshed = self.ui_inspector.find_by_name(
+                name
+            )
+
+            if refreshed is not None:
+            
+                retry_success, retry_message = (
+                    self.ui_actions.click_element(
+                        refreshed
+                    )
+                )
+
+                if retry_success:
+                    return True, retry_message
+
+        # =====================================================
+        # COORDINATE FALLBACK
+        # =====================================================
+
+        rect = descriptor.get(
+            "rect"
+        )
+
+        if isinstance(
+            rect,
+            dict,
+        ):
+
+            try:
+                left = int(
+                    rect["left"]
+                )
+                top = int(
+                    rect["top"]
+                )
+                right = int(
+                    rect["right"]
+                )
+                bottom = int(
+                    rect["bottom"]
+                )
+
+                width = right - left
+                height = bottom - top
+
+                if width > 0 and height > 0:
+                
+                    x = left + width // 2
+                    y = top + height // 2
+
+                    return self.mouse.left_click(
+                        x,
+                        y,
+                    )
+
+            except (
+                KeyError,
+                TypeError,
+                ValueError,
+                OSError,
+            ):
+                pass
+            
+        return False, message
 
     def ui_type_descriptor(self, payload):
         """
