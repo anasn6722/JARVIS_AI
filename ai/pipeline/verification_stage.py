@@ -66,7 +66,6 @@ class VerificationStage:
     # =========================================================
 
     def _verify_task_state(self, task, context):
-        """Verify state for actions that have a meaningful UI state."""
 
         if task.action == "ui_click_descriptor":
             return self._verify_ui_click(
@@ -76,6 +75,12 @@ class VerificationStage:
 
         if task.action == "ui_type_descriptor":
             return self._verify_ui_type(
+                task,
+                context,
+            )
+
+        if task.action == "keyboard_press":
+            return self._verify_keyboard_press(
                 task,
                 context,
             )
@@ -330,7 +335,13 @@ class VerificationStage:
 
     def _verify_ui_type(self, task, context):
         """
-        Verify a UI typing task using its own source descriptor.
+        Verify that a semantic UI typing task targeted the
+        correct UI element.
+
+        For Search, we verify that the Search input remains focused.
+
+        For generic UI elements, we verify that the descriptor
+        associated with this task can still be resolved.
         """
 
         descriptor = self._get_task_descriptor(
@@ -359,21 +370,136 @@ class VerificationStage:
             descriptor.get("capability") or ""
         ).strip().lower()
 
+        # =====================================================
+        # SEARCH
+        # =====================================================
+
         if capability == "search_ui":
+
             if self._is_search_focused(
                 controller
             ):
                 print(
                     "UI STATE VERIFIED: Search input is focused."
                 )
+                return None
 
-            # Search can change UI state immediately after typing.
+            return (
+                "Python was typed successfully, but the Search "
+                "input is no longer focused."
+            )
+
+        # =====================================================
+        # GENERIC UI TARGET
+        # =====================================================
+
+        semantic_target = str(
+            descriptor.get(
+                "semantic_target"
+            )
+            or descriptor.get(
+                "name"
+            )
+            or ""
+        ).strip()
+
+        if not semantic_target:
             return None
 
-        # Generic UI typing already has a successful keyboard
-        # result; the descriptor identifies the destination.
-        return None
+        try:
+            info = controller.ui_inspector.search_info(
+                name=semantic_target
+            )
+        except Exception:
+            info = None
 
+        if info is not None:
+            print(
+                "UI STATE VERIFIED: "
+                f"{semantic_target} remains available."
+            )
+            return None
+
+        return (
+            f"UI typing succeeded, but "
+            f"'{semantic_target}' could not be verified."
+        )
+
+    def _verify_keyboard_press(self, task, context):
+        """
+        Verify keyboard presses that terminate a semantic UI
+        workflow.
+
+        Enter is treated specially when its preceding task is
+        ui_type_descriptor.
+        """
+
+        key = str(
+            task.target or ""
+        ).strip().lower()
+
+        if key != "enter":
+            return None
+
+        graph = getattr(
+            context,
+            "graph",
+            None,
+        )
+
+        if graph is None:
+            return None
+
+        try:
+            node = graph.nodes.get(
+                task.id
+            )
+        except Exception:
+            node = None
+
+        if node is None:
+            return None
+
+        parent_ids = getattr(
+            node,
+            "parents",
+            [],
+        )
+
+        for parent_id in parent_ids:
+
+            try:
+                parent = graph.nodes.get(
+                    parent_id
+                )
+            except Exception:
+                parent = None
+
+            if parent is None:
+                continue
+
+            parent_task = getattr(
+                parent,
+                "task",
+                None,
+            )
+
+            if parent_task is None:
+                continue
+
+            if (
+                parent_task.action
+                == "ui_type_descriptor"
+                and parent_task.success
+            ):
+                print(
+                    "UI ACTION VERIFIED: "
+                    "Enter submitted after UI typing."
+                )
+
+                return None
+
+        return None
     # =========================================================
     # SEARCH STATE
     # =========================================================

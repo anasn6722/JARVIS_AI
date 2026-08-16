@@ -1186,5 +1186,38 @@
         "started": "2026-08-16 15:39:39.367967",
         "completed": "2026-08-16 15:39:39.370643",
         "id": "8a44f011-4f12-48e6-b989-3f7e8407b4c3"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_find_descriptor",
+        "target": "Search",
+        "success": true,
+        "result": "{'name': 'Search (Ctrl+Shift+F)', 'automation_id': '', 'class_name': 'action-item icon', 'control_type': 50019, 'rect': {'left': 0, 'top': 83, 'right': 48, 'bottom': 132, 'width': 48, 'height': 49}, 'capability': 'search_ui', 'semantic_target': 'Search'}",
+        "error": "",
+        "started": "2026-08-16 15:45:50.165209",
+        "completed": "2026-08-16 15:45:50.254282",
+        "id": "77e6d766-92a3-4468-9659-11a19f70a778"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_type_descriptor",
+        "target": "$LAST_UI||Python",
+        "success": true,
+        "result": "Typed 'Python'.",
+        "error": "",
+        "started": "2026-08-16 15:45:50.259148",
+        "completed": "2026-08-16 15:45:50.561969",
+        "id": "8ca60501-98bf-471f-9594-b4871850a327"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_press",
+        "target": "enter",
+        "success": true,
+        "result": "Pressed enter.",
+        "error": "",
+        "started": "2026-08-16 15:45:50.565567",
+        "completed": "2026-08-16 15:45:50.565567",
+        "id": "344d20d9-b1f4-4545-8b2a-51846c018934"
     }
 ]
