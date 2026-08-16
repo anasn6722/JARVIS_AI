@@ -57,3 +57,4 @@ class Context:
         self.last_person = None
 
         self.last_reference = None
+        

@@ -1,7 +1,11 @@
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QFrame,
     QHBoxLayout,
+    QLabel,
     QMainWindow,
     QStackedWidget,
+    QVBoxLayout,
     QWidget,
 )
 
@@ -14,35 +18,57 @@ from gui.sidebar import Sidebar
 
 
 class MainWindow(QMainWindow):
+    """Main JARVIS HUD window."""
+
     def __init__(self):
         super().__init__()
 
         self.setWindowTitle("JARVIS AI 4.0")
-        self.resize(1200, 700)
+        self.resize(1400, 850)
+        self.setMinimumSize(1100, 700)
 
-        # -----------------------
-        # Central Widget
-        # -----------------------
+        # =====================================================
+        # CENTRAL WIDGET
+        # =====================================================
 
         central_widget = QWidget()
+        central_widget.setObjectName("hudRoot")
         self.setCentralWidget(central_widget)
 
-        # -----------------------
-        # Main Layout
-        # -----------------------
+        # =====================================================
+        # ROOT LAYOUT
+        # =====================================================
 
-        main_layout = QHBoxLayout()
-        central_widget.setLayout(main_layout)
+        root_layout = QVBoxLayout(central_widget)
+        root_layout.setContentsMargins(18, 14, 18, 18)
+        root_layout.setSpacing(12)
 
-        # -----------------------
-        # Sidebar
-        # -----------------------
+        # =====================================================
+        # TOP HUD BAR
+        # =====================================================
+
+        top_bar = self._create_top_bar()
+        root_layout.addWidget(top_bar)
+
+        # =====================================================
+        # MAIN CONTENT
+        # =====================================================
+
+        content_widget = QWidget()
+        content_layout = QHBoxLayout(content_widget)
+
+        content_layout.setContentsMargins(0, 0, 0, 0)
+        content_layout.setSpacing(12)
+
+        # =====================================================
+        # SIDEBAR
+        # =====================================================
 
         self.sidebar = Sidebar()
 
-        # -----------------------
-        # Pages
-        # -----------------------
+        # =====================================================
+        # PAGES
+        # =====================================================
 
         self.pages = QStackedWidget()
 
@@ -58,33 +84,110 @@ class MainWindow(QMainWindow):
         self.pages.addWidget(self.memory_page)
         self.pages.addWidget(self.settings_page)
 
-        # -----------------------
-        # Layout
-        # -----------------------
+        # =====================================================
+        # CONTENT LAYOUT
+        # =====================================================
 
-        main_layout.addWidget(self.sidebar)
-        main_layout.addWidget(self.pages)
+        content_layout.addWidget(self.sidebar)
+        content_layout.addWidget(self.pages, 1)
 
-        # Show Dashboard First
+        root_layout.addWidget(content_widget, 1)
+
+        # =====================================================
+        # INITIAL PAGE
+        # =====================================================
+
         self.pages.setCurrentIndex(0)
-        # -----------------------
-        # Sidebar Navigation
-        # -----------------------
+
+        # =====================================================
+        # SIDEBAR NAVIGATION
+        # =====================================================
 
         self.sidebar.dashboard_btn.clicked.connect(
             lambda: self.pages.setCurrentIndex(0)
         )
 
-        self.sidebar.chat_btn.clicked.connect(lambda: self.pages.setCurrentIndex(1))
+        self.sidebar.chat_btn.clicked.connect(
+            lambda: self.pages.setCurrentIndex(1)
+        )
 
-        self.sidebar.voice_btn.clicked.connect(lambda: self.pages.setCurrentIndex(2))
+        self.sidebar.voice_btn.clicked.connect(
+            lambda: self.pages.setCurrentIndex(2)
+        )
 
-        self.sidebar.memory_btn.clicked.connect(lambda: self.pages.setCurrentIndex(3))
+        self.sidebar.memory_btn.clicked.connect(
+            lambda: self.pages.setCurrentIndex(3)
+        )
 
-        self.sidebar.settings_btn.clicked.connect(lambda: self.pages.setCurrentIndex(4))
+        self.sidebar.settings_btn.clicked.connect(
+            lambda: self.pages.setCurrentIndex(4)
+        )
 
+    # =========================================================
+    # TOP HUD
+    # =========================================================
+
+    def _create_top_bar(self):
+        """Create the cinematic JARVIS status header."""
+
+        frame = QFrame()
+        frame.setProperty("class", "hudPanel")
+        frame.setFixedHeight(72)
+
+        layout = QHBoxLayout(frame)
+        layout.setContentsMargins(20, 10, 20, 10)
+
+        # -----------------------------------------------------
+        # LEFT
+        # -----------------------------------------------------
+
+        left_layout = QVBoxLayout()
+        left_layout.setSpacing(0)
+
+        title = QLabel("J A R V I S")
+        title.setProperty("class", "hudTitle")
+
+        subtitle = QLabel(
+            "JUST A RATHER VERY INTELLIGENT SYSTEM"
+        )
+        subtitle.setProperty("class", "hudSubtitle")
+
+        left_layout.addWidget(title)
+        left_layout.addWidget(subtitle)
+
+        # -----------------------------------------------------
+        # CENTER
+        # -----------------------------------------------------
+
+        center_label = QLabel("SYSTEM // ONLINE")
+        center_label.setProperty("class", "statusOnline")
+        center_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # -----------------------------------------------------
+        # RIGHT
+        # -----------------------------------------------------
+
+        right_label = QLabel("CORE: STABLE")
+        right_label.setProperty("class", "statusOnline")
+        right_label.setAlignment(
+            Qt.AlignmentFlag.AlignRight
+            | Qt.AlignmentFlag.AlignVCenter
+        )
+
+        layout.addLayout(left_layout)
+        layout.addStretch(1)
+        layout.addWidget(center_label)
+        layout.addStretch(1)
+        layout.addWidget(right_label)
+
+        return frame
+
+    # =========================================================
+    # CLOSE EVENT
+    # =========================================================
 
     def closeEvent(self, event):
+        """Stop voice resources before closing."""
 
         if hasattr(self.chat_page, "voice_manager"):
             self.chat_page.voice_manager.stop()
