@@ -21,7 +21,11 @@ from PySide6.QtWidgets import (
 
 from config.states import AssistantState
 from core import app_state
+from core.hud_state import hud_state
 from core.system import System
+from gui.widgets.hud_activity_panel import (
+    HudActivityPanel,
+)
 from gui.widgets.info_card import InfoCard
 
 
@@ -76,6 +80,7 @@ class JarvisCore(QWidget):
 
         self.angle = 0.0
         self.wave = 0.0
+
         self.current_state = (
             AssistantState.SLEEPING
         )
@@ -88,13 +93,7 @@ class JarvisCore(QWidget):
 
         self.timer.start(30)
 
-    # =========================================================
-    # STATE
-    # =========================================================
-
     def set_state(self, state):
-        """Update the visual state of the core."""
-
         if not isinstance(
             state,
             AssistantState,
@@ -107,10 +106,6 @@ class JarvisCore(QWidget):
         self.current_state = state
 
         self.update()
-
-    # =========================================================
-    # ANIMATION
-    # =========================================================
 
     def _animate(self):
         config = self.STATE_CONFIG.get(
@@ -128,10 +123,6 @@ class JarvisCore(QWidget):
         self.wave += 0.08
 
         self.update()
-
-    # =========================================================
-    # PAINT
-    # =========================================================
 
     def paintEvent(self, event):
         del event
@@ -167,10 +158,6 @@ class JarvisCore(QWidget):
             * config["pulse"]
         )
 
-        # =====================================================
-        # OUTER GLOW
-        # =====================================================
-
         base_radius = min(
             width,
             height,
@@ -181,6 +168,7 @@ class JarvisCore(QWidget):
         )
 
         for index in range(9):
+
             radius = (
                 base_radius
                 + 70
@@ -197,16 +185,14 @@ class JarvisCore(QWidget):
                 )
             )
 
-            glow_color = QColor(
-                color.red(),
-                color.green(),
-                color.blue(),
-                alpha,
-            )
-
             painter.setBrush(
                 QBrush(
-                    glow_color
+                    QColor(
+                        color.red(),
+                        color.green(),
+                        color.blue(),
+                        alpha,
+                    )
                 )
             )
 
@@ -221,10 +207,6 @@ class JarvisCore(QWidget):
                 radius * 2,
             )
 
-        # =====================================================
-        # OUTER HUD RING
-        # =====================================================
-
         self._draw_circle(
             painter,
             center,
@@ -233,10 +215,6 @@ class JarvisCore(QWidget):
             1,
             70,
         )
-
-        # =====================================================
-        # ROTATING SEGMENTS
-        # =====================================================
 
         self._draw_arc(
             painter,
@@ -271,10 +249,6 @@ class JarvisCore(QWidget):
             200,
         )
 
-        # =====================================================
-        # SECONDARY RING
-        # =====================================================
-
         self._draw_circle(
             painter,
             center,
@@ -283,10 +257,6 @@ class JarvisCore(QWidget):
             1,
             110,
         )
-
-        # =====================================================
-        # INNER ROTATING RING
-        # =====================================================
 
         self._draw_arc(
             painter,
@@ -298,10 +268,6 @@ class JarvisCore(QWidget):
             2,
             230,
         )
-
-        # =====================================================
-        # CENTRAL CORE
-        # =====================================================
 
         core_radius = (
             base_radius
@@ -338,10 +304,6 @@ class JarvisCore(QWidget):
             core_radius * 2,
         )
 
-        # =====================================================
-        # INNER CORE
-        # =====================================================
-
         inner_radius = (
             core_radius * 0.68
         )
@@ -376,15 +338,12 @@ class JarvisCore(QWidget):
             inner_radius * 2,
         )
 
-        # =====================================================
-        # ENERGY CENTER
-        # =====================================================
-
         energy_radius = (
             15
             + abs(
                 math.sin(self.wave)
-            ) * 8
+            )
+            * 8
             * config["glow"]
         )
 
@@ -418,10 +377,6 @@ class JarvisCore(QWidget):
             energy_radius * 2,
             energy_radius * 2,
         )
-
-        # =====================================================
-        # STATE TEXT
-        # =====================================================
 
         painter.setPen(
             QColor(
@@ -478,10 +433,6 @@ class JarvisCore(QWidget):
 
         painter.end()
 
-    # =========================================================
-    # CIRCLE
-    # =========================================================
-
     @staticmethod
     def _draw_circle(
         painter,
@@ -491,17 +442,17 @@ class JarvisCore(QWidget):
         width,
         alpha,
     ):
-        pen = QPen(
-            QColor(
-                color.red(),
-                color.green(),
-                color.blue(),
-                alpha,
-            ),
-            width,
+        painter.setPen(
+            QPen(
+                QColor(
+                    color.red(),
+                    color.green(),
+                    color.blue(),
+                    alpha,
+                ),
+                width,
+            )
         )
-
-        painter.setPen(pen)
 
         painter.setBrush(
             Qt.BrushStyle.NoBrush
@@ -514,10 +465,6 @@ class JarvisCore(QWidget):
             radius * 2,
         )
 
-    # =========================================================
-    # ARC
-    # =========================================================
-
     @staticmethod
     def _draw_arc(
         painter,
@@ -529,25 +476,29 @@ class JarvisCore(QWidget):
         width,
         alpha,
     ):
-        pen = QPen(
-            QColor(
-                color.red(),
-                color.green(),
-                color.blue(),
-                alpha,
-            ),
-            width,
+        painter.setPen(
+            QPen(
+                QColor(
+                    color.red(),
+                    color.green(),
+                    color.blue(),
+                    alpha,
+                ),
+                width,
+            )
         )
-
-        painter.setPen(pen)
 
         painter.setBrush(
             Qt.BrushStyle.NoBrush
         )
 
         painter.drawArc(
-            int(center[0] - radius),
-            int(center[1] - radius),
+            int(
+                center[0] - radius
+            ),
+            int(
+                center[1] - radius
+            ),
             int(radius * 2),
             int(radius * 2),
             int(-angle * 16),
@@ -594,10 +545,6 @@ class DashboardPage(QWidget):
             """
         )
 
-        # =====================================================
-        # MAIN LAYOUT
-        # =====================================================
-
         layout = QVBoxLayout(self)
 
         layout.setContentsMargins(
@@ -642,10 +589,12 @@ class DashboardPage(QWidget):
         layout.addWidget(subtitle)
 
         # =====================================================
-        # CORE
+        # CORE + ACTIVITY
         # =====================================================
 
         center_row = QHBoxLayout()
+
+        center_row.setSpacing(18)
 
         center_row.addStretch()
 
@@ -672,7 +621,7 @@ class DashboardPage(QWidget):
         )
 
         core_layout.addWidget(
-            self.core_status
+            core_status
         )
 
         core_widget = QWidget()
@@ -683,6 +632,18 @@ class DashboardPage(QWidget):
 
         center_row.addWidget(
             core_widget
+        )
+
+        # -----------------------------------------------------
+        # ACTIVITY PANEL
+        # -----------------------------------------------------
+
+        self.activity_panel = (
+            HudActivityPanel()
+        )
+
+        center_row.addWidget(
+            self.activity_panel
         )
 
         center_row.addStretch()
@@ -698,8 +659,13 @@ class DashboardPage(QWidget):
 
         grid = QGridLayout()
 
-        grid.setHorizontalSpacing(12)
-        grid.setVerticalSpacing(12)
+        grid.setHorizontalSpacing(
+            12
+        )
+
+        grid.setVerticalSpacing(
+            12
+        )
 
         self.cpu_card = InfoCard(
             "CPU LOAD",
@@ -750,7 +716,7 @@ class DashboardPage(QWidget):
         )
 
         # =====================================================
-        # TELEMETRY TIMER
+        # TIMER
         # =====================================================
 
         self.timer = QTimer(self)
@@ -759,9 +725,8 @@ class DashboardPage(QWidget):
             self.update_hud
         )
 
-        self.timer.start(1000)
+        self.timer.start(500)
 
-        # Initial state
         self.update_hud()
 
     # =========================================================
@@ -769,8 +734,6 @@ class DashboardPage(QWidget):
     # =========================================================
 
     def update_hud(self):
-        """Update telemetry and reflect the real assistant state."""
-
         cpu = System.cpu_usage()
         ram_used = System.ram_used()
         ram_percent = System.ram_percent()
@@ -785,49 +748,67 @@ class DashboardPage(QWidget):
             ram_percent,
         )
 
-        state = app_state.state_machine.state
+        state = (
+            app_state.state_machine.state
+        )
 
         self.core.set_state(
             state
         )
 
-        state_name = (
-            state.name
-        )
-
         self.core_status.setText(
-            f"● {state_name}"
+            f"● {state.name}"
         )
 
-        # AI / voice indicators
-        if state in {
-            AssistantState.THINKING,
-            AssistantState.LISTENING,
-            AssistantState.SPEAKING,
-        }:
+        snapshot = hud_state.snapshot()
+
+        self.activity_panel.refresh()
+
+        hud_runtime_state = (
+            snapshot["state"]
+        )
+
+        if hud_runtime_state == "EXECUTING":
+
             self.ai_card.update_value(
                 "ACTIVE",
                 100,
             )
+
+        elif state in {
+            AssistantState.THINKING,
+            AssistantState.LISTENING,
+            AssistantState.SPEAKING,
+        }:
+
+            self.ai_card.update_value(
+                "ACTIVE",
+                100,
+            )
+
         else:
+
             self.ai_card.update_value(
                 "ONLINE",
                 75,
             )
 
         if state == AssistantState.SPEAKING:
+
             self.voice_card.update_value(
                 "SPEAKING",
                 100,
             )
 
         elif state == AssistantState.LISTENING:
+
             self.voice_card.update_value(
                 "LISTENING",
                 100,
             )
 
         else:
+
             self.voice_card.update_value(
                 "READY",
                 65,

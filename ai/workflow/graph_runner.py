@@ -2,6 +2,7 @@ from datetime import datetime
 
 from ai.memory.execution.execution_record import ExecutionRecord
 from ai.workflow.workflow_context import WorkflowContext
+from ai.workflow.workflow_event import WorkflowEvent
 from ai.workflow.workflow_status import WorkflowStatus
 from desktop_automation.planner.task_context import TaskContext
 
@@ -48,8 +49,25 @@ class GraphRunner:
         # Start every graph with a clean task context.
         self.task_context.clear()
 
-        context = WorkflowContext([])
+        context = WorkflowContext(
+            [
+                node.task
+                for node in graph.nodes.values()
+            ]
+        )
+
         context.status = WorkflowStatus.RUNNING
+
+        # ========================================================
+        # WORKFLOW START EVENT
+        # ========================================================
+
+        self.events.publish(
+            WorkflowEvent(
+                name="WORKFLOW_STARTED",
+                data=context,
+            )
+        )
 
         # ========================================================
         # GRAPH EXECUTION LOOP
@@ -78,10 +96,50 @@ class GraphRunner:
                     node.task.target,
                 )
 
+                self.events.publish(
+                    WorkflowEvent(
+                        name="TASK_STARTED",
+                        task=node.task,
+                        data=context,
+                    )
+                )
+
                 self.execute_node(
                     node,
                     goal_id=goal_id,
                 )
+
+                if node.completed:
+
+                    context.completed.append(
+                        node.task
+                    )
+
+                    self.events.publish(
+                        WorkflowEvent(
+                            name="TASK_COMPLETED",
+                            task=node.task,
+                            data=context,
+                        )
+                    )
+
+                elif node.failed:
+
+                    context.failed.append(
+                        node.task
+                    )
+
+                    context.result.errors.append(
+                        node.task.error
+                    )
+
+                    self.events.publish(
+                        WorkflowEvent(
+                            name="TASK_FAILED",
+                            task=node.task,
+                            data=context,
+                        )
+                    )
 
         # ========================================================
         # CHECK FAILED NODES
@@ -101,7 +159,16 @@ class GraphRunner:
             print("GRAPH RUNNER FAILED")
             print("=" * 60)
 
-            return self.build_graph_result(graph)
+            self.events.publish(
+                WorkflowEvent(
+                    name="WORKFLOW_FINISHED",
+                    data=context,
+                )
+            )
+
+            return self.build_graph_result(
+                graph
+            )
 
         # ========================================================
         # CHECK WHETHER GRAPH ACTUALLY COMPLETED
@@ -115,7 +182,16 @@ class GraphRunner:
             print("GRAPH RUNNER FAILED")
             print("=" * 60)
 
-            return self.build_graph_result(graph)
+            self.events.publish(
+                WorkflowEvent(
+                    name="WORKFLOW_FINISHED",
+                    data=context,
+                )
+            )
+
+            return self.build_graph_result(
+                graph
+            )
 
         # ========================================================
         # SUCCESS
@@ -127,7 +203,16 @@ class GraphRunner:
         print("GRAPH RUNNER FINISHED")
         print("=" * 60)
 
-        return self.build_graph_result(graph)
+        self.events.publish(
+            WorkflowEvent(
+                name="WORKFLOW_FINISHED",
+                data=context,
+            )
+        )
+
+        return self.build_graph_result(
+            graph
+        )
 
     # ============================================================
     # EXECUTE NODE
@@ -150,6 +235,8 @@ class GraphRunner:
         if not node.ready:
             return False
 
+        node.running = True
+
         started = datetime.now()
 
         while True:
@@ -161,12 +248,14 @@ class GraphRunner:
                     node.task.target,
                 )
 
-                # ====================================================
+                # =================================================
                 # RESOLVE TARGET
-                # ====================================================
+                # =================================================
 
-                resolved_target = self._resolve_target(
-                    node.task.target
+                resolved_target = (
+                    self._resolve_target(
+                        node.task.target
+                    )
                 )
 
                 print(
@@ -174,41 +263,49 @@ class GraphRunner:
                     resolved_target,
                 )
 
-                # ====================================================
+                # =================================================
                 # EXECUTE TOOL
-                # ====================================================
+                # =================================================
 
                 if resolved_target is not None:
 
-                    raw_result = self.tool_executor.execute(
-                        node.task.action,
-                        resolved_target,
+                    raw_result = (
+                        self.tool_executor.execute(
+                            node.task.action,
+                            resolved_target,
+                        )
                     )
 
                 else:
 
-                    raw_result = self.tool_executor.execute(
-                        node.task.action,
+                    raw_result = (
+                        self.tool_executor.execute(
+                            node.task.action
+                        )
                     )
 
                 completed = datetime.now()
 
-                # ====================================================
+                # =================================================
                 # NORMALIZE RESULT
-                # ====================================================
+                # =================================================
 
                 if (
-                    isinstance(raw_result, tuple)
+                    isinstance(
+                        raw_result,
+                        tuple,
+                    )
                     and len(raw_result) == 2
-                    and isinstance(raw_result[0], bool)
+                    and isinstance(
+                        raw_result[0],
+                        bool,
+                    )
                 ):
 
                     success, message = raw_result
 
                     node.task.success = success
 
-                    # Preserve dictionaries and other structured
-                    # values instead of converting everything to str.
                     node.task.result = message
 
                 else:
@@ -218,9 +315,9 @@ class GraphRunner:
                     node.task.success = True
                     node.task.result = raw_result
 
-                # ====================================================
+                # =================================================
                 # SUCCESS
-                # ====================================================
+                # =================================================
 
                 if success:
 
@@ -242,9 +339,9 @@ class GraphRunner:
                         node.task.result,
                     )
 
-                    # ====================================================
-                    # PUBLISH TASK RESULT TO CONTEXT
-                    # ====================================================
+                    # =============================================
+                    # TASK CONTEXT
+                    # =============================================
 
                     self.task_context.set(
                         "last_result",
@@ -271,9 +368,9 @@ class GraphRunner:
                         node.task.result,
                     )
 
-                    # ====================================================
-                    # PUBLISH LAST UI DESCRIPTOR
-                    # ====================================================
+                    # =============================================
+                    # LAST UI DESCRIPTOR
+                    # =============================================
 
                     if (
                         node.task.action
@@ -302,11 +399,14 @@ class GraphRunner:
                         self.task_context.snapshot(),
                     )
 
-                    # ====================================================
+                    # =============================================
                     # EXECUTION MEMORY
-                    # ====================================================
+                    # =============================================
 
-                    if self.execution_memory is not None:
+                    if (
+                        self.execution_memory
+                        is not None
+                    ):
 
                         self.execution_memory.add(
                             ExecutionRecord(
@@ -325,9 +425,9 @@ class GraphRunner:
 
                     return True
 
-                # ====================================================
+                # =================================================
                 # TOOL-LEVEL FAILURE
-                # ====================================================
+                # =================================================
 
                 node.task.success = False
                 node.task.completed = False
@@ -346,9 +446,9 @@ class GraphRunner:
                     node.task.result,
                 )
 
-                # ====================================================
+                # =================================================
                 # RETRY
-                # ====================================================
+                # =================================================
 
                 if self.retry_manager.should_retry(
                     node.task
@@ -371,19 +471,18 @@ class GraphRunner:
 
                     continue
 
-                # ====================================================
+                # =================================================
                 # PERMANENT FAILURE
-                # ====================================================
+                # =================================================
 
                 node.failed = True
                 node.completed = False
                 node.running = False
 
-                print(
-                    "Task failed permanently."
-                )
-
-                if self.execution_memory is not None:
+                if (
+                    self.execution_memory
+                    is not None
+                ):
 
                     self.execution_memory.add(
                         ExecutionRecord(
@@ -410,7 +509,9 @@ class GraphRunner:
 
                 node.task.success = False
                 node.task.completed = False
-                node.task.error = str(error)
+                node.task.error = str(
+                    error
+                )
 
                 print(
                     "TASK EXCEPTION:",
@@ -423,9 +524,9 @@ class GraphRunner:
                     error,
                 )
 
-                # ====================================================
+                # =================================================
                 # RETRY EXCEPTION
-                # ====================================================
+                # =================================================
 
                 if self.retry_manager.should_retry(
                     node.task
@@ -452,7 +553,10 @@ class GraphRunner:
                 node.completed = False
                 node.running = False
 
-                if self.execution_memory is not None:
+                if (
+                    self.execution_memory
+                    is not None
+                ):
 
                     self.execution_memory.add(
                         ExecutionRecord(
@@ -503,7 +607,9 @@ class GraphRunner:
 
             return "No results were produced."
 
-        return "\n".join(responses)
+        return "\n".join(
+            responses
+        )
 
     # ============================================================
     # CONTEXT TARGET RESOLUTION
@@ -517,23 +623,19 @@ class GraphRunner:
 
             $LAST_RESULT
             $LAST_UI
+            $LAST_UI||text
             $LAST_ACTION
             $LAST_TARGET
             $RESULT:<action>
-
-        Examples:
-
-            $LAST_RESULT
-            $LAST_UI
-            $LAST_ACTION
-            $LAST_TARGET
-            $RESULT:ui_find_descriptor
         """
 
         if target is None:
             return None
 
-        if not isinstance(target, str):
+        if not isinstance(
+            target,
+            str,
+        ):
             return target
 
         value = target.strip()
@@ -555,14 +657,18 @@ class GraphRunner:
         # LAST UI + TEXT
         # ========================================================
 
-        if value.startswith("$LAST_UI||"):
+        if value.startswith(
+            "$LAST_UI||"
+        ):
 
             text = value[
                 len("$LAST_UI||"):
             ].strip()
 
-            descriptor = self.task_context.get(
-                "last_ui"
+            descriptor = (
+                self.task_context.get(
+                    "last_ui"
+                )
             )
 
             if descriptor is None:
@@ -603,12 +709,13 @@ class GraphRunner:
                 "last_target"
             )
 
-
         # ========================================================
         # ACTION-SPECIFIC RESULT
         # ========================================================
 
-        if value.startswith("$RESULT:"):
+        if value.startswith(
+            "$RESULT:"
+        ):
 
             action = value[
                 len("$RESULT:"):
@@ -621,6 +728,6 @@ class GraphRunner:
                 f"result:{action}"
             )
 
-        # Unknown context reference:
-        # leave it untouched so the tool can handle it normally.
+        # Unknown reference:
+        # leave it untouched so the tool can handle it.
         return target
