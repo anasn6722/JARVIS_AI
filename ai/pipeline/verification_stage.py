@@ -5,11 +5,10 @@ class VerificationStage:
     Verification has two layers:
 
         1. Basic task-result verification.
-        2. UI-state verification for semantic UI actions.
+        2. State-aware verification for semantic UI actions.
 
-    UI-state verification is intentionally conservative.
-    It only performs extra checks when the task provides enough
-    information to verify a meaningful state change.
+    UI verification uses the descriptor produced by the task's
+    own dependency chain rather than the global LAST_UI value.
     """
 
     def __init__(self, brain):
@@ -22,7 +21,6 @@ class VerificationStage:
     def run(self, context):
         """Verify the results of all executable tasks."""
 
-        # Normal AI conversation does not have executable tasks.
         if not context.tasks:
             context.verified = True
             context.verification_errors = []
@@ -32,10 +30,6 @@ class VerificationStage:
 
         for task in context.tasks:
 
-            # -------------------------------------------------
-            # Basic task result
-            # -------------------------------------------------
-
             if not task.success:
                 errors.append(
                     task.error
@@ -43,25 +37,16 @@ class VerificationStage:
                 )
                 continue
 
-            # -------------------------------------------------
-            # State-aware verification
-            # -------------------------------------------------
-
             state_error = self._verify_task_state(
-                task
+                task,
+                context,
             )
 
             if state_error:
-                errors.append(
-                    state_error
-                )
+                errors.append(state_error)
 
         context.verification_errors = errors
         context.verified = not errors
-
-        # =====================================================
-        # OUTPUT
-        # =====================================================
 
         if errors:
             print("=" * 50)
@@ -77,26 +62,22 @@ class VerificationStage:
             print("=" * 50)
 
     # =========================================================
-    # STATE VERIFICATION
+    # TASK STATE VERIFICATION
     # =========================================================
 
-    def _verify_task_state(self, task):
-        """
-        Verify actual UI state after a successful task.
-
-        Returns:
-            None when verification succeeds or is not applicable.
-            str when verification fails.
-        """
+    def _verify_task_state(self, task, context):
+        """Verify state for actions that have a meaningful UI state."""
 
         if task.action == "ui_click_descriptor":
             return self._verify_ui_click(
-                task
+                task,
+                context,
             )
 
         if task.action == "ui_type_descriptor":
             return self._verify_ui_type(
-                task
+                task,
+                context,
             )
 
         return None
@@ -106,12 +87,7 @@ class VerificationStage:
     # =========================================================
 
     def _get_ui_controller(self):
-        """
-        Obtain the DesktopController through the registered
-        ui_find_descriptor tool.
-
-        This avoids depending on a hard-coded Brain attribute name.
-        """
+        """Get the DesktopController behind the registered UI tool."""
 
         try:
             tool = self.brain.tool_registry.get(
@@ -123,56 +99,136 @@ class VerificationStage:
 
             callback = tool.callback
 
-            controller = getattr(
+            return getattr(
                 callback,
                 "__self__",
                 None,
             )
 
-            return controller
-
         except Exception:
             return None
 
     # =========================================================
-    # GRAPH TASK CONTEXT
+    # TASK DESCRIPTOR
     # =========================================================
 
-    def _get_last_ui_descriptor(self):
+    def _get_task_descriptor(self, task, context):
         """
-        Return the most recently resolved UI descriptor from the
-        current GraphRunner task context.
+        Get the descriptor belonging to this task.
+
+        For ui_click_descriptor / ui_type_descriptor tasks,
+        the descriptor should come from the immediately preceding
+        ui_find_descriptor dependency, not the global LAST_UI.
         """
+
+        graph = getattr(
+            context,
+            "graph",
+            None,
+        )
+
+        if graph is None:
+            return None
 
         try:
-            graph_runner = (
-                self.brain
-                .execution_engine
-                .workflow_manager
-                .graph_runner
+            node = graph.nodes.get(
+                task.id
             )
-
-            return graph_runner.task_context.get(
-                "last_ui"
-            )
-
         except Exception:
+            node = None
+
+        if node is None:
             return None
+
+        # -----------------------------------------------------
+        # Check direct parents first.
+        # -----------------------------------------------------
+
+        parent_ids = getattr(
+            node,
+            "parents",
+            [],
+        )
+
+        for parent_id in parent_ids:
+
+            try:
+                parent = graph.nodes.get(
+                    parent_id
+                )
+            except Exception:
+                parent = None
+
+            if parent is None:
+                continue
+
+            parent_task = getattr(
+                parent,
+                "task",
+                None,
+            )
+
+            if parent_task is None:
+                continue
+
+            if (
+                parent_task.action
+                == "ui_find_descriptor"
+                and parent_task.success
+            ):
+                result = parent_task.result
+
+                if isinstance(
+                    result,
+                    dict,
+                ):
+                    return result
+
+        # -----------------------------------------------------
+        # Fallback: search all completed find-descriptor tasks.
+        # -----------------------------------------------------
+
+        try:
+            nodes = graph.nodes.values()
+        except Exception:
+            nodes = []
+
+        for candidate in nodes:
+
+            candidate_task = getattr(
+                candidate,
+                "task",
+                None,
+            )
+
+            if candidate_task is None:
+                continue
+
+            if (
+                candidate_task.action
+                == "ui_find_descriptor"
+                and candidate_task.success
+                and isinstance(
+                    candidate_task.result,
+                    dict,
+                )
+            ):
+                return candidate_task.result
+
+        return None
 
     # =========================================================
     # CLICK VERIFICATION
     # =========================================================
 
-    def _verify_ui_click(self, task):
+    def _verify_ui_click(self, task, context):
         """
-        Verify a successful semantic UI click.
-
-        Capability-based elements use their semantic state rather
-        than requiring the old UI Automation element to remain alive.
+        Verify the UI state produced by this specific click task.
         """
 
-        descriptor = (
-            self._get_last_ui_descriptor()
+        descriptor = self._get_task_descriptor(
+            task,
+            context,
         )
 
         if not isinstance(
@@ -180,23 +236,25 @@ class VerificationStage:
             dict,
         ):
             return (
-                "UI click succeeded, but no UI descriptor "
-                "was available for state verification."
+                "UI click succeeded, but its source UI descriptor "
+                "could not be identified."
             )
 
-        capability = str(
-            descriptor.get("capability") or ""
-        ).strip().lower()
-
-        controller = (
-            self._get_ui_controller()
-        )
+        controller = self._get_ui_controller()
 
         if controller is None:
             return (
                 "UI click succeeded, but the desktop controller "
                 "was unavailable for state verification."
             )
+
+        capability = str(
+            descriptor.get("capability") or ""
+        ).strip().lower()
+
+        semantic_target = str(
+            descriptor.get("semantic_target") or ""
+        ).strip()
 
         # =====================================================
         # EXPLORER
@@ -212,7 +270,7 @@ class VerificationStage:
                 return None
 
             return (
-                "Explorer shortcut succeeded, but Explorer "
+                "Explorer action succeeded, but Explorer "
                 "was not detected in the current UI."
             )
 
@@ -235,12 +293,15 @@ class VerificationStage:
             )
 
         # =====================================================
-        # NORMAL UI ELEMENT
+        # NORMAL UI TARGET
         # =====================================================
 
-        name = str(
-            descriptor.get("name") or ""
-        ).strip()
+        name = (
+            semantic_target
+            or str(
+                descriptor.get("name") or ""
+            ).strip()
+        )
 
         if not name:
             return None
@@ -249,7 +310,6 @@ class VerificationStage:
             info = controller.ui_inspector.search_info(
                 name=name
             )
-
         except Exception:
             info = None
 
@@ -268,20 +328,14 @@ class VerificationStage:
     # TYPE VERIFICATION
     # =========================================================
 
-    def _verify_ui_type(self, task):
+    def _verify_ui_type(self, task, context):
         """
-        Verify that a semantic UI typing action has a valid
-        destination and a successful result.
-
-        For generic text fields, the current keyboard action
-        already provides the strongest deterministic signal.
-
-        Capability-based Search receives an additional focused
-        UI check when available.
+        Verify a UI typing task using its own source descriptor.
         """
 
-        descriptor = (
-            self._get_last_ui_descriptor()
+        descriptor = self._get_task_descriptor(
+            task,
+            context,
         )
 
         if not isinstance(
@@ -289,17 +343,11 @@ class VerificationStage:
             dict,
         ):
             return (
-                "UI typing succeeded, but no UI descriptor "
-                "was available for verification."
+                "UI typing succeeded, but its source UI descriptor "
+                "could not be identified."
             )
 
-        capability = str(
-            descriptor.get("capability") or ""
-        ).strip().lower()
-
-        controller = (
-            self._get_ui_controller()
-        )
+        controller = self._get_ui_controller()
 
         if controller is None:
             return (
@@ -307,9 +355,9 @@ class VerificationStage:
                 "was unavailable for verification."
             )
 
-        # =====================================================
-        # SEARCH
-        # =====================================================
+        capability = str(
+            descriptor.get("capability") or ""
+        ).strip().lower()
 
         if capability == "search_ui":
             if self._is_search_focused(
@@ -318,13 +366,12 @@ class VerificationStage:
                 print(
                     "UI STATE VERIFIED: Search input is focused."
                 )
-                return None
 
-            # Search may change state immediately after typing,
-            # so do not automatically fail solely because the
-            # original action element is no longer visible.
+            # Search can change UI state immediately after typing.
             return None
 
+        # Generic UI typing already has a successful keyboard
+        # result; the descriptor identifies the destination.
         return None
 
     # =========================================================
@@ -333,7 +380,7 @@ class VerificationStage:
 
     @staticmethod
     def _is_search_visible(controller):
-        """Return True when the VS Code Search action is visible."""
+        """Return True when the Search action is visible."""
 
         try:
             info = controller.ui_inspector.search_info(
@@ -351,18 +398,13 @@ class VerificationStage:
 
     @staticmethod
     def _is_explorer_visible(controller):
-        """
-        Return True when Explorer-related UI is visible.
-
-        We first look for the standard Explorer action.
-        Then we check common Explorer section labels.
-        """
+        """Return True when Explorer-related UI is visible."""
 
         try:
             inspector = controller.ui_inspector
 
             # -------------------------------------------------
-            # Explorer action
+            # Standard Explorer action
             # -------------------------------------------------
 
             info = inspector.search_info(
@@ -389,7 +431,7 @@ class VerificationStage:
                     return True
 
             # -------------------------------------------------
-            # Broad inspection fallback
+            # Broad fallback
             # -------------------------------------------------
 
             items = inspector.inspect_all(
@@ -397,6 +439,7 @@ class VerificationStage:
             )
 
             for item in items:
+
                 if not isinstance(
                     item,
                     dict,
@@ -419,7 +462,7 @@ class VerificationStage:
             return False
 
     # =========================================================
-    # FOCUSED SEARCH STATE
+    # SEARCH FOCUS
     # =========================================================
 
     @staticmethod
@@ -445,14 +488,9 @@ class VerificationStage:
                 focused.CurrentClassName or ""
             ).strip().lower()
 
-            search_terms = (
-                "search",
-                "type search term",
-            )
-
-            if any(
-                term in name
-                for term in search_terms
+            if (
+                "search" in name
+                or "type search term" in name
             ):
                 return True
 
