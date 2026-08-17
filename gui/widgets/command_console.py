@@ -603,4 +603,4 @@ class CommandConsole(QFrame):
                     widget
                 )
 
-                widget.update()
+                widget.update() 

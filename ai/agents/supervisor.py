@@ -1,0 +1,31 @@
+from ai.agents.conversation_agent import ConversationAgent
+from ai.agents.desktop_agent import DesktopAgent
+
+
+class SupervisorAgent:
+    """Routes JARVIS commands to specialist agents."""
+
+    name = "supervisor"
+
+    def __init__(self):
+        self.agents = (
+            DesktopAgent(),
+            ConversationAgent(),
+        )
+
+    def select_agent(self, command):
+        for agent in self.agents:
+            if agent.can_handle(command):
+                return agent
+
+        return None
+
+    def route(self, command, context):
+        agent = self.select_agent(command)
+
+        if agent is None:
+            return None
+
+        context.agent_name = agent.name
+
+        return agent.run(context)
