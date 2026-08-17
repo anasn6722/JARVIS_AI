@@ -1,5 +1,3 @@
-
-
 from PySide6.QtCore import (
     Qt,
 )
@@ -25,6 +23,9 @@ from gui.pages.settings_page import SettingsPage
 from gui.pages.voice_page import VoicePage
 from gui.sidebar import Sidebar
 from gui.widgets.hud_overlay import HudOverlay
+from gui.widgets.page_transition import (
+    PageTransition,
+)
 
 
 class MainWindow(QMainWindow):
@@ -181,6 +182,24 @@ class MainWindow(QMainWindow):
             self.settings_page
         )
 
+        self.page_transitions = [
+            PageTransition(
+                self.dashboard_page
+            ),
+            PageTransition(
+                self.chat_page
+            ),
+            PageTransition(
+                self.voice_page
+            ),
+            PageTransition(
+                self.memory_page
+            ),
+            PageTransition(
+                self.settings_page
+            ),
+        ]
+
         # =====================================================
         # CONTENT
         # =====================================================
@@ -204,6 +223,12 @@ class MainWindow(QMainWindow):
         # =====================================================
 
         self.pages.setCurrentIndex(
+            0
+        )
+        
+        self.page_transitions[
+            0
+        ].play(
             0
         )
 
@@ -419,6 +444,10 @@ class MainWindow(QMainWindow):
         self.sidebar.set_active(
             button
         )
+
+        self.page_transitions[
+            index
+        ].play()
 
     # =========================================================
     # IMMERSIVE MODE

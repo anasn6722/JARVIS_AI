@@ -2088,5 +2088,137 @@
         "started": "2026-08-17 10:28:51.684408",
         "completed": "2026-08-17 10:28:51.751469",
         "id": "5155b524-fa39-427e-8088-92ec8711dcf8"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-17 10:36:05.765922",
+        "completed": "2026-08-17 10:36:05.800236",
+        "id": "4b80744b-73cb-4838-8d90-01ab691cf0ca"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_type",
+        "target": "youtube ib search bar",
+        "success": true,
+        "result": "Typed 'youtube ib search bar'.",
+        "error": "",
+        "started": "2026-08-17 10:36:05.837912",
+        "completed": "2026-08-17 10:36:06.074486",
+        "id": "52ce865a-6ea2-4154-a32d-069bf1e63647"
+    },
+    {
+        "goal_id": "",
+        "action": "search",
+        "target": "youtube",
+        "success": true,
+        "result": "Searching Google for youtube.",
+        "error": "",
+        "started": "2026-08-17 10:36:45.718981",
+        "completed": "2026-08-17 10:36:45.881790",
+        "id": "d98726f6-a409-452f-81ab-89ff30b0a523"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_click",
+        "target": "first result",
+        "success": false,
+        "result": "UI element not found: first result",
+        "error": "UI element not found: first result",
+        "started": "2026-08-17 10:37:12.769518",
+        "completed": "2026-08-17 10:37:14.841754",
+        "id": "0871d90d-c3ec-41a5-a54b-fbc2801a8b38"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_click",
+        "target": "first result in youtube search",
+        "success": false,
+        "result": "UI element not found: first result in youtube search",
+        "error": "UI element not found: first result in youtube search",
+        "started": "2026-08-17 10:37:59.365374",
+        "completed": "2026-08-17 10:38:01.399652",
+        "id": "f7b10182-8e64-43d5-9678-ae466824c132"
+    },
+    {
+        "goal_id": "",
+        "action": "mouse_scroll",
+        "target": "-500",
+        "success": true,
+        "result": "Scrolled down 500 step(s).",
+        "error": "",
+        "started": "2026-08-17 10:38:03.643011",
+        "completed": "2026-08-17 10:38:03.643761",
+        "id": "3a370461-6b0a-475e-ba7c-726f5b48c10d"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "youtube",
+        "success": true,
+        "result": "Opened Youtube.",
+        "error": "",
+        "started": "2026-08-17 10:38:52.243902",
+        "completed": "2026-08-17 10:38:52.320181",
+        "id": "5247c5ac-ed7a-4328-88b0-241fc36763b1"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "youtube",
+        "success": true,
+        "result": "Opened Youtube.",
+        "error": "",
+        "started": "2026-08-17 10:39:47.523938",
+        "completed": "2026-08-17 10:39:47.596444",
+        "id": "783939c8-625e-496b-932c-781f8bed35cd"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_click",
+        "target": "first result",
+        "success": false,
+        "result": "UI element not found: first result",
+        "error": "UI element not found: first result",
+        "started": "2026-08-17 10:40:28.344390",
+        "completed": "2026-08-17 10:40:30.722198",
+        "id": "434e7892-54a3-4cfc-9f54-be60833b4e29"
+    },
+    {
+        "goal_id": "",
+        "action": "youtube_search",
+        "target": "",
+        "success": true,
+        "result": "Searching YouTube for .",
+        "error": "",
+        "started": "2026-08-17 10:40:32.635019",
+        "completed": "2026-08-17 10:40:32.712499",
+        "id": "d409e507-1a7d-40b4-83c0-8ae2ff2d72e5"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "youtube",
+        "success": true,
+        "result": "Opened Youtube.",
+        "error": "",
+        "started": "2026-08-17 10:41:08.877037",
+        "completed": "2026-08-17 10:41:08.928826",
+        "id": "bec2233f-ccbc-4036-a77d-2abeb2a823d2"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_type",
+        "target": "nach",
+        "success": true,
+        "result": "Typed 'nach'.",
+        "error": "",
+        "started": "2026-08-17 10:41:08.979310",
+        "completed": "2026-08-17 10:41:09.029161",
+        "id": "0317bcbe-444a-4e12-b626-9b48bc1b1376"
     }
 ]
