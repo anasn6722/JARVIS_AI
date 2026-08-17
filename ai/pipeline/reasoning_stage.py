@@ -16,7 +16,7 @@ class ReasoningStage:
             command = item["command"]
 
             # =================================================
-            # MULTI-AGENT DECISION OVERRIDE
+            # MULTI-AGENT RESULT
             # =================================================
 
             agent_result = item.get(
@@ -28,9 +28,9 @@ class ReasoningStage:
                 "",
             )
 
-            # -------------------------------------------------
-            # JARVIS INTERNAL UI NAVIGATION
-            # -------------------------------------------------
+            # =================================================
+            # UI AGENT
+            # =================================================
 
             if (
                 agent_name == "ui"
@@ -41,6 +41,7 @@ class ReasoningStage:
                     False,
                 )
             ):
+
                 decision = SimpleNamespace(
                     route="UI",
                     intent="navigate",
@@ -58,16 +59,40 @@ class ReasoningStage:
                     ),
                 )
 
-            # -------------------------------------------------
+            # =================================================
+            # MEMORY AGENT
+            # =================================================
+
+            elif (
+                agent_name == "memory"
+            ):
+                decision = SimpleNamespace(
+                    route="BUILTIN",
+                    intent=command.intent,
+                    agent="memory",
+                    confidence=1.0,
+                    tool=None,
+                    reason=(
+                        "Handled by MemoryAgent "
+                        "using existing memory handlers."
+                    ),
+                )
+
+            # =================================================
             # NORMAL REASONING
-            # -------------------------------------------------
+            # =================================================
 
             else:
+
                 decision = (
                     self.brain.reasoning.decide(
                         command
                     )
                 )
+
+            # =================================================
+            # STORE DECISION
+            # =================================================
 
             context.decisions.append(
                 {

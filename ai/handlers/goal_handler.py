@@ -118,7 +118,13 @@ class GoalHandler:
             task
         )
 
-        return f"Your next task is {task}."
+        task_text = getattr(
+            task,
+            "action",
+            str(task),
+        )
+        
+        return f"Your next task is {task_text}."
 
     def complete_task(self):
 
