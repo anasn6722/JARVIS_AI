@@ -91,10 +91,10 @@ class MainWindow(QMainWindow):
         )
 
         root_layout.setContentsMargins(
-            18,
             14,
-            18,
-            18,
+            12,
+            14,
+            14,
         )
 
         root_layout.setSpacing(
@@ -144,7 +144,7 @@ class MainWindow(QMainWindow):
         )
 
         content_layout.setSpacing(
-            12
+            8
         )
 
         # =====================================================
@@ -318,7 +318,7 @@ class MainWindow(QMainWindow):
         )
 
         frame.setFixedHeight(
-            72
+            64
         )
 
         layout = QHBoxLayout(
@@ -416,10 +416,6 @@ class MainWindow(QMainWindow):
             "CORE: STABLE"
         )
 
-        self.core_status_label.setProperty(
-            "class",
-            "statusOnline",
-        )
 
         self.core_status_label.setProperty(
             "class",

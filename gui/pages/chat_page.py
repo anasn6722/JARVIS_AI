@@ -1,6 +1,10 @@
 import time
 
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import (
+    Qt,
+    QThread,
+    QTimer,
+)
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
@@ -11,7 +15,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ai.brain import Brain
 from config.constants import (
     AWAKE_TIMEOUT,
     CHAT_TYPING_DELAY,
@@ -21,6 +24,7 @@ from core import app_state
 from core.app_state import speech_manager
 from gui.widgets.chat_container import ChatContainer
 from gui.widgets.command_console import CommandConsole
+from gui.workers.brain_worker import BrainWorker
 from voice.voice_manager import VoiceManager
 
 
@@ -30,9 +34,11 @@ class ChatPage(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.brain = Brain()
-
+        self.brain = None
         self.current_command = ""
+        self.brain_thread = None
+        self.brain_worker = None
+        self.processing = False
 
         app_state.state_machine.change(
             AssistantState.SLEEPING
@@ -68,54 +74,79 @@ class ChatPage(QWidget):
 
             QLabel#voiceStatus {
                 color: #73f7dc;
-                font-size: 11px;
+                font-size: 10px;
                 font-weight: 700;
                 letter-spacing: 1px;
+                padding: 3px 8px;
             }
 
             QLineEdit#commandInput {
-                background-color: rgba(4, 20, 26, 240);
+                background-color: rgba(4, 20, 26, 245);
                 color: #d7fbff;
                 border: 1px solid #1a5c68;
-                border-radius: 9px;
-                padding: 11px 14px;
+                border-radius: 11px;
+                padding: 12px 16px;
                 font-family: Consolas;
                 font-size: 12px;
+                selection-background-color: #176879;
             }
 
             QLineEdit#commandInput:focus {
                 border: 1px solid #43d9ea;
+                background-color: rgba(5, 25, 32, 250);
             }
 
             QPushButton#sendButton {
                 background-color: #0b4f5c;
                 color: #cfffff;
                 border: 1px solid #35bccc;
-                border-radius: 9px;
-                padding: 10px 20px;
+                border-radius: 10px;
+                padding: 11px 22px;
+                font-size: 11px;
                 font-weight: 700;
+                letter-spacing: 1px;
             }
 
             QPushButton#sendButton:hover {
                 background-color: #106d7b;
+                border: 1px solid #63e7f4;
             }
 
-            QPushButton#voiceButton {
-                background-color: #07434c;
-                color: #8df7ff;
-                border: 1px solid #31c4d4;
-                border-radius: 9px;
-                font-size: 18px;
+            QPushButton#sendButton:pressed {
+                background-color: #083842;
             }
 
-            QPushButton#voiceButton:hover {
-                background-color: #0c6370;
+            QPushButton#sendButton:disabled {
+                background-color: #15272b;
+                color: #55747b;
+                border: 1px solid #25434a;
             }
 
             QScrollArea#chatScroll {
-                border: 1px solid #123e48;
-                border-radius: 10px;
-                background: rgba(2, 11, 15, 190);
+                border: 1px solid #164f5c;
+                border-radius: 14px;
+                background: rgba(2, 11, 15, 210);
+            }
+
+            QScrollBar:vertical {
+                background: transparent;
+                width: 7px;
+                margin: 4px 2px 4px 2px;
+            }
+
+            QScrollBar::handle:vertical {
+                background: #164f5c;
+                min-height: 35px;
+                border-radius: 3px;
+            }
+
+            QScrollBar::handle:vertical:hover {
+                background: #287f8f;
+            }
+
+            QScrollBar::add-line:vertical,
+            QScrollBar::sub-line:vertical {
+                height: 0px;
             }
             """
         )
@@ -150,16 +181,20 @@ class ChatPage(QWidget):
         # MAIN LAYOUT
         # =====================================================
 
-        layout = QVBoxLayout(self)
-
-        layout.setContentsMargins(
-            20,
-            18,
-            20,
-            18,
+        layout = QVBoxLayout(
+            self
         )
 
-        layout.setSpacing(8)
+        layout.setContentsMargins(
+            16,
+            14,
+            16,
+            14,
+        )
+
+        layout.setSpacing(
+            7
+        )
 
         # =====================================================
         # HEADER
@@ -179,7 +214,7 @@ class ChatPage(QWidget):
 
         subtitle = QLabel(
             "NATURAL LANGUAGE INTERFACE // "
-            "VOICE + TEXT // DESKTOP CONTROL"
+            "TEXT COMMANDS // DESKTOP CONTROL"
         )
 
         subtitle.setObjectName(
@@ -279,18 +314,6 @@ class ChatPage(QWidget):
             "sendButton"
         )
 
-        self.voice_button = QPushButton(
-            "🎤"
-        )
-
-        self.voice_button.setObjectName(
-            "voiceButton"
-        )
-
-        self.voice_button.setFixedWidth(
-            58
-        )
-
         bottom_layout = QHBoxLayout()
 
         bottom_layout.setSpacing(
@@ -298,11 +321,8 @@ class ChatPage(QWidget):
         )
 
         bottom_layout.addWidget(
-            self.input_box
-        )
-
-        bottom_layout.addWidget(
-            self.voice_button
+            self.input_box,
+            1,
         )
 
         bottom_layout.addWidget(
@@ -393,12 +413,15 @@ class ChatPage(QWidget):
     # GENERATE RESPONSE
     # =========================================================
 
+    # =========================================================
+    # GENERATE RESPONSE
+    # =========================================================
+
     def generate_response(self):
         if (
             self.current_command
             == "__WAKE__"
         ):
-
             response = "Yes?"
 
             speech_manager.say(
@@ -428,47 +451,88 @@ class ChatPage(QWidget):
             return
 
         # =====================================================
-        # THINKING
+        # PREPARE
         # =====================================================
+
+        if self.processing:
+            return
+
+        self.processing = True
+
+        self.send_button.setEnabled(
+            False
+        )
 
         app_state.state_machine.change(
             AssistantState.THINKING
         )
 
         self.voice_status.setText(
-            "● THINKING"
+            "● PROCESSING"
         )
 
-        try:
-            response = self.brain.process(
-                self.current_command
-            )
+        self.command_console.show_processing()
 
-            print(
-                "Brain response:",
-                response,
-            )
+        # =====================================================
+        # WORKER THREAD
+        # =====================================================
 
-        except Exception as error:
-            print(
-                "Brain error:",
-                error,
-            )
+        self.brain_thread = QThread(
+            self
+        )
 
-            response = (
-                "Sorry, I couldn't "
-                "process that request."
-            )
+        self.brain_worker = BrainWorker(
+            self.current_command,
+        )
 
-            self.command_console.show_error(
-                response
-            )
+        self.brain_worker.moveToThread(
+            self.brain_thread
+        )
 
+        self.brain_thread.started.connect(
+            self.brain_worker.run
+        )
+
+        self.brain_worker.finished.connect(
+            self.on_brain_finished
+        )
+
+        self.brain_worker.failed.connect(
+            self.on_brain_failed
+        )
+
+        self.brain_worker.finished.connect(
+            self.brain_thread.quit
+        )
+
+        self.brain_worker.failed.connect(
+            self.brain_thread.quit
+        )
+
+        self.brain_thread.finished.connect(
+            self._brain_thread_finished
+        )
+
+        self.brain_thread.start()
+
+    # =========================================================
+    # BRAIN FINISHED
+    # =========================================================
+
+    def on_brain_finished(
+        self,
+        response,
+    ):
         if not response:
             response = (
                 "Sorry, I couldn't "
                 "process that request."
             )
+
+        print(
+            "Brain response:",
+            response,
+        )
 
         # =====================================================
         # COMMAND CONSOLE
@@ -507,6 +571,65 @@ class ChatPage(QWidget):
         )
 
     # =========================================================
+    # BRAIN ERROR
+    # =========================================================
+
+    def on_brain_failed(
+        self,
+        error,
+    ):
+        print(
+            "Brain error:",
+            error,
+        )
+
+        response = (
+            "Sorry, I couldn't "
+            "process that request."
+        )
+
+        self.command_console.show_error(
+            response
+        )
+
+        self.chat_container.add_message(
+            "🤖 JARVIS",
+            response,
+            False,
+        )
+
+        self.scroll_to_bottom()
+
+        self.voice_status.setText(
+            "● ERROR"
+        )
+
+        speech_manager.say(
+            response
+        )
+
+        app_state.last_active = (
+            time.time()
+        )
+
+    # =========================================================
+    # WORKER CLEANUP
+    # =========================================================
+
+    def _brain_thread_finished(self):
+        self.processing = False
+
+        self.send_button.setEnabled(
+            True
+        )
+
+        self.brain_worker.deleteLater()
+        self.brain_thread.deleteLater()
+
+        self.brain_worker = None
+        self.brain_thread = None
+
+    # =========================================================
     # WELCOME
     # =========================================================
 
@@ -533,40 +656,40 @@ class ChatPage(QWidget):
     # VOICE COMMAND
     # =========================================================
 
-    def voice_finished(self, text):
+    def voice_finished(
+        self,
+        text,
+    ):
+        app_state.last_active = (
+            time.time()
+        )
 
-        app_state.last_active = time.time()
-    
         self.animation_timer.stop()
-    
-        self.voice_button.setEnabled(
-            True
-        )
-    
+
         self.voice_status.setText(
-            "Ready"
+            "● READY"
         )
-    
+
         if not text:
-        
+
             app_state.state_machine.change(
                 AssistantState.AWAKE
             )
-    
+
             self.chat_container.add_message(
                 "🤖 JARVIS",
                 "Sorry, I couldn't hear you.",
-                False
+                False,
             )
-    
+
             self.scroll_to_bottom()
-    
+
             return
-    
+
         self.input_box.setText(
             text
         )
-    
+
         self.send_message()
 
     # =========================================================
@@ -671,7 +794,17 @@ class ChatPage(QWidget):
     # CLOSE
     # =========================================================
 
-    def closeEvent(self, event):
+    def closeEvent(
+        self,
+        event,
+    ):
+        if (
+            self.brain_thread is not None
+            and self.brain_thread.isRunning()
+        ):
+            self.brain_thread.quit()
+            self.brain_thread.wait()
+
         if hasattr(
             self,
             "voice_manager",

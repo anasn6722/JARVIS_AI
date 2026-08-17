@@ -1,4 +1,6 @@
+import math
 import time
+from array import array
 
 import speech_recognition as sr
 
@@ -9,6 +11,7 @@ from config.constants import (
 from config.states import AssistantState
 from core import app_state
 from core.logger import logger
+from voice.language_manager import language_manager
 
 
 class Listener:
@@ -27,6 +30,7 @@ class Listener:
 
         self.last_text = ""
         self.last_time = 0.0
+        self.input_level = 0
 
     # =========================================================
     # LISTEN
@@ -76,6 +80,11 @@ class Listener:
                     timeout=VOICE_TIMEOUT,
                     phrase_time_limit=VOICE_PHRASE_LIMIT,
                 )
+                self.input_level = (
+                    self._calculate_audio_level(
+                        audio
+                    )
+                )
 
             # -----------------------------------------------------
             # RECOGNIZE
@@ -97,7 +106,8 @@ class Listener:
             )
 
             text = self.recognizer.recognize_google(
-                audio
+                audio,
+                language=language_manager.recognition_code(),
             )
 
             audio = None
@@ -195,3 +205,99 @@ class Listener:
             )
 
             return ""
+
+    # =========================================================
+    # AUDIO LEVEL
+    # =========================================================
+
+    @staticmethod
+    def _calculate_audio_level(audio):
+        """Estimate the RMS level of a captured audio clip."""
+
+        raw = audio.get_raw_data()
+
+        if not raw:
+            return 0
+
+        width = audio.sample_width
+
+        try:
+            if width == 1:
+                samples = array(
+                    "B",
+                    raw,
+                )
+
+                if not samples:
+                    return 0
+
+                values = [
+                    sample - 128
+                    for sample in samples
+                ]
+
+                max_amplitude = 128
+
+            elif width == 2:
+                samples = array(
+                    "h"
+                )
+
+                samples.frombytes(
+                    raw
+                )
+
+                if not samples:
+                    return 0
+
+                values = samples
+                max_amplitude = 32768
+
+            elif width == 4:
+                samples = array(
+                    "i"
+                )
+
+                samples.frombytes(
+                    raw
+                )
+
+                if not samples:
+                    return 0
+
+                values = samples
+                max_amplitude = 2147483648
+
+            else:
+                return 0
+
+            mean_square = sum(
+                sample * sample
+                for sample in values
+            ) / len(values)
+
+            rms = math.sqrt(
+                mean_square
+            )
+
+            # Amplify the normalized RMS so normal speech
+            # produces a useful 0-100 HUD range.
+            level = (
+                rms
+                / max_amplitude
+                * 100
+                * 10
+            )
+
+            return int(
+                max(
+                    0,
+                    min(
+                        level,
+                        100,
+                    ),
+                )
+            )
+
+        except Exception:
+            return 0

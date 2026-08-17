@@ -71,7 +71,7 @@ class MemoryCard(QFrame):
         )
 
         layout.setSpacing(
-            2
+            12
         )
 
         title_label = QLabel(
@@ -164,6 +164,19 @@ class MemoryPage(QWidget):
                 border-radius: 14px;
             }
 
+            QLabel#memoryInfoName {
+                color: #4f8f9b;
+                font-size: 9px;
+                font-weight: 700;
+                letter-spacing: 1px;
+            }
+
+            QLabel#memoryInfoValue {
+                color: #d8fbff;
+                font-size: 10px;
+                font-weight: 600;
+            }
+
             QLabel#panelTitle {
                 color: #7cecff;
                 font-size: 12px;
@@ -253,8 +266,8 @@ class MemoryPage(QWidget):
         )
 
         subtitle = QLabel(
-            "PERSISTENT KNOWLEDGE // GOALS // "
-            "EXECUTION HISTORY"
+            "PERSISTENT KNOWLEDGE // RUNTIME // "
+            "GOALS // EXECUTION"
         )
 
         subtitle.setObjectName(
@@ -280,7 +293,7 @@ class MemoryPage(QWidget):
         cards = QGridLayout()
 
         cards.setHorizontalSpacing(
-            10
+            12
         )
 
         cards.setVerticalSpacing(
@@ -337,6 +350,132 @@ class MemoryPage(QWidget):
 
         layout.addLayout(
             cards
+        )
+
+        # =====================================================
+        # RUNTIME + PROFILE
+        # =====================================================
+
+        info_panels = QHBoxLayout()
+
+        info_panels.setSpacing(
+            12
+        )
+
+        # -----------------------------------------------------
+        # RUNTIME MEMORY
+        # -----------------------------------------------------
+
+        runtime_panel, runtime_layout = (
+            self._create_info_panel(
+                "RUNTIME MEMORY"
+            )
+        )
+
+        runtime_row, self.runtime_app = (
+            self._memory_info_row(
+                "LAST APP"
+            )
+        )
+
+        runtime_layout.addLayout(
+            runtime_row
+        )
+
+        runtime_row, self.runtime_website = (
+            self._memory_info_row(
+                "LAST WEBSITE"
+            )
+        )
+
+        runtime_layout.addLayout(
+            runtime_row
+        )
+
+        runtime_row, self.runtime_search = (
+            self._memory_info_row(
+                "LAST SEARCH"
+            )
+        )
+
+        runtime_layout.addLayout(
+            runtime_row
+        )
+
+        runtime_row, self.runtime_file = (
+            self._memory_info_row(
+                "LAST FILE"
+            )
+        )
+
+        runtime_layout.addLayout(
+            runtime_row
+        )
+
+        runtime_row, self.runtime_tasks = (
+            self._memory_info_row(
+                "LAST TASKS"
+            )
+        )
+
+        runtime_layout.addLayout(
+            runtime_row
+        )
+
+        # -----------------------------------------------------
+        # USER PROFILE
+        # -----------------------------------------------------
+
+        profile_panel, profile_layout = (
+            self._create_info_panel(
+                "USER PROFILE"
+            )
+        )
+
+        profile_row, self.profile_name = (
+            self._memory_info_row(
+                "NAME"
+            )
+        )
+
+        profile_layout.addLayout(
+            profile_row
+        )
+
+        profile_row, self.profile_preferences = (
+            self._memory_info_row(
+                "PREFERENCES",
+                "0",
+            )
+        )
+
+        profile_layout.addLayout(
+            profile_row
+        )
+
+        profile_row, self.profile_favorites = (
+            self._memory_info_row(
+                "FAVORITES",
+                "0",
+            )
+        )
+
+        profile_layout.addLayout(
+            profile_row
+        )
+
+        info_panels.addWidget(
+            runtime_panel,
+            1,
+        )
+
+        info_panels.addWidget(
+            profile_panel,
+            1,
+        )
+
+        layout.addLayout(
+            info_panels
         )
 
         # =====================================================
@@ -474,7 +613,7 @@ class MemoryPage(QWidget):
         )
 
         layout.setSpacing(
-            8
+            12
         )
 
         header = QHBoxLayout()
@@ -515,6 +654,110 @@ class MemoryPage(QWidget):
         }
 
     # =========================================================
+    # RUNTIME / PROFILE PANELS
+    # =========================================================
+
+    @staticmethod
+    def _create_info_panel(title):
+        frame = QFrame()
+
+        frame.setObjectName(
+            "memoryPanel"
+        )
+
+        layout = QVBoxLayout(
+            frame
+        )
+
+        layout.setContentsMargins(
+            14,
+            12,
+            14,
+            12,
+        )
+
+        layout.setSpacing(
+            10
+        )
+
+        header = QHBoxLayout()
+
+        title_label = QLabel(
+            title
+        )
+
+        title_label.setObjectName(
+            "panelTitle"
+        )
+
+        status = QLabel(
+            "● LIVE"
+        )
+
+        status.setObjectName(
+            "panelStatus"
+        )
+
+        header.addWidget(
+            title_label
+        )
+
+        header.addStretch()
+
+        header.addWidget(
+            status
+        )
+
+        layout.addLayout(
+            header
+        )
+
+        return frame, layout
+
+    @staticmethod
+    def _memory_info_row(
+        name,
+        value="—",
+    ):
+        row = QHBoxLayout()
+
+        name_label = QLabel(
+            name
+        )
+
+        name_label.setObjectName(
+            "memoryInfoName"
+        )
+
+        value_label = QLabel(
+            str(value)
+        )
+
+        value_label.setObjectName(
+            "memoryInfoValue"
+        )
+
+        value_label.setAlignment(
+            Qt.AlignmentFlag.AlignRight
+        )
+
+        value_label.setWordWrap(
+            True
+        )
+
+        row.addWidget(
+            name_label
+        )
+
+        row.addStretch()
+
+        row.addWidget(
+            value_label
+        )
+
+        return row, value_label
+
+    # =========================================================
     # REFRESH MEMORY
     # =========================================================
 
@@ -524,6 +767,41 @@ class MemoryPage(QWidget):
         try:
             self.goal_memory.load()
             self.execution_memory.load()
+            # =================================================
+            # RUNTIME / PROFILE
+            # =================================================
+
+            self.runtime_app.setText(
+                "—"
+            )
+
+            self.runtime_website.setText(
+                "—"
+            )
+
+            self.runtime_search.setText(
+                "—"
+            )
+
+            self.runtime_file.setText(
+                "—"
+            )
+
+            self.runtime_tasks.setText(
+                "—"
+            )
+
+            self.profile_name.setText(
+                "—"
+            )
+
+            self.profile_preferences.setText(
+                "0"
+            )
+
+            self.profile_favorites.setText(
+                "0"
+            )
 
             goals = self.goal_memory.all()
             executions = (

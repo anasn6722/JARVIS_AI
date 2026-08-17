@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -11,7 +11,17 @@ from core.hud_state import hud_state
 
 
 class HudActivityPanel(QFrame):
-    """Live JARVIS workflow activity monitor."""
+    """Cinematic JARVIS command pipeline and live workflow monitor."""
+
+    PIPELINE = (
+        "VOICE INPUT",
+        "COMMAND",
+        "REASONING",
+        "PLANNER",
+        "EXECUTION",
+        "VERIFICATION",
+        "RESPONSE",
+    )
 
     def __init__(self):
         super().__init__()
@@ -21,12 +31,12 @@ class HudActivityPanel(QFrame):
         )
 
         self.setMinimumWidth(320)
-        self.setMaximumWidth(370)
+        self.setMaximumWidth(380)
 
         self.setStyleSheet(
             """
             QFrame#hudActivityPanel {
-                background-color: rgba(5, 18, 24, 235);
+                background-color: rgba(5, 18, 24, 238);
                 border: 1px solid #175360;
                 border-radius: 14px;
             }
@@ -40,33 +50,58 @@ class HudActivityPanel(QFrame):
 
             QLabel#activityState {
                 color: #73f7dc;
-                font-size: 18px;
+                font-size: 17px;
+                font-weight: 700;
+            }
+
+            QLabel#stageLabel {
+                color: #4f8f9b;
+                font-size: 8px;
+                font-weight: 700;
+                letter-spacing: 1px;
+            }
+
+            QLabel#stageIdle {
+                color: #315861;
+                font-size: 9px;
+                font-weight: 700;
+            }
+
+            QLabel#stageActive {
+                color: #7cecff;
+                font-size: 9px;
+                font-weight: 700;
+            }
+
+            QLabel#stageComplete {
+                color: #73f7dc;
+                font-size: 9px;
                 font-weight: 700;
             }
 
             QLabel#activityLabel {
                 color: #4f8f9b;
-                font-size: 9px;
+                font-size: 8px;
                 font-weight: 700;
                 letter-spacing: 1px;
             }
 
             QLabel#activityValue {
                 color: #d9faff;
-                font-size: 11px;
+                font-size: 10px;
                 font-weight: 600;
             }
 
             QLabel#eventItem {
-                color: #89dce7;
-                font-size: 10px;
+                color: #73cbd7;
+                font-size: 9px;
             }
 
             QProgressBar {
                 background-color: #061218;
                 border: 1px solid #123e48;
                 border-radius: 5px;
-                height: 8px;
+                height: 7px;
             }
 
             QProgressBar::chunk {
@@ -76,36 +111,34 @@ class HudActivityPanel(QFrame):
             """
         )
 
-        layout = QVBoxLayout(self)
-
-        layout.setContentsMargins(
-            18,
-            16,
-            18,
-            16,
+        layout = QVBoxLayout(
+            self
         )
 
-        layout.setSpacing(8)
+        layout.setContentsMargins(
+            16,
+            14,
+            16,
+            14,
+        )
+
+        layout.setSpacing(
+            8
+        )
 
         # =====================================================
-        # TITLE
+        # HEADER
         # =====================================================
+
+        header = QHBoxLayout()
 
         title = QLabel(
-            "LIVE SYSTEM ACTIVITY"
+            "COMMAND PIPELINE"
         )
 
         title.setObjectName(
             "activityTitle"
         )
-
-        layout.addWidget(
-            title
-        )
-
-        # =====================================================
-        # STATE
-        # =====================================================
 
         self.state_label = QLabel(
             "● IDLE"
@@ -115,12 +148,118 @@ class HudActivityPanel(QFrame):
             "activityState"
         )
 
-        layout.addWidget(
+        header.addWidget(
+            title
+        )
+
+        header.addStretch()
+
+        header.addWidget(
             self.state_label
         )
 
+        layout.addLayout(
+            header
+        )
+
         # =====================================================
-        # EVENT
+        # PIPELINE
+        # =====================================================
+
+        pipeline_label = QLabel(
+            "EXECUTION FLOW"
+        )
+
+        pipeline_label.setObjectName(
+            "activityLabel"
+        )
+
+        layout.addWidget(
+            pipeline_label
+        )
+
+        self.stage_labels = {}
+
+        for index, stage in enumerate(
+            self.PIPELINE
+        ):
+
+            row = QHBoxLayout()
+
+            row.setSpacing(
+                7
+            )
+
+            indicator = QLabel(
+                "○"
+            )
+
+            indicator.setObjectName(
+                "stageIdle"
+            )
+
+            name = QLabel(
+                stage
+            )
+
+            name.setObjectName(
+                "stageIdle"
+            )
+
+            row.addWidget(
+                indicator
+            )
+
+            row.addWidget(
+                name
+            )
+
+            row.addStretch()
+
+            step_number = QLabel(
+                f"{index + 1:02d}"
+            )
+
+            step_number.setObjectName(
+                "stageIdle"
+            )
+
+            row.addWidget(
+                step_number
+            )
+
+            layout.addLayout(
+                row
+            )
+
+            self.stage_labels[
+                stage
+            ] = (
+                indicator,
+                name,
+                step_number,
+            )
+
+        # =====================================================
+        # DIVIDER
+        # =====================================================
+
+        divider = QFrame()
+
+        divider.setFixedHeight(
+            1
+        )
+
+        divider.setStyleSheet(
+            "background:#123e48;"
+        )
+
+        layout.addWidget(
+            divider
+        )
+
+        # =====================================================
+        # CURRENT EVENT
         # =====================================================
 
         event_label = QLabel(
@@ -283,7 +422,7 @@ class HudActivityPanel(QFrame):
         )
 
         layout.addSpacing(
-            8
+            5
         )
 
         layout.addWidget(
@@ -293,7 +432,7 @@ class HudActivityPanel(QFrame):
         self.events_layout = QVBoxLayout()
 
         self.events_layout.setSpacing(
-            4
+            3
         )
 
         layout.addLayout(
@@ -302,22 +441,244 @@ class HudActivityPanel(QFrame):
 
         layout.addStretch()
 
+        # =====================================================
+        # REFRESH TIMER
+        # =====================================================
+
+        self.refresh_timer = QTimer(
+            self
+        )
+
+        self.refresh_timer.timeout.connect(
+            self.refresh
+        )
+
+        self.refresh_timer.start(
+            120
+        )
+
         self.refresh()
+
+    # =========================================================
+    # STAGE DETECTION
+    # =========================================================
+
+    @staticmethod
+    def _detect_stage(
+        snapshot,
+    ):
+        event = str(
+            snapshot.get(
+                "event",
+                "",
+            )
+        ).upper()
+
+        state = str(
+            snapshot.get(
+                "state",
+                "",
+            )
+        ).upper()
+
+        action = str(
+            snapshot.get(
+                "action",
+                "",
+            )
+        ).upper()
+
+        combined = (
+            f"{event} "
+            f"{state} "
+            f"{action}"
+        )
+
+        if any(
+            keyword in combined
+            for keyword in (
+                "VOICE",
+                "LISTEN",
+            )
+        ):
+            return "VOICE INPUT"
+
+        if "COMMAND" in combined:
+            return "COMMAND"
+
+        if (
+            "REASON" in combined
+            or "THINK" in combined
+        ):
+            return "REASONING"
+
+        if "PLAN" in combined:
+            return "PLANNER"
+
+        if (
+            "EXECUT" in combined
+            or action
+        ):
+            return "EXECUTION"
+
+        if "VERIF" in combined:
+            return "VERIFICATION"
+
+        if (
+            "RESPONSE" in combined
+            or "FINISHED" in combined
+        ):
+            return "RESPONSE"
+
+        return None
+
+    # =========================================================
+    # PIPELINE VISUAL
+    # =========================================================
+
+    def _update_pipeline(
+        self,
+        snapshot,
+    ):
+        current_stage = (
+            self._detect_stage(
+                snapshot
+            )
+        )
+
+        state = str(
+            snapshot.get(
+                "state",
+                "IDLE",
+            )
+        ).upper()
+
+        if state == "ERROR":
+            current_index = len(
+                self.PIPELINE
+            ) - 1
+
+        elif current_stage in self.PIPELINE:
+
+            current_index = (
+                self.PIPELINE.index(
+                    current_stage
+                )
+            )
+
+        else:
+            current_index = -1
+
+        for index, stage in enumerate(
+            self.PIPELINE
+        ):
+
+            indicator, name, number = (
+                self.stage_labels[
+                    stage
+                ]
+            )
+
+            if index < current_index:
+
+                indicator.setText(
+                    "✓"
+                )
+
+                indicator.setObjectName(
+                    "stageComplete"
+                )
+
+                name.setObjectName(
+                    "stageComplete"
+                )
+
+                number.setObjectName(
+                    "stageComplete"
+                )
+
+            elif index == current_index:
+
+                indicator.setText(
+                    "◉"
+                )
+
+                indicator.setObjectName(
+                    "stageActive"
+                )
+
+                name.setObjectName(
+                    "stageActive"
+                )
+
+                number.setObjectName(
+                    "stageActive"
+                )
+
+            else:
+
+                indicator.setText(
+                    "○"
+                )
+
+                indicator.setObjectName(
+                    "stageIdle"
+                )
+
+                name.setObjectName(
+                    "stageIdle"
+                )
+
+                number.setObjectName(
+                    "stageIdle"
+                )
+
+            for widget in (
+                indicator,
+                name,
+                number,
+            ):
+
+                widget.style().unpolish(
+                    widget
+                )
+
+                widget.style().polish(
+                    widget
+                )
+
+                widget.update()
 
     # =========================================================
     # REFRESH
     # =========================================================
 
     def refresh(self):
-        """Refresh the panel from the global HUD state."""
+        """Refresh the live pipeline from HudState."""
 
-        snapshot = hud_state.snapshot()
+        snapshot = (
+            hud_state.snapshot()
+        )
 
-        state = snapshot["state"]
-        event = snapshot["event"]
-        action = snapshot["action"]
-        target = snapshot["target"]
-        progress = snapshot["progress"]
+        state = snapshot[
+            "state"
+        ]
+
+        event = snapshot[
+            "event"
+        ]
+
+        action = snapshot[
+            "action"
+        ]
+
+        target = snapshot[
+            "target"
+        ]
+
+        progress = snapshot[
+            "progress"
+        ]
 
         # -----------------------------------------------------
         # STATE
@@ -332,7 +693,8 @@ class HudActivityPanel(QFrame):
         # -----------------------------------------------------
 
         self.event_value.setText(
-            event or "—"
+            event
+            or "—"
         )
 
         # -----------------------------------------------------
@@ -340,7 +702,8 @@ class HudActivityPanel(QFrame):
         # -----------------------------------------------------
 
         self.action_value.setText(
-            action or "—"
+            action
+            or "—"
         )
 
         # -----------------------------------------------------
@@ -348,7 +711,8 @@ class HudActivityPanel(QFrame):
         # -----------------------------------------------------
 
         self.target_value.setText(
-            target or "—"
+            target
+            or "—"
         )
 
         # -----------------------------------------------------
@@ -361,6 +725,14 @@ class HudActivityPanel(QFrame):
 
         self.progress_value.setText(
             f"{progress}%"
+        )
+
+        # -----------------------------------------------------
+        # PIPELINE
+        # -----------------------------------------------------
+
+        self._update_pipeline(
+            snapshot
         )
 
         # -----------------------------------------------------

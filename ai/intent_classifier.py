@@ -58,6 +58,7 @@ class IntentClassifier:
         "close the active window",
         "close the current window",
     )
+    
 
     # =====================================================
     # MOUSE CONTROL
@@ -335,6 +336,70 @@ class IntentClassifier:
 
         text = text.lower().strip()
         text = self.normalize(text)
+
+        # =====================================================
+        # COMPOUND DESKTOP WORKFLOWS
+        # =====================================================
+
+        # -----------------------------------------------------
+        # Open + click
+        # -----------------------------------------------------
+
+        if (
+            text.startswith(
+                (
+                    "open ",
+                    "launch ",
+                    "start ",
+                    "run ",
+                )
+            )
+            and "click" in text
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "ui_find",
+            }
+
+        # -----------------------------------------------------
+        # Open + type
+        # -----------------------------------------------------
+
+        if (
+            text.startswith(
+                (
+                    "open ",
+                    "launch ",
+                    "start ",
+                    "run ",
+                )
+            )
+            and "type" in text
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "ui_find",
+            }
+
+        # -----------------------------------------------------
+        # Open + press
+        # -----------------------------------------------------
+
+        if (
+            text.startswith(
+                (
+                    "open ",
+                    "launch ",
+                    "start ",
+                    "run ",
+                )
+            )
+            and "press" in text
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "ui_find",
+            }
 
         # =====================================================
         # REFERENCE / CONTEXT COMMANDS

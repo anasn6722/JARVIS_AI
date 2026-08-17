@@ -1,4 +1,6 @@
 import math
+import random
+from datetime import datetime
 
 from PySide6.QtCore import (
     Qt,
@@ -12,6 +14,7 @@ from PySide6.QtGui import (
 )
 from PySide6.QtWidgets import (
     QFrame,
+    QGridLayout,
     QHBoxLayout,
     QLabel,
     QProgressBar,
@@ -21,46 +24,43 @@ from PySide6.QtWidgets import (
 
 from config.states import AssistantState
 from core import app_state
+from core.hud_state import hud_state
+from voice.language_manager import language_manager
 
 
-class VoiceCoreVisual(QWidget):
-    """Animated holographic microphone core."""
+class CinematicVoiceCore(QWidget):
+    """Cinematic JARVIS-inspired voice core visualization."""
 
     STATE_CONFIG = {
         AssistantState.SLEEPING: {
-            "label": "SLEEPING",
-            "color": QColor(70, 120, 130),
-            "speed": 0.35,
-            "pulse": 2,
-            "glow": 0.5,
+            "label": "STANDBY",
+            "speed": 0.30,
+            "pulse": 2.0,
+            "glow": 0.45,
         },
         AssistantState.AWAKE: {
             "label": "AWAKE",
-            "color": QColor(70, 220, 235),
-            "speed": 0.9,
-            "pulse": 5,
-            "glow": 1.0,
+            "speed": 0.75,
+            "pulse": 4.5,
+            "glow": 0.85,
         },
         AssistantState.LISTENING: {
             "label": "LISTENING",
-            "color": QColor(90, 245, 205),
-            "speed": 2.0,
-            "pulse": 12,
-            "glow": 1.3,
+            "speed": 1.80,
+            "pulse": 11.0,
+            "glow": 1.35,
         },
         AssistantState.THINKING: {
             "label": "PROCESSING",
-            "color": QColor(90, 195, 255),
-            "speed": 2.5,
-            "pulse": 9,
-            "glow": 1.15,
+            "speed": 2.60,
+            "pulse": 8.0,
+            "glow": 1.10,
         },
         AssistantState.SPEAKING: {
             "label": "SPEAKING",
-            "color": QColor(130, 240, 255),
-            "speed": 2.2,
-            "pulse": 14,
-            "glow": 1.35,
+            "speed": 2.10,
+            "pulse": 13.0,
+            "glow": 1.40,
         },
     }
 
@@ -68,15 +68,23 @@ class VoiceCoreVisual(QWidget):
         super().__init__()
 
         self.setMinimumSize(
-            360,
-            360,
+            520,
+            520,
         )
 
-        self.angle = 0.0
-        self.wave = 0.0
         self.current_state = (
             AssistantState.SLEEPING
         )
+
+        self.angle = 0.0
+        self.wave_phase = 0.0
+        self.pulse_phase = 0.0
+
+        self.audio_level = 16.0
+
+        self.particles = []
+
+        self._create_particles()
 
         self.timer = QTimer(self)
 
@@ -85,6 +93,49 @@ class VoiceCoreVisual(QWidget):
         )
 
         self.timer.start(30)
+
+    # =========================================================
+    # PARTICLES
+    # =========================================================
+
+    def _create_particles(self):
+        self.particles.clear()
+
+        for _ in range(70):
+            angle = random.uniform(
+                0,
+                math.tau,
+            )
+
+            distance = random.uniform(
+                140,
+                265,
+            )
+
+            speed = random.uniform(
+                0.0008,
+                0.0020,
+            )
+
+            self.particles.append(
+                {
+                    "angle": angle,
+                    "distance": distance,
+                    "speed": speed,
+                    "size": random.uniform(
+                        1.0,
+                        2.4,
+                    ),
+                    "phase": random.uniform(
+                        0,
+                        math.tau,
+                    ),
+                }
+            )
+
+    # =========================================================
+    # STATE
+    # =========================================================
 
     def set_state(self, state):
         if not isinstance(
@@ -95,6 +146,23 @@ class VoiceCoreVisual(QWidget):
 
         self.current_state = state
         self.update()
+
+    # =========================================================
+    # AUDIO LEVEL
+    # =========================================================
+
+    def set_audio_level(self, level):
+        self.audio_level = max(
+            0.0,
+            min(
+                float(level),
+                100.0,
+            ),
+        )
+
+    # =========================================================
+    # ANIMATION
+    # =========================================================
 
     def animate(self):
         config = self.STATE_CONFIG.get(
@@ -109,9 +177,26 @@ class VoiceCoreVisual(QWidget):
             + config["speed"]
         ) % 360
 
-        self.wave += 0.08
+        self.wave_phase += 0.14
+
+        self.pulse_phase += 0.08
+
+        if self.current_state not in {
+            AssistantState.LISTENING,
+            AssistantState.SPEAKING,
+        }:
+            self.audio_level *= 0.92
+        for particle in self.particles:
+            particle["angle"] += (
+                particle["speed"]
+                * config["speed"]
+            )
 
         self.update()
+
+    # =========================================================
+    # PAINT
+    # =========================================================
 
     def paintEvent(self, event):
         del event
@@ -135,38 +220,75 @@ class VoiceCoreVisual(QWidget):
             ],
         )
 
-        color = config["color"]
+        # -----------------------------------------------------
+        # Cinematic cyan palette
+        # -----------------------------------------------------
+
+        color = QColor(
+            90,
+            230,
+            245,
+        )
+
+        dim_color = QColor(
+            56,
+            125,
+            136,
+        )
+
+        bright_color = QColor(
+            150,
+            255,
+            255,
+        )
 
         pulse = (
-            math.sin(self.wave)
+            math.sin(
+                self.pulse_phase
+            )
             * config["pulse"]
         )
 
-        base_radius = min(
-            width,
-            height,
-        ) * 0.18
+        core_radius = (
+            58
+            + pulse * 0.55
+            + (
+                self.audio_level
+                * 0.055
+                if self.current_state
+                in {
+                    AssistantState.LISTENING,
+                    AssistantState.SPEAKING,
+                }
+                else 0
+            )
+        )
 
         # =====================================================
-        # GLOW
+        # OUTER GLOW
         # =====================================================
 
-        for index in range(8):
-
+        for index in range(12):
             radius = (
-                base_radius
-                + 58
-                - index * 7
-                + pulse * 0.2
+                72
+                + index * 8
+                + pulse * 0.12
             )
 
             alpha = int(
                 max(
-                    4,
-                    34
+                    3,
+                    25
                     * config["glow"]
-                    * (1 - index / 9),
+                    * (
+                        1
+                        - index / 13
+                    ),
                 )
+            )
+
+            painter.setPen(
+                Qt.PenStyle.NoPen
             )
 
             painter.setBrush(
@@ -178,10 +300,6 @@ class VoiceCoreVisual(QWidget):
                 )
             )
 
-            painter.setPen(
-                Qt.PenStyle.NoPen
-            )
-
             painter.drawEllipse(
                 cx - radius,
                 cy - radius,
@@ -190,100 +308,359 @@ class VoiceCoreVisual(QWidget):
             )
 
         # =====================================================
-        # OUTER RINGS
+        # PARTICLE FIELD
         # =====================================================
 
-        painter.setBrush(
-            Qt.BrushStyle.NoBrush
+        for particle in self.particles:
+            distance = particle[
+                "distance"
+            ]
+
+            particle_angle = (
+                particle["angle"]
+                + self.angle * 0.004
+            )
+
+            px = (
+                cx
+                + math.cos(
+                    particle_angle
+                )
+                * distance
+            )
+
+            py = (
+                cy
+                + math.sin(
+                    particle_angle
+                )
+                * distance
+            )
+
+            twinkle = (
+                0.55
+                + 0.45
+                * math.sin(
+                    self.wave_phase
+                    + particle["phase"]
+                )
+            )
+
+            alpha = int(
+                30
+                + 85
+                * twinkle
+                * config["glow"]
+            )
+
+            painter.setPen(
+                Qt.PenStyle.NoPen
+            )
+
+            painter.setBrush(
+                QColor(
+                    bright_color.red(),
+                    bright_color.green(),
+                    bright_color.blue(),
+                    min(
+                        alpha,
+                        190,
+                    ),
+                )
+            )
+
+            size = particle["size"]
+
+            painter.drawEllipse(
+                px - size,
+                py - size,
+                size * 2,
+                size * 2,
+            )
+
+        # =====================================================
+        # OUTER TACTICAL RINGS
+        # =====================================================
+
+        self._draw_ring(
+            painter,
+            cx,
+            cy,
+            235,
+            dim_color,
+            1,
+            65,
         )
+
+        self._draw_ring(
+            painter,
+            cx,
+            cy,
+            205,
+            color,
+            1,
+            90,
+        )
+
+        self._draw_arc(
+            painter,
+            cx,
+            cy,
+            252,
+            self.angle,
+            70,
+            color,
+            2,
+            190,
+        )
+
+        self._draw_arc(
+            painter,
+            cx,
+            cy,
+            252,
+            self.angle + 170,
+            45,
+            color,
+            2,
+            150,
+        )
+
+        self._draw_arc(
+            painter,
+            cx,
+            cy,
+            224,
+            -self.angle * 1.35,
+            100,
+            bright_color,
+            2,
+            185,
+        )
+
+        self._draw_arc(
+            painter,
+            cx,
+            cy,
+            188,
+            self.angle * 1.8,
+            90,
+            color,
+            2,
+            170,
+        )
+
+        # =====================================================
+        # RADIAL TICKS
+        # =====================================================
+
+        for index in range(36):
+            tick_angle = (
+                math.radians(
+                    index * 10
+                )
+                + math.radians(
+                    self.angle * 0.18
+                )
+            )
+
+            inner = (
+                198
+                if index % 3
+                else 194
+            )
+
+            outer = (
+                204
+                if index % 3
+                else 214
+            )
+
+            x1 = (
+                cx
+                + math.cos(tick_angle)
+                * inner
+            )
+
+            y1 = (
+                cy
+                + math.sin(tick_angle)
+                * inner
+            )
+
+            x2 = (
+                cx
+                + math.cos(tick_angle)
+                * outer
+            )
+
+            y2 = (
+                cy
+                + math.sin(tick_angle)
+                * outer
+            )
+
+            alpha = (
+                120
+                if index % 3
+                else 210
+            )
+
+            painter.setPen(
+                QPen(
+                    QColor(
+                        color.red(),
+                        color.green(),
+                        color.blue(),
+                        alpha,
+                    ),
+                    1,
+                )
+            )
+
+            painter.drawLine(
+                int(x1),
+                int(y1),
+                int(x2),
+                int(y2),
+            )
+
+        # =====================================================
+        # AUDIO WAVEFORM RING
+        # =====================================================
+
+        waveform_radius = (
+            core_radius
+            + 38
+        )
+
+        waveform_points = []
+
+        for index in range(96):
+            theta = (
+                index
+                / 96
+                * math.tau
+            )
+
+            wave = math.sin(
+                theta * 7
+                + self.wave_phase
+            )
+
+            wave2 = math.sin(
+                theta * 13
+                - self.wave_phase * 1.7
+            )
+
+            amplitude = (
+                4
+                + self.audio_level
+                * 0.11
+            )
+
+            radius = (
+                waveform_radius
+                + wave
+                * amplitude
+                * 0.55
+                + wave2
+                * amplitude
+                * 0.25
+            )
+
+            waveform_points.append(
+                (
+                    cx
+                    + math.cos(theta)
+                    * radius,
+                    cy
+                    + math.sin(theta)
+                    * radius,
+                )
+            )
 
         painter.setPen(
             QPen(
                 QColor(
-                    color.red(),
-                    color.green(),
-                    color.blue(),
-                    80,
+                    bright_color.red(),
+                    bright_color.green(),
+                    bright_color.blue(),
+                    175,
                 ),
-                1,
+                1.5,
             )
         )
 
-        painter.drawEllipse(
-            cx - base_radius - 62,
-            cy - base_radius - 62,
-            (base_radius + 62) * 2,
-            (base_radius + 62) * 2,
-        )
+        for index in range(
+            len(waveform_points)
+        ):
+            x1, y1 = waveform_points[
+                index
+            ]
 
-        painter.setPen(
-            QPen(
-                QColor(
-                    color.red(),
-                    color.green(),
-                    color.blue(),
-                    180,
-                ),
-                2,
+            x2, y2 = waveform_points[
+                (
+                    index + 1
+                )
+                % len(waveform_points)
+            ]
+
+            painter.drawLine(
+                int(x1),
+                int(y1),
+                int(x2),
+                int(y2),
             )
-        )
-
-        painter.drawArc(
-            int(cx - base_radius - 78),
-            int(cy - base_radius - 78),
-            int((base_radius + 78) * 2),
-            int((base_radius + 78) * 2),
-            int(-self.angle * 16),
-            -80 * 16,
-        )
-
-        painter.drawArc(
-            int(cx - base_radius - 78),
-            int(cy - base_radius - 78),
-            int((base_radius + 78) * 2),
-            int((base_radius + 78) * 2),
-            int((180 - self.angle) * 16),
-            -50 * 16,
-        )
 
         # =====================================================
-        # INNER RING
+        # INNER HUD RINGS
         # =====================================================
 
-        painter.setPen(
-            QPen(
-                QColor(
-                    color.red(),
-                    color.green(),
-                    color.blue(),
-                    130,
-                ),
-                1,
-            )
+        self._draw_ring(
+            painter,
+            cx,
+            cy,
+            145,
+            color,
+            1,
+            125,
         )
 
-        painter.drawEllipse(
-            cx - base_radius - 35,
-            cy - base_radius - 35,
-            (base_radius + 35) * 2,
-            (base_radius + 35) * 2,
+        self._draw_arc(
+            painter,
+            cx,
+            cy,
+            160,
+            self.angle * 2,
+            115,
+            bright_color,
+            2,
+            210,
+        )
+
+        self._draw_arc(
+            painter,
+            cx,
+            cy,
+            132,
+            -self.angle * 2.2,
+            85,
+            color,
+            2,
+            180,
         )
 
         # =====================================================
         # CORE
         # =====================================================
 
-        core_radius = (
-            base_radius
-            + pulse
-        )
-
         painter.setBrush(
             QColor(
-                4,
-                25,
-                33,
-                245,
+                3,
+                20,
+                27,
+                248,
             )
         )
 
@@ -293,7 +670,7 @@ class VoiceCoreVisual(QWidget):
                     color.red(),
                     color.green(),
                     color.blue(),
-                    220,
+                    240,
                 ),
                 2,
             )
@@ -306,138 +683,266 @@ class VoiceCoreVisual(QWidget):
             core_radius * 2,
         )
 
-        # =====================================================
-        # MICROPHONE SYMBOL
-        # =====================================================
+        inner_radius = (
+            core_radius * 0.66
+        )
 
-        mic_height = 70
-        mic_width = 30
+        painter.setBrush(
+            QColor(
+                7,
+                46,
+                56,
+                245,
+            )
+        )
 
         painter.setPen(
             QPen(
                 QColor(
-                    215,
-                    250,
-                    255,
-                    230,
+                    bright_color.red(),
+                    bright_color.green(),
+                    bright_color.blue(),
+                    190,
                 ),
-                3,
+                1.5,
             )
         )
 
-        painter.drawRoundedRect(
-            int(
-                cx - mic_width / 2
-            ),
-            int(
-                cy - mic_height / 2
-            ),
-            mic_width,
-            mic_height,
-            15,
-            15,
-        )
-
-        painter.drawArc(
-            int(cx - 34),
-            int(cy - 20),
-            68,
-            65,
-            0,
-            -180 * 16,
-        )
-
-        painter.drawLine(
-            int(cx),
-            int(cy + 45),
-            int(cx),
-            int(cy + 62),
-        )
-
-        painter.drawLine(
-            int(cx - 18),
-            int(cy + 62),
-            int(cx + 18),
-            int(cy + 62),
+        painter.drawEllipse(
+            cx - inner_radius,
+            cy - inner_radius,
+            inner_radius * 2,
+            inner_radius * 2,
         )
 
         # =====================================================
-        # STATE
+        # ENERGY CORE
+        # =====================================================
+
+        energy_radius = (
+            11
+            + abs(
+                math.sin(
+                    self.pulse_phase * 1.4
+                )
+            )
+            * 8
+            + (
+                self.audio_level
+                * 0.06
+            )
+        )
+
+        painter.setBrush(
+            QColor(
+                bright_color.red(),
+                bright_color.green(),
+                bright_color.blue(),
+                235,
+            )
+        )
+
+        painter.setPen(
+            Qt.PenStyle.NoPen
+        )
+
+        painter.drawEllipse(
+            cx - energy_radius,
+            cy - energy_radius,
+            energy_radius * 2,
+            energy_radius * 2,
+        )
+
+        # =====================================================
+        # JARVIS TEXT
         # =====================================================
 
         painter.setPen(
-            color
+            QColor(
+                225,
+                250,
+                255,
+                235,
+            )
+        )
+
+        font = QFont(
+            "Segoe UI",
+            12,
+        )
+
+        font.setBold(
+            True
+        )
+
+        painter.setFont(
+            font
+        )
+
+        painter.drawText(
+            int(cx - 100),
+            int(cy - 9),
+            200,
+            24,
+            Qt.AlignmentFlag.AlignCenter,
+            "J A R V I S",
         )
 
         state_font = QFont(
             "Segoe UI",
-            9,
+            8,
         )
 
-        state_font.setBold(True)
+        state_font.setBold(
+            True
+        )
 
         painter.setFont(
             state_font
         )
 
+        painter.setPen(
+            QColor(
+                color.red(),
+                color.green(),
+                color.blue(),
+                225,
+            )
+        )
+
         painter.drawText(
             int(cx - 100),
-            int(cy + 105),
+            int(cy + 17),
             200,
-            25,
+            20,
             Qt.AlignmentFlag.AlignCenter,
             config["label"],
         )
 
         painter.end()
 
+    # =========================================================
+    # DRAW HELPERS
+    # =========================================================
 
-class VoiceStatusPanel(QFrame):
-    """Compact voice system telemetry."""
+    @staticmethod
+    def _draw_ring(
+        painter,
+        cx,
+        cy,
+        radius,
+        color,
+        width,
+        alpha,
+    ):
+        painter.setBrush(
+            Qt.BrushStyle.NoBrush
+        )
+
+        painter.setPen(
+            QPen(
+                QColor(
+                    color.red(),
+                    color.green(),
+                    color.blue(),
+                    alpha,
+                ),
+                width,
+            )
+        )
+
+        painter.drawEllipse(
+            int(cx - radius),
+            int(cy - radius),
+            int(radius * 2),
+            int(radius * 2),
+        )
+
+    @staticmethod
+    def _draw_arc(
+        painter,
+        cx,
+        cy,
+        radius,
+        angle,
+        span,
+        color,
+        width,
+        alpha,
+    ):
+        painter.setBrush(
+            Qt.BrushStyle.NoBrush
+        )
+
+        painter.setPen(
+            QPen(
+                QColor(
+                    color.red(),
+                    color.green(),
+                    color.blue(),
+                    alpha,
+                ),
+                width,
+            )
+        )
+
+        painter.drawArc(
+            int(cx - radius),
+            int(cy - radius),
+            int(radius * 2),
+            int(radius * 2),
+            int(-angle * 16),
+            int(-span * 16),
+        )
+
+
+class VoiceTelemetryPanel(QFrame):
+    """Live voice telemetry panel."""
 
     def __init__(self):
         super().__init__()
 
         self.setObjectName(
-            "voiceStatusPanel"
+            "voiceTelemetry"
         )
 
         self.setStyleSheet(
             """
-            QFrame#voiceStatusPanel {
-                background-color: rgba(4, 16, 22, 235);
+            QFrame#voiceTelemetry {
+                background-color: rgba(4, 16, 22, 242);
                 border: 1px solid #155360;
                 border-radius: 14px;
             }
 
-            QLabel#voiceTitle {
+            QLabel#telemetryTitle {
                 color: #7cecff;
                 font-size: 13px;
                 font-weight: 700;
                 letter-spacing: 2px;
             }
 
-            QLabel#voiceSection {
+            QLabel#telemetrySection {
                 color: #4f8f9b;
                 font-size: 8px;
                 font-weight: 700;
                 letter-spacing: 1px;
             }
 
-            QLabel#voiceValue {
-                color: #d8fbff;
-                font-size: 15px;
+            QLabel#telemetryName {
+                color: #5a8c95;
+                font-size: 9px;
                 font-weight: 700;
+                letter-spacing: 1px;
             }
 
-            QLabel#voiceOnline {
-                color: #73f7dc;
+            QLabel#telemetryValue {
+                color: #d9faff;
                 font-size: 11px;
                 font-weight: 700;
             }
 
-            QLabel#voiceActive {
-                color: #7cecff;
+            QLabel#telemetryActive {
+                color: #73f7dc;
                 font-size: 11px;
                 font-weight: 700;
             }
@@ -456,7 +961,9 @@ class VoiceStatusPanel(QFrame):
             """
         )
 
-        layout = QVBoxLayout(self)
+        layout = QVBoxLayout(
+            self
+        )
 
         layout.setContentsMargins(
             16,
@@ -469,22 +976,26 @@ class VoiceStatusPanel(QFrame):
             9
         )
 
+        # =====================================================
+        # TITLE
+        # =====================================================
+
         title_row = QHBoxLayout()
 
         title = QLabel(
-            "VOICE CORE"
+            "VOICE TELEMETRY"
         )
 
         title.setObjectName(
-            "voiceTitle"
+            "telemetryTitle"
         )
 
-        self.status = QLabel(
+        self.online = QLabel(
             "● ONLINE"
         )
 
-        self.status.setObjectName(
-            "voiceOnline"
+        self.online.setObjectName(
+            "telemetryActive"
         )
 
         title_row.addWidget(
@@ -494,7 +1005,7 @@ class VoiceStatusPanel(QFrame):
         title_row.addStretch()
 
         title_row.addWidget(
-            self.status
+            self.online
         )
 
         layout.addLayout(
@@ -506,137 +1017,139 @@ class VoiceStatusPanel(QFrame):
         )
 
         # =====================================================
+        # STATE
+        # =====================================================
+
+        self.state_value = self._add_row(
+            layout,
+            "ASSISTANT STATE",
+            "STANDBY",
+        )
+
+        # =====================================================
         # MICROPHONE
         # =====================================================
 
-        microphone_label = QLabel(
-            "MICROPHONE"
-        )
-
-        microphone_label.setObjectName(
-            "voiceSection"
-        )
-
-        self.microphone_value = QLabel(
-            "READY"
-        )
-
-        self.microphone_value.setObjectName(
-            "voiceValue"
-        )
-
-        layout.addWidget(
-            microphone_label
-        )
-
-        layout.addWidget(
-            self.microphone_value
-        )
-
-        # =====================================================
-        # INPUT LEVEL
-        # =====================================================
-
-        input_label = QLabel(
-            "INPUT CHANNEL"
-        )
-
-        input_label.setObjectName(
-            "voiceSection"
-        )
-
-        layout.addWidget(
-            input_label
-        )
-
-        self.input_bar = QProgressBar()
-
-        self.input_bar.setRange(
-            0,
-            100,
-        )
-
-        self.input_bar.setValue(
-            20
-        )
-
-        self.input_bar.setTextVisible(
-            False
-        )
-
-        layout.addWidget(
-            self.input_bar
-        )
-
-        # =====================================================
-        # ASSISTANT STATE
-        # =====================================================
-
-        state_label = QLabel(
-            "ASSISTANT STATE"
-        )
-
-        state_label.setObjectName(
-            "voiceSection"
-        )
-
-        self.state_value = QLabel(
-            "SLEEPING"
-        )
-
-        self.state_value.setObjectName(
-            "voiceValue"
-        )
-
-        layout.addWidget(
-            state_label
-        )
-
-        layout.addWidget(
-            self.state_value
+        self.microphone_value = self._add_row(
+            layout,
+            "MICROPHONE",
+            "ONLINE",
         )
 
         # =====================================================
         # ENGINE
         # =====================================================
 
-        engine_grid = QHBoxLayout()
-
-        engine_name = QLabel(
-            "SPEECH ENGINE"
+        self.engine_value = self._add_row(
+            layout,
+            "SPEECH ENGINE",
+            "SAPI5",
         )
 
-        engine_name.setObjectName(
-            "voiceSection"
+        # =====================================================
+        # LANGUAGE
+        # =====================================================
+
+        self.language_value = self._add_row(
+            layout,
+            "LANGUAGE",
+            language_manager.get_primary_language(),
         )
 
-        engine_value = QLabel(
-            "SAPI5"
+        # =====================================================
+        # MODE
+        # =====================================================
+
+        self.mode_value = self._add_row(
+            layout,
+            "LANGUAGE MODE",
+            "AUTO",
         )
 
-        engine_value.setObjectName(
-            "voiceOnline"
+        # =====================================================
+        # AUDIO
+        # =====================================================
+
+        audio_label = QLabel(
+            "AUDIO INPUT"
         )
 
-        engine_grid.addWidget(
-            engine_name
+        audio_label.setObjectName(
+            "telemetrySection"
         )
 
-        engine_grid.addStretch()
-
-        engine_grid.addWidget(
-            engine_value
+        layout.addWidget(
+            audio_label
         )
 
-        layout.addLayout(
-            engine_grid
+        self.audio_value = QLabel(
+            "12%"
+        )
+
+        self.audio_value.setObjectName(
+            "telemetryValue"
+        )
+
+        layout.addWidget(
+            self.audio_value
+        )
+
+        self.audio_bar = QProgressBar()
+
+        self.audio_bar.setRange(
+            0,
+            100,
+        )
+
+        self.audio_bar.setValue(
+            12
+        )
+
+        self.audio_bar.setTextVisible(
+            False
+        )
+
+        layout.addWidget(
+            self.audio_bar
+        )
+
+        # =====================================================
+        # LAST COMMAND
+        # =====================================================
+
+        last_command_label = QLabel(
+            "LAST COMMAND"
+        )
+
+        last_command_label.setObjectName(
+            "telemetrySection"
+        )
+
+        layout.addWidget(
+            last_command_label
+        )
+
+        self.last_command = QLabel(
+            "—"
+        )
+
+        self.last_command.setWordWrap(
+            True
+        )
+
+        self.last_command.setObjectName(
+            "telemetryValue"
+        )
+
+        layout.addWidget(
+            self.last_command
         )
 
         layout.addStretch()
 
     @staticmethod
     def _separator(
-        parent_layout,
+        layout,
     ):
         separator = QFrame()
 
@@ -648,64 +1161,82 @@ class VoiceStatusPanel(QFrame):
             "background:#123e48;"
         )
 
-        parent_layout.addWidget(
+        layout.addWidget(
             separator
         )
+
+    @staticmethod
+    def _add_row(
+        layout,
+        name,
+        value,
+    ):
+        row = QHBoxLayout()
+
+        name_label = QLabel(
+            name
+        )
+
+        name_label.setObjectName(
+            "telemetryName"
+        )
+
+        value_label = QLabel(
+            value
+        )
+
+        value_label.setObjectName(
+            "telemetryValue"
+        )
+
+        value_label.setAlignment(
+            Qt.AlignmentFlag.AlignRight
+        )
+
+        row.addWidget(
+            name_label
+        )
+
+        row.addStretch()
+
+        row.addWidget(
+            value_label
+        )
+
+        layout.addLayout(
+            row
+        )
+
+        return value_label
+
+    # =========================================================
+    # REFRESH
+    # =========================================================
 
     def refresh(
         self,
         state,
+        audio_level,
     ):
         self.state_value.setText(
             state.name
         )
 
-        # -----------------------------------------------------
-        # STATE COLOR / STATUS
-        # -----------------------------------------------------
-
-        active_states = {
+        if state in {
             AssistantState.LISTENING,
             AssistantState.THINKING,
             AssistantState.SPEAKING,
-        }
-
-        if state in active_states:
-
-            self.status.setText(
+        }:
+            self.online.setText(
                 "● ACTIVE"
-            )
-
-            self.status.setObjectName(
-                "voiceActive"
             )
 
             self.microphone_value.setText(
                 state.name
             )
 
-            self.microphone_value.setObjectName(
-                "voiceValue"
-            )
-
-            if state == AssistantState.LISTENING:
-                self.input_bar.setValue(
-                    90
-                )
-
-            elif state == AssistantState.THINKING:
-                self.input_bar.setValue(
-                    55
-                )
-
-            else:
-                self.input_bar.setValue(
-                    75
-                )
-
         elif state == AssistantState.AWAKE:
-
-            self.status.setText(
+            self.online.setText(
                 "● AWAKE"
             )
 
@@ -713,38 +1244,181 @@ class VoiceStatusPanel(QFrame):
                 "READY"
             )
 
-            self.input_bar.setValue(
-                30
-            )
-
         else:
-
-            self.status.setText(
-                "● ONLINE"
+            self.online.setText(
+                "● STANDBY"
             )
 
             self.microphone_value.setText(
                 "STANDBY"
             )
 
-            self.input_bar.setValue(
-                10
+        self.language_value.setText(
+            language_manager.get_primary_language()
+        )
+
+        self.mode_value.setText(
+            "AUTO"
+            if language_manager.is_auto_detect()
+            else "FIXED"
+        )
+
+        self.audio_value.setText(
+            f"{int(audio_level)}%"
+        )
+
+        self.audio_bar.setValue(
+            int(audio_level)
+        )
+
+        snapshot = (
+            hud_state.snapshot()
+        )
+
+        action = snapshot.get(
+            "action",
+            "",
+        )
+
+        target = snapshot.get(
+            "target",
+            "",
+        )
+
+        if action and target:
+            self.last_command.setText(
+                f"{action} → {target}"
+            )
+        elif action:
+            self.last_command.setText(
+                action
+            )
+        else:
+            self.last_command.setText(
+                "—"
             )
 
-        for widget in (
-            self.status,
-        ):
-            widget.style().unpolish(
-                widget
+
+class VoiceEventPanel(QFrame):
+    """Compact live workflow event stream."""
+
+    def __init__(self):
+        super().__init__()
+
+        self.setObjectName(
+            "voiceEvents"
+        )
+
+        self.setStyleSheet(
+            """
+            QFrame#voiceEvents {
+                background-color: rgba(4, 16, 22, 242);
+                border: 1px solid #155360;
+                border-radius: 14px;
+            }
+
+            QLabel#eventTitle {
+                color: #7cecff;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 1px;
+            }
+
+            QLabel#eventItem {
+                color: #89dce7;
+                font-size: 9px;
+                font-family: Consolas;
+            }
+            """
+        )
+
+        layout = QVBoxLayout(
+            self
+        )
+
+        layout.setContentsMargins(
+            14,
+            11,
+            14,
+            11,
+        )
+
+        layout.setSpacing(
+            6
+        )
+
+        title = QLabel(
+            "SYSTEM EVENTS"
+        )
+
+        title.setObjectName(
+            "eventTitle"
+        )
+
+        layout.addWidget(
+            title
+        )
+
+        self.events_layout = (
+            QVBoxLayout()
+        )
+
+        self.events_layout.setSpacing(
+            4
+        )
+
+        layout.addLayout(
+            self.events_layout
+        )
+
+        self.refresh()
+
+    def refresh(self):
+        snapshot = (
+            hud_state.snapshot()
+        )
+
+        while self.events_layout.count():
+
+            item = self.events_layout.takeAt(
+                0
             )
 
-            widget.style().polish(
-                widget
+            widget = item.widget()
+
+            if widget is not None:
+                widget.deleteLater()
+
+        history = snapshot.get(
+            "history",
+            [],
+        )
+
+        for item in history[:5]:
+            timestamp = datetime.now().strftime(
+                "%H:%M:%S"
+            )
+
+            event_text = item.get(
+                "event",
+                "SYSTEM",
+            )
+
+            label = QLabel(
+                f"{timestamp}  ✓  {event_text}"
+            )
+
+            label.setObjectName(
+                "eventItem"
+            )
+
+            self.events_layout.addWidget(
+                label
             )
 
 
 class VoicePage(QWidget):
-    """JARVIS Voice Command Center."""
+    """Cinematic JARVIS voice command center."""
 
     def __init__(self):
         super().__init__()
@@ -773,26 +1447,38 @@ class VoicePage(QWidget):
                 letter-spacing: 1px;
             }
 
+            QLabel#voiceStatus {
+                color: #73f7dc;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 2px;
+            }
+
             QLabel#voiceHint {
-                color: #3f7781;
-                font-size: 9px;
+                color: #396c76;
+                font-size: 8px;
+                letter-spacing: 1px;
             }
             """
         )
+
+        # =====================================================
+        # MAIN LAYOUT
+        # =====================================================
 
         layout = QVBoxLayout(
             self
         )
 
         layout.setContentsMargins(
-            20,
-            18,
-            20,
-            18,
+            16,
+            12,
+            16,
+            12,
         )
 
         layout.setSpacing(
-            9
+            6
         )
 
         # =====================================================
@@ -812,7 +1498,7 @@ class VoicePage(QWidget):
         )
 
         subtitle = QLabel(
-            "VOICE INPUT // SPEECH PROCESSING // "
+            "VOICE INPUT // NEURAL PROCESSING // "
             "AUDIO OUTPUT"
         )
 
@@ -833,75 +1519,96 @@ class VoicePage(QWidget):
         )
 
         # =====================================================
-        # MAIN AREA
+        # STATUS
+        # =====================================================
+
+        self.voice_status = QLabel(
+            "● STANDBY"
+        )
+
+        self.voice_status.setObjectName(
+            "voiceStatus"
+        )
+
+        self.voice_status.setAlignment(
+            Qt.AlignmentFlag.AlignCenter
+        )
+
+        layout.addWidget(
+            self.voice_status
+        )
+
+        # =====================================================
+        # CENTRAL AREA
         # =====================================================
 
         center = QHBoxLayout()
 
+        center.setContentsMargins(
+            0,
+            0,
+            0,
+            0,
+        )
+
         center.setSpacing(
-            18
+            12
         )
 
-        center.addStretch()
+        center.addStretch(
+            1
+        )
 
         # -----------------------------------------------------
-        # CORE
+        # CINEMATIC CORE
         # -----------------------------------------------------
 
-        core_layout = QVBoxLayout()
+        core_container = QWidget()
 
-        self.core = VoiceCoreVisual()
-
-        core_status = QLabel(
-            "● SLEEPING"
+        core_layout = QVBoxLayout(
+            core_container
         )
 
-        core_status.setAlignment(
-            Qt.AlignmentFlag.AlignCenter
+        core_layout.setContentsMargins(
+            0,
+            0,
+            0,
+            0,
         )
 
-        core_status.setStyleSheet(
-            """
-            color: #73f7dc;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            """
+        core_layout.setSpacing(
+            4
         )
 
-        self.core_status = core_status
+        self.core = (
+            CinematicVoiceCore()
+        )
 
         core_layout.addWidget(
             self.core
         )
 
-        core_layout.addWidget(
-            self.core_status
-        )
-
-        core_widget = QWidget()
-
-        core_widget.setLayout(
-            core_layout
-        )
-
         center.addWidget(
-            core_widget
+            core_container,
+            2,
         )
 
         # -----------------------------------------------------
-        # STATUS
+        # TELEMETRY
         # -----------------------------------------------------
 
-        self.status_panel = (
-            VoiceStatusPanel()
+        self.telemetry_panel = (
+            VoiceTelemetryPanel()
         )
 
         center.addWidget(
-            self.status_panel
+            self.telemetry_panel,
+            1,
         )
 
-        center.addStretch()
+        center.addStretch(
+            1
+        )
 
         layout.addLayout(
             center,
@@ -909,12 +1616,24 @@ class VoicePage(QWidget):
         )
 
         # =====================================================
+        # EVENTS
+        # =====================================================
+
+        self.event_panel = (
+            VoiceEventPanel()
+        )
+
+        layout.addWidget(
+            self.event_panel
+        )
+
+        # =====================================================
         # FOOTER
         # =====================================================
 
         hint = QLabel(
-            "VOICE ENGINE READY  //  "
-            "SAY \"JARVIS\" TO WAKE THE ASSISTANT"
+            'VOICE ENGINE ONLINE  //  SAY "JARVIS" '
+            "TO ACTIVATE  //  F11 FOR IMMERSIVE HUD"
         )
 
         hint.setObjectName(
@@ -930,7 +1649,7 @@ class VoicePage(QWidget):
         )
 
         # =====================================================
-        # TIMER
+        # REFRESH
         # =====================================================
 
         self.timer = QTimer(
@@ -942,7 +1661,7 @@ class VoicePage(QWidget):
         )
 
         self.timer.start(
-            150
+            100
         )
 
         self.refresh_voice_state()
@@ -960,10 +1679,45 @@ class VoicePage(QWidget):
             state
         )
 
-        self.core_status.setText(
-            f"● {state.name}"
+        # -----------------------------------------------------
+        # Status
+        # -----------------------------------------------------
+
+        config = (
+            CinematicVoiceCore.STATE_CONFIG.get(
+                state,
+                CinematicVoiceCore.STATE_CONFIG[
+                    AssistantState.SLEEPING
+                ],
+            )
         )
 
-        self.status_panel.refresh(
-            state
+        self.voice_status.setText(
+            f"● {config['label']}"
         )
+
+        # -----------------------------------------------------
+        # Telemetry
+        # -----------------------------------------------------
+
+        snapshot = hud_state.snapshot()
+
+        audio_level = snapshot.get(
+            "audio_level",
+            0,
+        )
+
+        self.core.set_audio_level(
+            audio_level
+        )
+
+        self.telemetry_panel.refresh(
+            state,
+            audio_level,
+        )
+
+        # -----------------------------------------------------
+        # Events
+        # -----------------------------------------------------
+
+        self.event_panel.refresh()

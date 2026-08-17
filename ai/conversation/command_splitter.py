@@ -39,6 +39,9 @@ class CommandSplitter:
         # Open + keyboard action
         r"^open\b.*\bpress\b",
 
+        # Open + UI click
+        r"^open\b.*\bclick\b",
+
         # Type + keyboard action
         r"^type\b.*\bpress\b",
 
@@ -47,6 +50,8 @@ class CommandSplitter:
 
         # Find + type
         r"^(?:find|locate)\b.*\btype\b",
+
+        
     )
 
     # =========================================================

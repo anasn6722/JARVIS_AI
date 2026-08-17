@@ -4,6 +4,7 @@ from PySide6.QtCore import QThread, Signal
 
 from config.states import AssistantState
 from core import app_state
+from core.hud_state import hud_state
 from core.logger import logger
 from voice.listener import Listener
 from voice.wake_word import WakeWordDetector
@@ -64,6 +65,10 @@ class VoiceManager(QThread):
             ):
                 self._listening = False
 
+                hud_state.update(
+                    audio_level=0
+                )
+
                 self.msleep(
                     250
                 )
@@ -77,6 +82,10 @@ class VoiceManager(QThread):
             if app_state.state_machine.is_awake():
 
                 self._listening = False
+
+                hud_state.update(
+                    audio_level=0
+                )
 
                 self.msleep(
                     700
@@ -95,6 +104,10 @@ class VoiceManager(QThread):
 
             self._listening = True
 
+            hud_state.update(
+                audio_level=0
+            )
+
             logger.info(
                 "Voice state before listen: %s",
                 (
@@ -110,13 +123,21 @@ class VoiceManager(QThread):
 
             text = self.listener.listen()
 
+            hud_state.update(
+                audio_level=self.listener.input_level
+            )
+
             self._listening = False
 
             if not self.running:
                 break
 
+            # -------------------------------------------------
+            # NO SPEECH
+            # -------------------------------------------------
+
             if not text:
-                # Return to an appropriate idle state.
+
                 if was_sleeping:
                     app_state.state_machine.change(
                         AssistantState.SLEEPING
@@ -127,6 +148,10 @@ class VoiceManager(QThread):
                     )
 
                 continue
+
+            # -------------------------------------------------
+            # NORMALIZE
+            # -------------------------------------------------
 
             text = text.strip().lower()
 
@@ -242,7 +267,15 @@ class VoiceManager(QThread):
             #
             continue
 
+        # =====================================================
+        # SHUTDOWN
+        # =====================================================
+
         self._listening = False
+
+        hud_state.update(
+            audio_level=0
+        )
 
         logger.info(
             "Voice Manager stopped."

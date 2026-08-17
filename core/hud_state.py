@@ -17,6 +17,7 @@ class HudState:
         self.progress = 0
         self.completed = 0
         self.total = 0
+        self.audio_level = 0
 
         self.history = []
 
@@ -35,6 +36,7 @@ class HudState:
         progress=None,
         completed=None,
         total=None,
+        audio_level=None,
     ):
         with self._lock:
 
@@ -80,6 +82,17 @@ class HudState:
                     )
                 )
 
+            if audio_level is not None:
+                self.audio_level = int(
+                    max(
+                        0,
+                        min(
+                            int(audio_level),
+                            100,
+                        ),
+                    )
+                )
+
             # -------------------------------------------------
             # EVENT HISTORY
             # -------------------------------------------------
@@ -118,6 +131,7 @@ class HudState:
                 "progress": self.progress,
                 "completed": self.completed,
                 "total": self.total,
+                "audio_level": self.audio_level,
                 "history": [
                     dict(item)
                     for item in self.history
