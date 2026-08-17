@@ -10,6 +10,8 @@ from voice.wake_word import WakeWordDetector
 
 
 class VoiceManager(QThread):
+    """Background voice loop for wake-word and commands."""
+
     wake_detected = Signal(str)
     command_detected = Signal(str)
 
@@ -18,40 +20,112 @@ class VoiceManager(QThread):
 
         self.listener = Listener()
         self.detector = WakeWordDetector()
+
         self.running = True
 
-        # Prevent repeated commands
         self.last_command = ""
-        self.last_command_time = 0
+        self.last_command_time = 0.0
+
+        self._listening = False
+
+    # =========================================================
+    # STOP
+    # =========================================================
 
     def stop(self):
         self.running = False
 
+    # =========================================================
+    # STATUS
+    # =========================================================
+
+    @property
+    def is_listening(self):
+        return self._listening
+
+    # =========================================================
+    # MAIN LOOP
+    # =========================================================
+
     def run(self):
-        logger.info("Voice Manager started.")
+        logger.info(
+            "Voice Manager started."
+        )
 
         while self.running:
 
             # -------------------------------------------------
-            # Never listen while Jarvis is speaking/thinking
+            # WAIT WHILE THINKING / SPEAKING
             # -------------------------------------------------
-            while (
-                app_state.state_machine.is_speaking()
-                or app_state.state_machine.is_thinking()
+
+            if (
+                app_state.state_machine.is_thinking()
+                or app_state.state_machine.is_speaking()
             ):
-                self.msleep(600)
+                self._listening = False
+
+                self.msleep(
+                    250
+                )
+
                 continue
 
             # -------------------------------------------------
-            # Small delay after speaking
-            # Prevents hearing its own voice
+            # SMALL DELAY AFTER SPEECH
             # -------------------------------------------------
+
             if app_state.state_machine.is_awake():
-                self.msleep(900)
+
+                self._listening = False
+
+                self.msleep(
+                    700
+                )
+
+            if not self.running:
+                break
+
+            # -------------------------------------------------
+            # REMEMBER STATE BEFORE LISTENING
+            # -------------------------------------------------
+
+            was_sleeping = (
+                app_state.state_machine.is_sleeping()
+            )
+
+            self._listening = True
+
+            logger.info(
+                "Voice state before listen: %s",
+                (
+                    "SLEEPING"
+                    if was_sleeping
+                    else "AWAKE"
+                ),
+            )
+
+            # -------------------------------------------------
+            # LISTEN
+            # -------------------------------------------------
 
             text = self.listener.listen()
 
+            self._listening = False
+
+            if not self.running:
+                break
+
             if not text:
+                # Return to an appropriate idle state.
+                if was_sleeping:
+                    app_state.state_machine.change(
+                        AssistantState.SLEEPING
+                    )
+                else:
+                    app_state.state_machine.change(
+                        AssistantState.AWAKE
+                    )
+
                 continue
 
             text = text.strip().lower()
@@ -59,46 +133,117 @@ class VoiceManager(QThread):
             if len(text) < 2:
                 continue
 
+            logger.info(
+                "Recognized: %s",
+                text,
+            )
+
             # -------------------------------------------------
-            # Ignore duplicate commands
+            # DUPLICATE PROTECTION
             # -------------------------------------------------
+
             now = time.time()
 
             if (
                 text == self.last_command
-                and (now - self.last_command_time) < 3
+                and (
+                    now
+                    - self.last_command_time
+                ) < 3
             ):
                 logger.info(
                     "Duplicate command ignored: %s",
                     text,
                 )
+
+                if was_sleeping:
+                    app_state.state_machine.change(
+                        AssistantState.SLEEPING
+                    )
+                else:
+                    app_state.state_machine.change(
+                        AssistantState.AWAKE
+                    )
+
                 continue
 
             self.last_command = text
             self.last_command_time = now
 
-            # -------------------------------------------------
-            # Sleeping state
-            # -------------------------------------------------
-            if app_state.state_machine.is_sleeping():
+            # =================================================
+            # SLEEPING → WAKE WORD
+            # =================================================
 
-                detected, command = self.detector.detect(text)
+            if was_sleeping:
 
-                if detected:
+                detected, command = (
+                    self.detector.detect(
+                        text
+                    )
+                )
+
+                if not detected:
 
                     app_state.state_machine.change(
-                        AssistantState.AWAKE
+                        AssistantState.SLEEPING
                     )
 
-                    app_state.last_active = time.time()
+                    continue
 
-                    self.wake_detected.emit(command)
+                app_state.state_machine.change(
+                    AssistantState.AWAKE
+                )
+
+                app_state.last_active = (
+                    time.time()
+                )
+
+                logger.info(
+                    "Wake word detected. Command: %s",
+                    command or "(none)",
+                )
+
+                self.wake_detected.emit(
+                    command
+                )
+
+                continue
+
+            # =================================================
+            # AWAKE → NORMAL COMMAND
+            # =================================================
+
+            app_state.state_machine.change(
+                AssistantState.THINKING
+            )
+
+            app_state.last_active = (
+                time.time()
+            )
+
+            logger.info(
+                "Voice command detected: %s",
+                text,
+            )
+
+            self.command_detected.emit(
+                text
+            )
 
             # -------------------------------------------------
-            # Awake state
+            # IMPORTANT
             # -------------------------------------------------
-            elif app_state.state_machine.is_awake():
+            #
+            # Do not exit.
+            #
+            # ChatPage processes the command.
+            # SpeechManager moves through SPEAKING → AWAKE.
+            # The loop then starts listening again.
+            #
+            continue
 
-                app_state.last_active = time.time()
+        self._listening = False
 
-                self.command_detected.emit(text)
+        logger.info(
+            "Voice Manager stopped."
+        )

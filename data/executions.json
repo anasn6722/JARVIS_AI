@@ -1923,5 +1923,49 @@
         "started": "2026-08-16 22:35:57.101001",
         "completed": "2026-08-16 22:35:57.132561",
         "id": "d2a93935-b583-4d14-98f2-61289e425a96"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-17 10:10:56.255550",
+        "completed": "2026-08-17 10:10:56.287351",
+        "id": "ad19c0d7-9c7f-4c3d-a707-a87799a08de4"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "github",
+        "success": true,
+        "result": "Opened Github.",
+        "error": "",
+        "started": "2026-08-17 10:11:05.017955",
+        "completed": "2026-08-17 10:11:05.146649",
+        "id": "74aa9c39-d11a-4186-ba07-acfacd0a9974"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "facebook",
+        "success": true,
+        "result": "Opened Facebook.",
+        "error": "",
+        "started": "2026-08-17 10:11:13.878489",
+        "completed": "2026-08-17 10:11:13.937053",
+        "id": "fb8c1b81-8332-4471-ba53-45e8e5a234df"
+    },
+    {
+        "goal_id": "",
+        "action": "close_last",
+        "target": "",
+        "success": true,
+        "result": "Closed Facebook by closing Chrome.",
+        "error": "",
+        "started": "2026-08-17 10:11:24.024832",
+        "completed": "2026-08-17 10:11:24.220996",
+        "id": "19eade0f-cfae-4dd9-9870-0ba30c5ab28e"
     }
 ]

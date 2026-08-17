@@ -38,9 +38,11 @@ class SpeechManager:
     def _speech_finished(self):
 
         if self.queue.empty():
-            time.sleep(0.8)      # 0.5–1.0 seconds
+        
             app_state.state_machine.change(
                 AssistantState.AWAKE
             )
-
+    
+            app_state.last_active = time.time()
+    
         self._start_next()

@@ -12,7 +12,7 @@ from core.logger import logger
 
 
 class Listener:
-    """Capture microphone input and update JARVIS voice state."""
+    """Capture microphone input and return recognized speech."""
 
     def __init__(self):
         self.recognizer = sr.Recognizer()
@@ -26,10 +26,14 @@ class Listener:
         self._calibrated = False
 
         self.last_text = ""
-        self.last_time = 0
+        self.last_time = 0.0
+
+    # =========================================================
+    # LISTEN
+    # =========================================================
 
     def listen(self):
-        """Listen for one command and return recognized text."""
+        """Listen once and return recognized text."""
 
         try:
             with self.microphone as source:
@@ -39,6 +43,7 @@ class Listener:
                 # -------------------------------------------------
 
                 if not self._calibrated:
+
                     logger.info(
                         "🎤 Calibrating microphone..."
                     )
@@ -55,7 +60,7 @@ class Listener:
                     )
 
                 # -------------------------------------------------
-                # LISTENING STATE
+                # LISTENING
                 # -------------------------------------------------
 
                 app_state.state_machine.change(
@@ -73,12 +78,19 @@ class Listener:
                 )
 
             # -----------------------------------------------------
-            # RECOGNIZING STATE
+            # RECOGNIZE
             # -----------------------------------------------------
-
-            app_state.state_machine.change(
-                AssistantState.THINKING
-            )
+            #
+            # IMPORTANT:
+            # Do NOT change the assistant to THINKING here.
+            #
+            # VoiceManager must receive the text first and decide
+            # whether it is:
+            #
+            #   sleeping + wake word
+            #   awake + command
+            #
+            # -----------------------------------------------------
 
             logger.info(
                 "🧠 Recognizing..."
@@ -93,14 +105,10 @@ class Listener:
             text = text.strip().lower()
 
             # -----------------------------------------------------
-            # EMPTY RESULT
+            # EMPTY
             # -----------------------------------------------------
 
             if not text:
-                app_state.state_machine.change(
-                    AssistantState.AWAKE
-                )
-
                 return ""
 
             # -----------------------------------------------------
@@ -111,15 +119,14 @@ class Listener:
 
             if (
                 text == self.last_text
-                and (now - self.last_time) < 2.5
+                and (
+                    now
+                    - self.last_time
+                ) < 2.5
             ):
                 logger.info(
                     "🔁 Duplicate command ignored: %s",
                     text,
-                )
-
-                app_state.state_machine.change(
-                    AssistantState.AWAKE
                 )
 
                 return ""
@@ -132,20 +139,13 @@ class Listener:
                 text,
             )
 
-            app_state.state_machine.change(
-                AssistantState.THINKING
-            )
-
             return text
 
         # =========================================================
-        # VOICE TIMEOUT
+        # TIMEOUT
         # =========================================================
 
         except sr.WaitTimeoutError:
-            app_state.state_machine.change(
-                AssistantState.AWAKE
-            )
 
             return ""
 
@@ -154,56 +154,44 @@ class Listener:
         # =========================================================
 
         except sr.UnknownValueError:
-            app_state.state_machine.change(
-                AssistantState.AWAKE
-            )
 
             return ""
 
         # =========================================================
-        # RECOGNITION SERVICE ERROR
+        # RECOGNITION SERVICE
         # =========================================================
 
         except sr.RequestError as error:
+
             logger.error(
                 "Speech recognition service error: %s",
                 error,
             )
 
-            app_state.state_machine.change(
-                AssistantState.AWAKE
-            )
-
             return ""
 
         # =========================================================
-        # MICROPHONE ERROR
+        # MICROPHONE
         # =========================================================
 
         except OSError as error:
+
             logger.exception(
                 "Microphone error: %s",
                 error,
             )
 
-            app_state.state_machine.change(
-                AssistantState.AWAKE
-            )
-
             return ""
 
         # =========================================================
-        # UNKNOWN ERROR
+        # OTHER
         # =========================================================
 
         except Exception as error:
+
             logger.exception(
                 "Listener error: %s",
                 error,
-            )
-
-            app_state.state_machine.change(
-                AssistantState.AWAKE
             )
 
             return ""
