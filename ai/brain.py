@@ -1,8 +1,8 @@
 
-
 from ai.builders.registry_builder import RegistryBuilder
 from ai.builders.service_builder import ServiceBuilder
 from ai.builders.tool_registry_builder import ToolRegistryBuilder
+from ai.orchestration.agent_router import AgentRouter
 from ai.pipeline.context import PipelineContext
 from ai.pipeline.pipeline import Pipeline
 
@@ -12,6 +12,7 @@ class Brain:
         
 
         ServiceBuilder.build(self)
+        self.agent_router = AgentRouter()
 
         self.registry = RegistryBuilder.build(self)
         self.pipeline = Pipeline(self)

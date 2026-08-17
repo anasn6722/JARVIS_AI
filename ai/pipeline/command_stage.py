@@ -1,4 +1,3 @@
-
 class CommandStage:
 
     def __init__(self, brain):
@@ -25,22 +24,6 @@ class CommandStage:
             # ====================================================
             # COMMAND MANAGER
             # ====================================================
-            #
-            # First convert the user's text into a Command object.
-            #
-            # Example:
-            #
-            # "close it"
-            #
-            # becomes:
-            #
-            # Command(
-            #     original="close it",
-            #     intent="close",
-            #     entities=...
-            # )
-            #
-            # ====================================================
 
             command_data, goal = (
                 self.brain.command_manager.process(
@@ -51,26 +34,6 @@ class CommandStage:
             # ====================================================
             # REFERENCE RESOLUTION
             # ====================================================
-            #
-            # Resolve references AFTER command processing.
-            #
-            # Example:
-            #
-            # Previous command:
-            #     open youtube
-            #
-            # Current command:
-            #     close it
-            #
-            # Memory:
-            #     ('website', 'youtube')
-            #
-            # ReferenceResolver changes:
-            #
-            #     apps: []
-            #     websites: ['youtube']
-            #
-            # ====================================================
 
             command_data = (
                 self.brain.reference_resolver.resolve(
@@ -79,14 +42,45 @@ class CommandStage:
             )
 
             # ====================================================
+            # MULTI-AGENT ROUTING
+            # ====================================================
+
+            agent_context = {
+                "command": command_data,
+                "goal": goal,
+                "original_text": text,
+            }
+
+            agent_result = self.brain.agent_router.route(
+                command_data,
+                brain=self.brain,
+                pipeline_context=context,
+            )
+
+            if agent_result is not None:
+                agent_context[
+                    "agent_result"
+                ] = agent_result
+
+                agent_context[
+                    "agent"
+                ] = getattr(
+                    agent_result,
+                    "agent",
+                    "",
+                )
+
+            else:
+                agent_context[
+                    "agent"
+                ] = "unassigned"
+
+            # ====================================================
             # STORE COMMAND
             # ====================================================
 
             context.commands.append(
-                {
-                    "command": command_data,
-                    "goal": goal,
-                }
+                agent_context
             )
 
         # ========================================================
@@ -99,7 +93,16 @@ class CommandStage:
         for item in context.commands:
 
             print(
-                item["command"]
+                "Command:",
+                item["command"],
+            )
+
+            print(
+                "Agent:",
+                item.get(
+                    "agent",
+                    "unassigned",
+                ),
             )
 
         print("=" * 50)
