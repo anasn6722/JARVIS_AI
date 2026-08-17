@@ -1967,5 +1967,126 @@
         "started": "2026-08-17 10:11:24.024832",
         "completed": "2026-08-17 10:11:24.220996",
         "id": "19eade0f-cfae-4dd9-9870-0ba30c5ab28e"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_find_descriptor",
+        "target": "file",
+        "success": false,
+        "result": "UI element not found: File",
+        "error": "UI element not found: File",
+        "started": "2026-08-17 10:17:21.045452",
+        "completed": "2026-08-17 10:17:23.154658",
+        "id": "8ba673b7-9175-47fc-b8be-80a1ca525a6c"
+    },
+    {
+        "goal_id": "",
+        "action": "active_window",
+        "target": "",
+        "success": false,
+        "result": "",
+        "error": "DesktopController.get_active_window() takes 1 positional argument but 2 were given",
+        "started": "2026-08-17 10:17:36.821851",
+        "completed": "2026-08-17 10:17:38.824195",
+        "id": "058d63ca-15f9-4097-b8a6-a51e8627320a"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_find_descriptor",
+        "target": "files",
+        "success": false,
+        "result": "UI element not found: files",
+        "error": "UI element not found: files",
+        "started": "2026-08-17 10:23:09.549501",
+        "completed": "2026-08-17 10:23:11.646887",
+        "id": "dc935f5e-e9e2-4d35-ab31-fa90aafc2631"
+    },
+    {
+        "goal_id": "",
+        "action": "list_windows",
+        "target": "",
+        "success": false,
+        "result": "",
+        "error": "DesktopController.list_windows() takes 1 positional argument but 2 were given",
+        "started": "2026-08-17 10:23:24.880469",
+        "completed": "2026-08-17 10:23:26.884048",
+        "id": "9c963748-8d44-43f2-8412-28ef0e94233f"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_find_descriptor",
+        "target": "file",
+        "success": false,
+        "result": "UI element not found: File",
+        "error": "UI element not found: File",
+        "started": "2026-08-17 10:24:08.180734",
+        "completed": "2026-08-17 10:24:10.222812",
+        "id": "8bebba2b-b901-4600-a80e-965e5fae683a"
+    },
+    {
+        "goal_id": "",
+        "action": "list_windows",
+        "target": "",
+        "success": false,
+        "result": "",
+        "error": "DesktopController.list_windows() takes 1 positional argument but 2 were given",
+        "started": "2026-08-17 10:24:20.495140",
+        "completed": "2026-08-17 10:24:22.499219",
+        "id": "2359b42b-f17b-477e-8182-b79ed7a891dd"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_find_descriptor",
+        "target": "file",
+        "success": true,
+        "result": "{'name': 'File', 'automation_id': '', 'class_name': 'menubar-menu-button', 'control_type': 50011, 'rect': {'left': 52, 'top': 0, 'right': 106, 'bottom': 52, 'width': 54, 'height': 52}, 'semantic_target': 'File'}",
+        "error": "",
+        "started": "2026-08-17 10:24:37.052829",
+        "completed": "2026-08-17 10:24:38.190104",
+        "id": "cad8e34f-facc-40b0-afe2-468600b3452f"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_find_descriptor",
+        "target": "file",
+        "success": true,
+        "result": "{'name': 'File', 'automation_id': '', 'class_name': 'menubar-menu-button', 'control_type': 50011, 'rect': {'left': 52, 'top': 0, 'right': 106, 'bottom': 52, 'width': 54, 'height': 52}, 'semantic_target': 'File'}",
+        "error": "",
+        "started": "2026-08-17 10:25:10.026212",
+        "completed": "2026-08-17 10:25:10.076604",
+        "id": "49e1ea7a-4762-40e4-95b3-c2b8c3494cb9"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_click_descriptor",
+        "target": "$LAST_UI",
+        "success": true,
+        "result": "Clicked at (79, 26).",
+        "error": "",
+        "started": "2026-08-17 10:25:10.080005",
+        "completed": "2026-08-17 10:25:10.146097",
+        "id": "0ce3ca0c-8f93-4277-9cb0-c76d7bf69cd5"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_find_descriptor",
+        "target": "file",
+        "success": true,
+        "result": "{'name': 'File', 'automation_id': '', 'class_name': 'menubar-menu-button', 'control_type': 50011, 'rect': {'left': 35, 'top': 0, 'right': 71, 'bottom': 35, 'width': 36, 'height': 35}, 'semantic_target': 'File'}",
+        "error": "",
+        "started": "2026-08-17 10:28:51.603182",
+        "completed": "2026-08-17 10:28:51.683812",
+        "id": "13a916a5-aaca-46d2-a26c-a6949adbb708"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_click_descriptor",
+        "target": "$LAST_UI",
+        "success": true,
+        "result": "Clicked at (53, 17).",
+        "error": "",
+        "started": "2026-08-17 10:28:51.684408",
+        "completed": "2026-08-17 10:28:51.751469",
+        "id": "5155b524-fa39-427e-8088-92ec8711dcf8"
     }
 ]

@@ -581,32 +581,222 @@ class GraphRunner:
         self,
         graph,
     ):
-        """Build a readable response from graph task results."""
-
+        """Build a human-readable response from task results."""
+    
         responses = []
-
+    
         for node in graph.nodes.values():
-
+        
             task = node.task
-
+    
             if node.failed:
-
+            
                 responses.append(
                     f"Failed: {task.error}"
                 )
-
+    
                 continue
-
-            if task.result is not None:
-
+            
+            if task.result is None:
+                continue
+            
+            # =====================================================
+            # UI FIND
+            # =====================================================
+    
+            if task.action in {
+                "ui_find_descriptor",
+                "ui_describe",
+            }:
+                if isinstance(
+                    task.result,
+                    dict,
+                ):
+                    name = (
+                        task.result.get(
+                            "name"
+                        )
+                        or task.target
+                        or "UI element"
+                    )
+    
+                    responses.append(
+                        f"Found {name}."
+                    )
+    
+                    continue
+                
+            # =====================================================
+            # UI CLICK
+            # =====================================================
+    
+            if task.action == "ui_click_descriptor":
+            
+                target_name = None
+    
+                if isinstance(
+                    task.result,
+                    str,
+                ):
+                    target_name = task.result
+    
+                if isinstance(
+                    task.target,
+                    str,
+                ) and target_name is None:
+                    target_name = task.target
+    
+                # `$LAST_UI` means the actual target is stored
+                # in the task context, so use the previous
+                # descriptor when possible.
+                if task.target == "$LAST_UI":
+                
+                    descriptor = self.task_context.get(
+                        "last_ui"
+                    )
+    
+                    if isinstance(
+                        descriptor,
+                        dict,
+                    ):
+                        target_name = (
+                            descriptor.get(
+                                "name"
+                            )
+                            or "UI element"
+                        )
+    
+                if target_name:
+                
+                    # Avoid returning low-level tool text such as
+                    # "Clicked at (79, 26)."
+                    if str(
+                        target_name
+                    ).startswith(
+                        "Clicked at"
+                    ):
+                        descriptor = self.task_context.get(
+                            "last_ui"
+                        )
+    
+                        if isinstance(
+                            descriptor,
+                            dict,
+                        ):
+                            target_name = (
+                                descriptor.get(
+                                    "name"
+                                )
+                                or "UI element"
+                            )
+                        else:
+                            target_name = "UI element"
+    
+                    responses.append(
+                        f"Clicked {target_name}."
+                    )
+    
+                    continue
+                
+            # =====================================================
+            # TYPING
+            # =====================================================
+    
+            if task.action in {
+                "ui_type_descriptor",
+                "ui_type",
+                "ui_type_at",
+            }:
+    
+                result_text = str(
+                    task.result
+                )
+    
+                if result_text.startswith(
+                    "Typed "
+                ):
+                    responses.append(
+                        result_text
+                    )
+                else:
+                    responses.append(
+                        "Text entered successfully."
+                    )
+    
+                continue
+            
+            # =====================================================
+            # KEYBOARD
+            # =====================================================
+    
+            if task.action == "keyboard_press":
+            
+                responses.append(
+                    f"Pressed {task.target}."
+                )
+    
+                continue
+            
+            if task.action == "keyboard_hotkey":
+            
+                responses.append(
+                    f"Pressed {task.target}."
+                )
+    
+                continue
+            
+            # =====================================================
+            # OPEN / CLOSE
+            # =====================================================
+    
+            if task.action == "open":
+            
+                responses.append(
+                    f"Opened {task.target}."
+                )
+    
+                continue
+            
+            if task.action == "close":
+            
+                responses.append(
+                    f"Closed {task.target}."
+                )
+    
+                continue
+            
+            # =====================================================
+            # DEFAULT
+            # =====================================================
+    
+            if isinstance(
+                task.result,
+                dict,
+            ):
+    
+                name = task.result.get(
+                    "name"
+                )
+    
+                if name:
+                    responses.append(
+                        str(name)
+                    )
+                else:
+                    responses.append(
+                        "Task completed successfully."
+                    )
+    
+            else:
+            
                 responses.append(
                     str(task.result)
                 )
-
+    
         if not responses:
-
-            return "No results were produced."
-
+        
+            return "Task completed successfully."
+    
         return "\n".join(
             responses
         )

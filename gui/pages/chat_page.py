@@ -534,49 +534,40 @@ class ChatPage(QWidget):
     # =========================================================
 
     def voice_finished(self, text):
-        app_state.last_active = (
-            time.time()
-        )
 
+        app_state.last_active = time.time()
+    
         self.animation_timer.stop()
-
+    
         self.voice_button.setEnabled(
             True
         )
-
+    
         self.voice_status.setText(
-            "● READY"
+            "Ready"
         )
-
+    
         if not text:
-
-            message = (
-                "Sorry, I couldn't hear you."
+        
+            app_state.state_machine.change(
+                AssistantState.AWAKE
             )
-
-            self.command_console.show_error(
-                message
-            )
-
+    
             self.chat_container.add_message(
                 "🤖 JARVIS",
-                message,
-                False,
+                "Sorry, I couldn't hear you.",
+                False
             )
-
+    
             self.scroll_to_bottom()
-
+    
             return
-
+    
         self.input_box.setText(
             text
         )
-
+    
         self.send_message()
-
-        app_state.state_machine.change(
-            AssistantState.AWAKE
-        )
 
     # =========================================================
     # WAKE WORD
