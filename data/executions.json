@@ -2726,5 +2726,49 @@
         "started": "2026-08-17 19:47:43.222763",
         "completed": "2026-08-17 19:47:43.266967",
         "id": "5ab5a52a-6ebd-407f-9856-d75e87c6cfe2"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "command centre",
+        "success": false,
+        "result": "I couldn't find an installed application called command centre.",
+        "error": "I couldn't find an installed application called command centre.",
+        "started": "2026-08-17 22:15:35.080440",
+        "completed": "2026-08-17 22:15:37.167644",
+        "id": "20f1dd2f-aa0b-4fa9-bfba-75362345f73c"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-17 22:15:53.307972",
+        "completed": "2026-08-17 22:15:53.345605",
+        "id": "183a8b46-09c8-45c1-96c9-4a2fa30b6b35"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "command centre",
+        "success": false,
+        "result": "I couldn't find an installed application called command centre.",
+        "error": "I couldn't find an installed application called command centre.",
+        "started": "2026-08-17 22:16:57.508980",
+        "completed": "2026-08-17 22:16:59.543155",
+        "id": "60c82161-0a4e-44f6-b4c5-ab2306fda0c1"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "command",
+        "success": false,
+        "result": "I couldn't find an installed application called command.",
+        "error": "I couldn't find an installed application called command.",
+        "started": "2026-08-17 22:18:22.175540",
+        "completed": "2026-08-17 22:18:24.224404",
+        "id": "65502035-0586-492f-8012-7d4c3e9cf084"
     }
 ]

@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (
 from config.states import AssistantState
 from core import app_state
 from core.hud_state import hud_state
+from core.ui_events import ui_events
 from gui.pages.chat_page import ChatPage
 from gui.pages.dashboard_page import DashboardPage
 from gui.pages.memory_page import MemoryPage
@@ -66,6 +67,9 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(
             central_widget
+        )
+        ui_events.navigate_requested.connect(
+            self.navigate_to_page
         )
 
         # =====================================================
@@ -452,6 +456,39 @@ class MainWindow(QMainWindow):
         )
 
         return frame
+
+    # =========================================================
+    # AGENT NAVIGATION
+    # =========================================================
+
+    def navigate_to_page(
+        self,
+        index,
+    ):
+        """Navigate the JARVIS HUD from an agent request."""
+
+        if not 0 <= index < self.pages.count():
+            return
+
+        buttons = (
+            self.sidebar.dashboard_btn,
+            self.sidebar.chat_btn,
+            self.sidebar.voice_btn,
+            self.sidebar.memory_btn,
+            self.sidebar.settings_btn,
+        )
+
+        self.pages.setCurrentIndex(
+            index
+        )
+
+        self.sidebar.set_active(
+            buttons[index]
+        )
+
+        self.page_transitions[
+            index
+        ].play()
 
     # =========================================================
     # PAGE NAVIGATION

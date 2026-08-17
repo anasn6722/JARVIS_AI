@@ -1,3 +1,6 @@
+from types import SimpleNamespace
+
+
 class ReasoningStage:
 
     def __init__(self, brain):
@@ -12,7 +15,59 @@ class ReasoningStage:
 
             command = item["command"]
 
-            decision = self.brain.reasoning.decide(command)
+            # =================================================
+            # MULTI-AGENT DECISION OVERRIDE
+            # =================================================
+
+            agent_result = item.get(
+                "agent_result"
+            )
+
+            agent_name = item.get(
+                "agent",
+                "",
+            )
+
+            # -------------------------------------------------
+            # JARVIS INTERNAL UI NAVIGATION
+            # -------------------------------------------------
+
+            if (
+                agent_name == "ui"
+                and agent_result is not None
+                and agent_result.success
+                and agent_result.metadata.get(
+                    "internal_navigation",
+                    False,
+                )
+            ):
+                decision = SimpleNamespace(
+                    route="UI",
+                    intent="navigate",
+                    agent="ui",
+                    page_index=(
+                        agent_result.metadata.get(
+                            "page_index"
+                        )
+                    ),
+                    confidence=1.0,
+                    tool=None,
+                    reason=(
+                        "Handled by UIAgent "
+                        "as internal JARVIS navigation."
+                    ),
+                )
+
+            # -------------------------------------------------
+            # NORMAL REASONING
+            # -------------------------------------------------
+
+            else:
+                decision = (
+                    self.brain.reasoning.decide(
+                        command
+                    )
+                )
 
             context.decisions.append(
                 {
@@ -21,10 +76,20 @@ class ReasoningStage:
                 }
             )
 
-            # Keep the current decision for AIStage
             context.decision = decision
 
-            print("=" * 50)
-            print("REASONING")
-            print(decision)
-            print("=" * 50)
+            print(
+                "=" * 50
+            )
+
+            print(
+                "REASONING"
+            )
+
+            print(
+                decision
+            )
+
+            print(
+                "=" * 50
+            )

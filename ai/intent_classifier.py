@@ -125,6 +125,57 @@ class IntentClassifier:
     )
 
     # =====================================================
+    # JARVIS INTERNAL NAVIGATION
+    # =====================================================
+    JARVIS_PAGE_PHRASES = {
+    "dashboard": (
+        "open dashboard",
+        "show dashboard",
+        "go to dashboard",
+        "open command center",
+        "open command centre",
+        "show command center",
+        "show command centre",
+        "go to command center",
+        "go to command centre",
+    ),
+    "chat": ( 
+        "open chat",
+        "show chat",
+        "go to chat",
+        "open chat console",
+        "show chat console",
+        "go to chat console",
+    ),
+    "voice": (
+        "open voice",
+        "show voice",
+        "go to voice",
+        "open voice interface",
+        "show voice interface",
+        "go to voice interface",
+        "open voice core",
+        "show voice core",
+    ),
+    "memory": (
+        "open memory",
+        "show memory",
+        "go to memory",
+        "open memory core",
+        "show memory core",
+        "go to memory core",
+    ),
+    "settings": (
+        "open settings",
+        "show settings",
+        "go to settings",
+        "open system settings",
+        "show system settings",
+        "go to system settings",
+    ),
+}
+
+    # =====================================================
     # KEYBOARD CONTROL
     # =====================================================
 
@@ -761,7 +812,18 @@ class IntentClassifier:
                 "intent": "keyboard_press",
             }
 
-        
+
+        # =====================================================
+        # JARVIS INTERNAL NAVIGATION
+        # =====================================================
+
+        for page, phrases in self.JARVIS_PAGE_PHRASES.items():
+            if text in phrases:
+                return {
+                    "destination": "BRAIN",
+                    "intent": "navigate",
+                    "page": page,
+                }
 
         # =====================================================
         # APPLICATIONS

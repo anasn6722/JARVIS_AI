@@ -1,3 +1,6 @@
+from core.ui_events import ui_events
+
+
 class ExecutionStage:
 
     def __init__(self, brain):
@@ -16,6 +19,86 @@ class ExecutionStage:
             return
 
         # =========================================================
+        # JARVIS UI ROUTE
+        # =========================================================
+
+        if context.decision.route == "UI":
+
+            page_index = getattr(
+                context.decision,
+                "page_index",
+                None,
+            )
+
+            if page_index is None:
+                context.response = (
+                    "I couldn't determine "
+                    "which interface page to open."
+                )
+
+                return context.response
+
+            try:
+                page_index = int(
+                    page_index
+                )
+
+            except (
+                TypeError,
+                ValueError,
+            ):
+                context.response = (
+                    "Invalid JARVIS page navigation request."
+                )
+
+                return context.response
+
+            # -------------------------------------------------
+            # VALID JARVIS PAGES
+            # -------------------------------------------------
+
+            if page_index not in {
+                0,
+                1,
+                2,
+                3,
+                4,
+            }:
+                context.response = (
+                    "That JARVIS interface page "
+                    "does not exist."
+                )
+
+                return context.response
+
+            # -------------------------------------------------
+            # SEND REQUEST TO QT GUI THREAD
+            # -------------------------------------------------
+
+            ui_events.navigate_requested.emit(
+                page_index
+            )
+
+            page_names = {
+                0: "Dashboard",
+                1: "Chat Console",
+                2: "Voice Interface",
+                3: "Memory Core",
+                4: "System Settings",
+            }
+
+            page_name = page_names.get(
+                page_index,
+                "JARVIS interface",
+            )
+
+            context.response = (
+                f"Opening {page_name}."
+            )
+
+            return context.response
+
+        # =========================================================
         # BUILTIN ROUTE
         # =========================================================
 
@@ -23,7 +106,6 @@ class ExecutionStage:
 
             command = None
 
-            # CommandStage stores parsed commands here.
             if context.commands:
 
                 last_item = context.commands[-1]

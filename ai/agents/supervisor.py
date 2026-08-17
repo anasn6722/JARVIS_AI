@@ -1,5 +1,6 @@
 from ai.agents.conversation_agent import ConversationAgent
 from ai.agents.desktop_agent import DesktopAgent
+from ai.agents.ui_agent import UIAgent
 
 
 class SupervisorAgent:
@@ -9,6 +10,7 @@ class SupervisorAgent:
 
     def __init__(self):
         self.agents = (
+            UIAgent(),
             DesktopAgent(),
             ConversationAgent(),
         )
