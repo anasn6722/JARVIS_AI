@@ -118,6 +118,21 @@ QPushButton:checked {
     color: #8ff7ff;
 }
 
+QPushButton[class="navButton"] {
+    text-align: left;
+}
+
+QPushButton[class="navButton"]:hover {
+    background-color: #0b252d;
+    border: 1px solid #287f8f;
+}
+
+QPushButton[class="navButton"][active="true"] {
+    background-color: #10343d;
+    color: #8ff7ff;
+    border: 1px solid #35c6da;
+}
+
 /* =========================================================
    INPUTS
    ========================================================= */

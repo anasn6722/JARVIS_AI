@@ -2220,5 +2220,71 @@
         "started": "2026-08-17 10:41:08.979310",
         "completed": "2026-08-17 10:41:09.029161",
         "id": "0317bcbe-444a-4e12-b626-9b48bc1b1376"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-17 10:57:40.705154",
+        "completed": "2026-08-17 10:57:40.737899",
+        "id": "47824f0f-5a1e-4493-85a6-d0ba32d21ebe"
+    },
+    {
+        "goal_id": "",
+        "action": "close",
+        "target": "chrome",
+        "success": true,
+        "result": "Closed Chrome.",
+        "error": "",
+        "started": "2026-08-17 10:58:03.476944",
+        "completed": "2026-08-17 10:58:03.694317",
+        "id": "e3c3f16c-5134-4cbc-a574-7af698ec9cd1"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "camera",
+        "success": true,
+        "result": "Opened Camera.",
+        "error": "",
+        "started": "2026-08-17 10:58:12.788895",
+        "completed": "2026-08-17 10:58:12.811430",
+        "id": "931dc0e1-3f2f-46a6-b3b2-354518f12937"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_find_descriptor",
+        "target": "file",
+        "success": false,
+        "result": "UI element not found: File",
+        "error": "UI element not found: File",
+        "started": "2026-08-17 11:01:07.196162",
+        "completed": "2026-08-17 11:01:09.299276",
+        "id": "710f9e4a-6ed3-4e41-9afa-7e47dcafc211"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_find_descriptor",
+        "target": "file",
+        "success": true,
+        "result": "{'name': 'File', 'automation_id': '', 'class_name': 'menubar-menu-button', 'control_type': 50011, 'rect': {'left': 52, 'top': 0, 'right': 106, 'bottom': 52, 'width': 54, 'height': 52}, 'semantic_target': 'File'}",
+        "error": "",
+        "started": "2026-08-17 11:01:31.993655",
+        "completed": "2026-08-17 11:01:32.058226",
+        "id": "d0cbaa2b-43e6-4a06-bd12-97a1ac060e5d"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_click_descriptor",
+        "target": "$LAST_UI",
+        "success": true,
+        "result": "Clicked at (79, 26).",
+        "error": "",
+        "started": "2026-08-17 11:01:32.070026",
+        "completed": "2026-08-17 11:01:32.120125",
+        "id": "8ec8404d-adee-48d4-b4e9-c46e79c6bff8"
     }
 ]

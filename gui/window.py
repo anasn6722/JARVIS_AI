@@ -1,5 +1,6 @@
 from PySide6.QtCore import (
     Qt,
+    QTimer,
 )
 from PySide6.QtGui import (
     QKeySequence,
@@ -16,6 +17,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from config.states import AssistantState
+from core import app_state
+from core.hud_state import hud_state
 from gui.pages.chat_page import ChatPage
 from gui.pages.dashboard_page import DashboardPage
 from gui.pages.memory_page import MemoryPage
@@ -108,7 +112,20 @@ class MainWindow(QMainWindow):
         root_layout.addWidget(
             self.top_bar
         )
+        # =====================================================
+        # QT Timer
+        # =====================================================
 
+        self.status_timer = QTimer(self)
+
+        self.status_timer.timeout.connect(
+            self.update_top_status
+        )
+
+        self.status_timer.start(
+            150
+        )
+        self.update_top_status()
         # =====================================================
         # MAIN CONTENT
         # =====================================================
@@ -225,7 +242,7 @@ class MainWindow(QMainWindow):
         self.pages.setCurrentIndex(
             0
         )
-        
+
         self.page_transitions[
             0
         ].play(
@@ -355,9 +372,16 @@ class MainWindow(QMainWindow):
         # CENTER
         # =====================================================
 
-        center_label = QLabel(
-            "SYSTEM // ONLINE"
+        self.top_status_label = QLabel(
+            "● SYSTEM READY"
         )
+
+        self.top_status_label.setProperty(
+            "class",
+            "statusOnline",
+        )
+
+        center_label = self.top_status_label
 
         center_label.setProperty(
             "class",
@@ -390,6 +414,11 @@ class MainWindow(QMainWindow):
 
         self.core_status_label = QLabel(
             "CORE: STABLE"
+        )
+
+        self.core_status_label.setProperty(
+            "class",
+            "statusOnline",
         )
 
         self.core_status_label.setProperty(
@@ -505,6 +534,221 @@ class MainWindow(QMainWindow):
             )
     
             self.hud_overlay.raise_()
+
+    def update_top_status(self):
+        """Reflect real assistant and workflow state in the HUD."""
+
+        assistant_state = (
+            app_state.state_machine.state
+        )
+
+        snapshot = hud_state.snapshot()
+
+        workflow_state = str(
+            snapshot.get(
+                "state",
+                "IDLE",
+            )
+        ).upper()
+
+        # =====================================================
+        # ERROR
+        # =====================================================
+
+        if workflow_state == "ERROR":
+
+            self.top_status_label.setText(
+                "● SYSTEM ERROR"
+            )
+
+            self.top_status_label.setProperty(
+                "class",
+                "statusError",
+            )
+
+            self.core_status_label.setText(
+                "CORE: ERROR"
+            )
+
+            self.core_status_label.setProperty(
+                "class",
+                "statusError",
+            )
+
+        # =====================================================
+        # EXECUTING
+        # =====================================================
+
+        elif workflow_state == "EXECUTING":
+
+            self.top_status_label.setText(
+                "● EXECUTING"
+            )
+
+            self.top_status_label.setProperty(
+                "class",
+                "statusThinking",
+            )
+
+            self.core_status_label.setText(
+                "CORE: ACTIVE"
+            )
+
+            self.core_status_label.setProperty(
+                "class",
+                "statusThinking",
+            )
+
+        # =====================================================
+        # SPEAKING
+        # =====================================================
+
+        elif (
+            assistant_state
+            == AssistantState.SPEAKING
+        ):
+
+            self.top_status_label.setText(
+                "● SPEAKING"
+            )
+
+            self.top_status_label.setProperty(
+                "class",
+                "statusThinking",
+            )
+
+            self.core_status_label.setText(
+                "CORE: TRANSMITTING"
+            )
+
+            self.core_status_label.setProperty(
+                "class",
+                "statusThinking",
+            )
+
+        # =====================================================
+        # LISTENING
+        # =====================================================
+
+        elif (
+            assistant_state
+            == AssistantState.LISTENING
+        ):
+
+            self.top_status_label.setText(
+                "● LISTENING"
+            )
+
+            self.top_status_label.setProperty(
+                "class",
+                "statusOnline",
+            )
+
+            self.core_status_label.setText(
+                "CORE: LISTENING"
+            )
+
+            self.core_status_label.setProperty(
+                "class",
+                "statusOnline",
+            )
+
+        # =====================================================
+        # THINKING
+        # =====================================================
+
+        elif (
+            assistant_state
+            == AssistantState.THINKING
+        ):
+
+            self.top_status_label.setText(
+                "● PROCESSING"
+            )
+
+            self.top_status_label.setProperty(
+                "class",
+                "statusThinking",
+            )
+
+            self.core_status_label.setText(
+                "CORE: THINKING"
+            )
+
+            self.core_status_label.setProperty(
+                "class",
+                "statusThinking",
+            )
+
+        # =====================================================
+        # AWAKE
+        # =====================================================
+
+        elif (
+            assistant_state
+            == AssistantState.AWAKE
+        ):
+
+            self.top_status_label.setText(
+                "● SYSTEM READY"
+            )
+
+            self.top_status_label.setProperty(
+                "class",
+                "statusOnline",
+            )
+
+            self.core_status_label.setText(
+                "CORE: AWAKE"
+            )
+
+            self.core_status_label.setProperty(
+                "class",
+                "statusOnline",
+            )
+
+        # =====================================================
+        # SLEEPING / DEFAULT
+        # =====================================================
+
+        else:
+
+            self.top_status_label.setText(
+                "● STANDBY"
+            )
+
+            self.top_status_label.setProperty(
+                "class",
+                "statusOnline",
+            )
+
+            self.core_status_label.setText(
+                "CORE: SLEEPING"
+            )
+
+            self.core_status_label.setProperty(
+                "class",
+                "statusOnline",
+            )
+
+        # =====================================================
+        # REFRESH STYLES
+        # =====================================================
+
+        for widget in (
+            self.top_status_label,
+            self.core_status_label,
+        ):
+
+            widget.style().unpolish(
+                widget
+            )
+
+            widget.style().polish(
+                widget
+            )
+
+            widget.update()
 
     # =========================================================
     # CLOSE
