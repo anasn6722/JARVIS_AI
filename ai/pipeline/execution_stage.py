@@ -53,10 +53,6 @@ class ExecutionStage:
 
                 return context.response
 
-            # -------------------------------------------------
-            # VALID JARVIS PAGES
-            # -------------------------------------------------
-
             if page_index not in {
                 0,
                 1,
@@ -70,10 +66,6 @@ class ExecutionStage:
                 )
 
                 return context.response
-
-            # -------------------------------------------------
-            # SEND REQUEST TO QT GUI THREAD
-            # -------------------------------------------------
 
             ui_events.navigate_requested.emit(
                 page_index
@@ -97,6 +89,27 @@ class ExecutionStage:
             )
 
             return context.response
+
+        # =========================================================
+        # VOICE ROUTE
+        # =========================================================
+
+        if context.decision.route == "VOICE":
+
+            response = getattr(
+                context.decision,
+                "response",
+                None,
+            )
+
+            if not response:
+                response = (
+                    "Voice settings updated."
+                )
+
+            context.response = response
+
+            return response
 
         # =========================================================
         # BUILTIN ROUTE

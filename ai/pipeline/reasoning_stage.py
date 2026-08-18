@@ -15,10 +15,6 @@ class ReasoningStage:
 
             command = item["command"]
 
-            # =================================================
-            # MULTI-AGENT RESULT
-            # =================================================
-
             agent_result = item.get(
                 "agent_result"
             )
@@ -60,12 +56,39 @@ class ReasoningStage:
                 )
 
             # =================================================
-            # MEMORY AGENT
+            # VOICE AGENT
             # =================================================
 
             elif (
-                agent_name == "memory"
+                agent_name == "voice"
+                and agent_result is not None
+                and agent_result.success
+                and "response" in agent_result.metadata
             ):
+
+                decision = SimpleNamespace(
+                    route="VOICE",
+                    intent=command.intent,
+                    agent="voice",
+                    confidence=1.0,
+                    tool=None,
+                    response=(
+                        agent_result.metadata.get(
+                            "response"
+                        )
+                    ),
+                    reason=(
+                        "Handled directly by "
+                        "VoiceAgent."
+                    ),
+                )
+
+            # =================================================
+            # MEMORY AGENT
+            # =================================================
+
+            elif agent_name == "memory":
+
                 decision = SimpleNamespace(
                     route="BUILTIN",
                     intent=command.intent,
@@ -89,10 +112,6 @@ class ReasoningStage:
                         command
                     )
                 )
-
-            # =================================================
-            # STORE DECISION
-            # =================================================
 
             context.decisions.append(
                 {

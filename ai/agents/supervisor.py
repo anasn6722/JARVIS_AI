@@ -3,6 +3,7 @@ from ai.agents.desktop_agent import DesktopAgent
 from ai.agents.memory_agent import MemoryAgent
 from ai.agents.research_agent import ResearchAgent
 from ai.agents.ui_agent import UIAgent
+from ai.agents.voice_agent import VoiceAgent
 
 
 class SupervisorAgent:
@@ -15,6 +16,7 @@ class SupervisorAgent:
         self.agents = (
             UIAgent(),
             MemoryAgent(),
+            VoiceAgent(),
             ResearchAgent(),
             DesktopAgent(),
             ConversationAgent(),

@@ -15,7 +15,7 @@ class UIAgent(BaseAgent):
         "dashboard": 0,
         "command center": 0,
         "command centre": 0,
-        "command":0,
+        "command":0,    
         "home": 0,
 
         "chat": 1,

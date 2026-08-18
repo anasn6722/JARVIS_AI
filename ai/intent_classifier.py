@@ -173,6 +173,8 @@ class IntentClassifier:
         "show system settings",
         "go to system settings",
     ),
+
+    
 }
 
     # =====================================================
@@ -962,6 +964,59 @@ class IntentClassifier:
             }
 
         # =====================================================
+        # VOICE LANGUAGE CONTROL
+        # =====================================================
+
+        VOICE_LANGUAGE_PHRASES = (
+            "switch to english",
+            "switch to urdu",
+            "switch to roman urdu",
+            "switch to punjabi",
+            "switch to hindi",
+
+            "change to english",
+            "change to urdu",
+            "change to roman urdu",
+            "change to punjabi",
+            "change to hindi",
+
+            "change my voice language",
+            "change my speech language",
+            "set language to english",
+            "set language to urdu",
+            "set language to roman urdu",
+            "set language to punjabi",
+            "set language to hindi",
+
+            "use english",
+            "use urdu",
+            "use roman urdu",
+            "use punjabi",
+            "use hindi",
+
+            "talk in english",
+            "talk in urdu",
+            "talk in roman urdu",
+            "talk in punjabi",
+            "talk in hindi",
+
+            "speak english",
+            "speak urdu",
+            "speak roman urdu",
+            "speak punjabi",
+            "speak hindi",
+        )
+
+        if IntentUtils.contains_any(
+            text,
+            VOICE_LANGUAGE_PHRASES,
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "voice_language",
+            }
+
+        # =====================================================
         # ADD GOAL
         # =====================================================
 
@@ -1114,6 +1169,31 @@ class IntentClassifier:
             return {
                 "destination": "BRAIN",
                 "intent": "search_result",
+            }
+
+
+        # =====================================================
+        # VOICE LANGUAGE SETTINGS
+        # =====================================================
+        
+        if (
+            "automatic language detection" in text
+            or "auto language detection" in text
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "voice_language",
+            }
+        
+        if (
+            "respond in detected language" in text
+            or "reply in detected language" in text
+            or "respond in primary language" in text
+            or "reply in primary language" in text
+        ):
+            return {
+                "destination": "BRAIN",
+                "intent": "voice_language",
             }
 
         # =====================================================
