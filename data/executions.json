@@ -2869,5 +2869,16 @@
         "started": "2026-08-19 22:42:25.967332",
         "completed": "2026-08-19 22:42:26.006591",
         "id": "ff386a3d-3968-419e-a679-960ec7e9503a"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-19 23:00:28.831922",
+        "completed": "2026-08-19 23:00:28.879579",
+        "id": "1337616a-54b8-4f58-9ff9-b54f5619e8ab"
     }
 ]
