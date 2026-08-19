@@ -2825,5 +2825,49 @@
         "started": "2026-08-18 21:17:37.989911",
         "completed": "2026-08-18 21:17:38.020911",
         "id": "1b19bc4e-6d1b-47df-82d8-7e5ecb1485cd"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-19 16:25:03.187190",
+        "completed": "2026-08-19 16:25:03.217889",
+        "id": "e4dbad9b-3628-48d9-b79f-6138e7bb5b42"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-19 16:25:23.247259",
+        "completed": "2026-08-19 16:25:23.268019",
+        "id": "db2bd1d4-41df-479b-9c1c-8524652190d1"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-19 22:42:12.632189",
+        "completed": "2026-08-19 22:42:12.656704",
+        "id": "84b848a0-e523-4ea5-8fd8-3f606c717a02"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-19 22:42:25.967332",
+        "completed": "2026-08-19 22:42:26.006591",
+        "id": "ff386a3d-3968-419e-a679-960ec7e9503a"
     }
 ]

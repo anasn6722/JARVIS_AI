@@ -1,8 +1,10 @@
+from voice.language_manager import language_manager
+
+
 class AIStage:
 
     def __init__(self, brain):
         self.brain = brain
-
 
     def run(self, context):
 
@@ -21,56 +23,113 @@ class AIStage:
             return
 
         history = self.brain.chat_memory.recent()
+
         print("DEBUG: PASSED CHAT MEMORY")
 
-        # -----------------------------
-        # Knowledge Search
-        # -----------------------------
+        # =====================================================
+        # RESPONSE LANGUAGE
+        # =====================================================
+
+        response_language = (
+            language_manager.get_response_language()
+        )
+
+        detected_language = (
+            language_manager.detected_language
+        )
+
+        print(
+            "Detected language:",
+            detected_language,
+        )
+
+        print(
+            "Response language:",
+            response_language,
+        )
+
+        # =====================================================
+        # KNOWLEDGE SEARCH
+        # =====================================================
 
         print("=" * 50)
         print("KNOWLEDGE SEARCH")
         print("QUERY:", context.input)
         print("=" * 50)
 
-        knowledge = self.brain.knowledge_manager.search(
-            context.input
+        knowledge = (
+            self.brain.knowledge_manager.search(
+                context.input
+            )
         )
+
+        # =====================================================
+        # BUILD PROMPT
+        # =====================================================
 
         if knowledge.success:
 
             print("=" * 50)
             print("KNOWLEDGE FOUND")
-            print("SOURCE:", knowledge.source)
-            print("CONFIDENCE:", knowledge.confidence)
-            print("CONTENT:", knowledge.content)
+            print(
+                "SOURCE:",
+                knowledge.source,
+            )
+            print(
+                "CONFIDENCE:",
+                knowledge.confidence,
+            )
+            print(
+                "CONTENT:",
+                knowledge.content,
+            )
             print("=" * 50)
 
             prompt = f"""
-    User Question:
-    {context.input}
+User Question:
+{context.input}
 
-    External Knowledge:
-    {knowledge.content}
+External Knowledge:
+{knowledge.content}
 
-    Instructions:
-    Use the external knowledge above as the primary factual source.
-    Answer the user's question naturally and clearly.
-    Do not mention the source unless necessary.
-    Do not invent facts that are not supported by the knowledge.
-    """
+Response Language:
+{response_language}
+
+Instructions:
+Use the external knowledge above as the primary factual source.
+Answer the user's question naturally and clearly.
+Do not mention the source unless necessary.
+Do not invent facts that are not supported by the knowledge.
+Respond in {response_language}.
+Keep the answer conversational and concise unless the user asks for detail.
+"""
 
         else:
 
             print("=" * 50)
             print("NO KNOWLEDGE FOUND")
-            print("ERROR:", knowledge.error)
+            print(
+                "ERROR:",
+                knowledge.error,
+            )
             print("=" * 50)
 
-            prompt = context.input
+            prompt = f"""
+User Question:
+{context.input}
 
-        # -----------------------------
-        # Gemini
-        # -----------------------------
+Response Language:
+{response_language}
+
+Instructions:
+Answer the user naturally and clearly.
+Respond in {response_language}.
+Keep the answer conversational and concise unless the user asks for detail.
+"""
+
+        # =====================================================
+        # LLM
+        # =====================================================
 
         print("=" * 50)
         print("CALLING LLM")
