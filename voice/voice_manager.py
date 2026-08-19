@@ -49,6 +49,7 @@ class VoiceManager(QThread):
     # =========================================================
 
     def run(self):
+
         logger.info(
             "Voice Manager started."
         )
@@ -63,6 +64,7 @@ class VoiceManager(QThread):
                 app_state.state_machine.is_thinking()
                 or app_state.state_machine.is_speaking()
             ):
+
                 self._listening = False
 
                 hud_state.update(
@@ -83,10 +85,6 @@ class VoiceManager(QThread):
 
                 self._listening = False
 
-                hud_state.update(
-                    audio_level=0
-                )
-
                 self.msleep(
                     700
                 )
@@ -95,7 +93,7 @@ class VoiceManager(QThread):
                 break
 
             # -------------------------------------------------
-            # REMEMBER STATE BEFORE LISTENING
+            # STATE BEFORE LISTEN
             # -------------------------------------------------
 
             was_sleeping = (
@@ -103,10 +101,6 @@ class VoiceManager(QThread):
             )
 
             self._listening = True
-
-            hud_state.update(
-                audio_level=0
-            )
 
             logger.info(
                 "Voice state before listen: %s",
@@ -121,10 +115,8 @@ class VoiceManager(QThread):
             # LISTEN
             # -------------------------------------------------
 
-            text = self.listener.listen()
-
-            hud_state.update(
-                audio_level=self.listener.input_level
+            text = self.listener.listen(
+                wake_mode=was_sleeping,
             )
 
             self._listening = False
@@ -132,26 +124,21 @@ class VoiceManager(QThread):
             if not self.running:
                 break
 
-            # -------------------------------------------------
-            # NO SPEECH
-            # -------------------------------------------------
-
             if not text:
 
                 if was_sleeping:
+
                     app_state.state_machine.change(
                         AssistantState.SLEEPING
                     )
+
                 else:
+
                     app_state.state_machine.change(
                         AssistantState.AWAKE
                     )
 
                 continue
-
-            # -------------------------------------------------
-            # NORMALIZE
-            # -------------------------------------------------
 
             text = text.strip().lower()
 
@@ -176,16 +163,20 @@ class VoiceManager(QThread):
                     - self.last_command_time
                 ) < 3
             ):
+
                 logger.info(
                     "Duplicate command ignored: %s",
                     text,
                 )
 
                 if was_sleeping:
+
                     app_state.state_machine.change(
                         AssistantState.SLEEPING
                     )
+
                 else:
+
                     app_state.state_machine.change(
                         AssistantState.AWAKE
                     )
@@ -255,27 +246,9 @@ class VoiceManager(QThread):
                 text
             )
 
-            # -------------------------------------------------
-            # IMPORTANT
-            # -------------------------------------------------
-            #
-            # Do not exit.
-            #
-            # ChatPage processes the command.
-            # SpeechManager moves through SPEAKING → AWAKE.
-            # The loop then starts listening again.
-            #
             continue
 
-        # =====================================================
-        # SHUTDOWN
-        # =====================================================
-
         self._listening = False
-
-        hud_state.update(
-            audio_level=0
-        )
 
         logger.info(
             "Voice Manager stopped."

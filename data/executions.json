@@ -2792,5 +2792,38 @@
         "started": "2026-08-17 23:03:01.114508",
         "completed": "2026-08-17 23:03:01.662813",
         "id": "60471c8a-9396-4f60-bddc-7cd54903d6ef"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-18 18:28:41.636372",
+        "completed": "2026-08-18 18:28:41.683891",
+        "id": "5b42bc64-fd04-4c5d-9b33-a846d60b6498"
+    },
+    {
+        "goal_id": "",
+        "action": "focus_window",
+        "target": null,
+        "success": false,
+        "result": "",
+        "error": "DesktopController.focus_window() missing 1 required positional argument: 'name'",
+        "started": "2026-08-18 18:29:04.704958",
+        "completed": "2026-08-18 18:29:06.709976",
+        "id": "144bae0d-0dfc-487e-a0af-e4659dc954a6"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-18 21:17:37.989911",
+        "completed": "2026-08-18 21:17:38.020911",
+        "id": "1b19bc4e-6d1b-47df-82d8-7e5ecb1485cd"
     }
 ]

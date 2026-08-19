@@ -10,13 +10,13 @@ class LanguageManager:
     def __init__(self):
         self.primary_language = DEFAULT_LANGUAGE
 
-        self.enabled_languages = {
+        self.enabled_languages = [
             "English",
             "Urdu",
             "Roman Urdu",
             "Punjabi",
             "Hindi",
-        }
+        ]
 
         self.auto_detect = True
         self.respond_in_detected_language = True
@@ -45,15 +45,24 @@ class LanguageManager:
     def enable_language(self, language):
         if language not in LANGUAGES:
             return False
-
-        self.enabled_languages.add(language)
+    
+        if language not in self.enabled_languages:
+            self.enabled_languages.append(
+                language
+            )
+    
         return True
-
+    
+    
     def disable_language(self, language):
         if language == self.primary_language:
             return False
-
-        self.enabled_languages.discard(language)
+    
+        if language in self.enabled_languages:
+            self.enabled_languages.remove(
+                language
+            )
+    
         return True
 
     def is_enabled(self, language):
@@ -114,6 +123,42 @@ class LanguageManager:
         return list(
             LANGUAGES.keys()
         )
+
+    def enabled_recognition_codes(self):
+        """Return unique recognition codes for enabled languages."""
+
+        codes = []
+
+        for language in self.enabled_languages:
+            language_data = LANGUAGES.get(
+                language
+            )
+
+            if not language_data:
+                continue
+
+            code = language_data["code"]
+
+            if code not in codes:
+                codes.append(code)
+
+        return codes
+
+    def language_for_code(self, code):
+        """Return the configured language name for a recognition code."""
+
+        for language, data in LANGUAGES.items():
+
+            if code == data["code"]:
+                return language
+
+            if code in data.get(
+                "speech_codes",
+                [],
+            ):
+                return language
+
+        return self.primary_language
 
 
 language_manager = LanguageManager()
