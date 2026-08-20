@@ -2880,5 +2880,203 @@
         "started": "2026-08-19 23:00:28.831922",
         "completed": "2026-08-19 23:00:28.879579",
         "id": "1337616a-54b8-4f58-9ff9-b54f5619e8ab"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-20 10:47:55.598010",
+        "completed": "2026-08-20 10:47:55.617980",
+        "id": "520e827b-e2b6-47b5-91a7-5899f8e5eff5"
+    },
+    {
+        "goal_id": "",
+        "action": "search_ui",
+        "target": "python classes",
+        "success": true,
+        "result": "Searched for 'python classes'.",
+        "error": "",
+        "started": "2026-08-20 10:47:55.653959",
+        "completed": "2026-08-20 10:47:56.226277",
+        "id": "75b03008-56bb-4f79-a8e5-4132dee7e4e0"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_find_descriptor",
+        "target": "voice interface",
+        "success": false,
+        "result": "UI element not found: voice interface",
+        "error": "UI element not found: voice interface",
+        "started": "2026-08-20 10:48:41.243823",
+        "completed": "2026-08-20 10:48:43.523466",
+        "id": "9621c129-ea99-4d63-9331-9325eb1de9ec"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_click",
+        "target": "settings",
+        "success": false,
+        "result": "UI element not found: settings",
+        "error": "UI element not found: settings",
+        "started": "2026-08-20 10:48:50.931466",
+        "completed": "2026-08-20 10:48:53.259899",
+        "id": "dfd60d3f-104a-406b-8c10-dd6518559e6b"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_click",
+        "target": "immers",
+        "success": false,
+        "result": "UI element not found: immers",
+        "error": "UI element not found: immers",
+        "started": "2026-08-20 10:51:05.207058",
+        "completed": "2026-08-20 10:51:08.816889",
+        "id": "bed9dd9d-e80d-43ca-b44c-3b5475b46588"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_click",
+        "target": "Language",
+        "success": true,
+        "result": "Clicked LANGUAGE.",
+        "error": "",
+        "started": "2026-08-20 10:51:14.067664",
+        "completed": "2026-08-20 10:51:14.502128",
+        "id": "1cdbc9f2-2d51-4359-b2f0-e51bf01041fd"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_click",
+        "target": "immersive button",
+        "success": false,
+        "result": "UI element not found: immersive button",
+        "error": "UI element not found: immersive button",
+        "started": "2026-08-20 10:51:30.932416",
+        "completed": "2026-08-20 10:51:33.787826",
+        "id": "f558b1e2-4d63-4061-a01f-bd5f89c0179f"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_click",
+        "target": "Urdu",
+        "success": false,
+        "result": "UI element not found: Urdu",
+        "error": "UI element not found: Urdu",
+        "started": "2026-08-20 10:51:37.927256",
+        "completed": "2026-08-20 10:51:41.040369",
+        "id": "926b78d9-cc0e-411d-a98c-d1592723d213"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_find_descriptor",
+        "target": "immersive button",
+        "success": false,
+        "result": "UI element not found: immersive button",
+        "error": "UI element not found: immersive button",
+        "started": "2026-08-20 10:51:59.629531",
+        "completed": "2026-08-20 10:52:02.561978",
+        "id": "744eef6c-c77e-4ff9-abdc-ae61fdffb697"
+    },
+    {
+        "goal_id": "",
+        "action": "ui_click",
+        "target": "LANGUAGE",
+        "success": true,
+        "result": "Clicked LANGUAGE.",
+        "error": "",
+        "started": "2026-08-20 10:52:10.487095",
+        "completed": "2026-08-20 10:52:10.695682",
+        "id": "11a39022-a3e1-4950-adf7-59b7eb100813"
+    },
+    {
+        "goal_id": "",
+        "action": "open",
+        "target": "chrome",
+        "success": true,
+        "result": "Opened Chrome.",
+        "error": "",
+        "started": "2026-08-20 10:53:08.165395",
+        "completed": "2026-08-20 10:53:08.182201",
+        "id": "6142925f-0773-4022-96f1-a2311236ff16"
+    },
+    {
+        "goal_id": "",
+        "action": "focus_window",
+        "target": "switch to urdu",
+        "success": false,
+        "result": "Window not found: switch to urdu",
+        "error": "Window not found: switch to urdu",
+        "started": "2026-08-20 10:53:26.847684",
+        "completed": "2026-08-20 10:53:28.891627",
+        "id": "3ee81eac-c4dc-4c75-8f68-e36afa8db936"
+    },
+    {
+        "goal_id": "",
+        "action": "list_windows",
+        "target": "",
+        "success": false,
+        "result": "",
+        "error": "DesktopController.list_windows() takes 1 positional argument but 2 were given",
+        "started": "2026-08-20 10:53:32.721999",
+        "completed": "2026-08-20 10:53:34.732564",
+        "id": "dff7d184-4711-4709-aca0-42b87b23c098"
+    },
+    {
+        "goal_id": "",
+        "action": "close",
+        "target": "chrome",
+        "success": true,
+        "result": "Closed Chrome.",
+        "error": "",
+        "started": "2026-08-20 10:53:52.459865",
+        "completed": "2026-08-20 10:53:52.632598",
+        "id": "fec87ec7-eccc-42ca-8ed6-a73c1aa4c9eb"
+    },
+    {
+        "goal_id": "",
+        "action": "focus_window",
+        "target": null,
+        "success": false,
+        "result": "",
+        "error": "DesktopController.focus_window() missing 1 required positional argument: 'name'",
+        "started": "2026-08-20 10:54:06.469312",
+        "completed": "2026-08-20 10:54:08.473852",
+        "id": "5ce201e5-2a60-413a-a275-226868a3499e"
+    },
+    {
+        "goal_id": "",
+        "action": "list_windows",
+        "target": "",
+        "success": false,
+        "result": "",
+        "error": "DesktopController.list_windows() takes 1 positional argument but 2 were given",
+        "started": "2026-08-20 10:54:14.524863",
+        "completed": "2026-08-20 10:54:16.539120",
+        "id": "ce189867-13b3-4306-a024-cab86f92f067"
+    },
+    {
+        "goal_id": "",
+        "action": "focus_window",
+        "target": null,
+        "success": false,
+        "result": "",
+        "error": "DesktopController.focus_window() missing 1 required positional argument: 'name'",
+        "started": "2026-08-20 10:55:57.079966",
+        "completed": "2026-08-20 10:55:59.082295",
+        "id": "c205c642-e83c-4a85-b075-db774e6c8ad8"
+    },
+    {
+        "goal_id": "",
+        "action": "keyboard_hotkey",
+        "target": "super+space",
+        "success": false,
+        "result": "Unsupported key: super",
+        "error": "Unsupported key: super",
+        "started": "2026-08-20 10:56:06.635918",
+        "completed": "2026-08-20 10:56:08.642495",
+        "id": "75b4eb55-ce7e-42cd-9368-fe48a04537c3"
     }
 ]

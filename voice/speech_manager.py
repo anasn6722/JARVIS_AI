@@ -83,4 +83,4 @@ class SpeechManager:
                 time.time()
             )
 
-        self._start_next()
+        self._start_next()  
