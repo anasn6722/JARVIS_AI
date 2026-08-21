@@ -14,6 +14,9 @@ class Task:
         default_factory=list
     )
 
+    # Original user-command index.
+    command_index: int | None = None
+
     completed: bool = False
     success: bool = False
 

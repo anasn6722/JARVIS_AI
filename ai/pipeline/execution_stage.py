@@ -1,153 +1,374 @@
-from core.ui_events import ui_events
-
-
 class ExecutionStage:
 
     def __init__(self, brain):
         self.brain = brain
 
+    # =========================================================
+    # RUN
+    # =========================================================
+
     def run(self, context):
 
-        if context.decision is None:
+        if not context.commands:
             return
 
-        # =========================================================
-        # AI ROUTE
-        # =========================================================
+        # Always start a fresh aggregation for this pipeline.
+        context.command_results = {}
 
-        if context.decision.route == "AI":
-            return
+        # =====================================================
+        # BUILTIN COMMANDS
+        # =====================================================
 
-        # =========================================================
-        # JARVIS UI ROUTE
-        # =========================================================
+        for index, item in enumerate(context.commands):
 
-        if context.decision.route == "UI":
-
-            page_index = getattr(
-                context.decision,
-                "page_index",
-                None,
-            )
-
-            if page_index is None:
-                context.response = (
-                    "I couldn't determine "
-                    "which interface page to open."
-                )
-
-                return context.response
-
-            try:
-                page_index = int(
-                    page_index
-                )
-
-            except (
-                TypeError,
-                ValueError,
-            ):
-                context.response = (
-                    "Invalid JARVIS page navigation request."
-                )
-
-                return context.response
-
-            if page_index not in {
-                0,
-                1,
-                2,
-                3,
-                4,
-            }:
-                context.response = (
-                    "That JARVIS interface page "
-                    "does not exist."
-                )
-
-                return context.response
-
-            ui_events.navigate_requested.emit(
-                page_index
-            )
-
-            page_names = {
-                0: "Dashboard",
-                1: "Chat Console",
-                2: "Voice Interface",
-                3: "Memory Core",
-                4: "System Settings",
-            }
-
-            page_name = page_names.get(
-                page_index,
-                "JARVIS interface",
-            )
-
-            context.response = (
-                f"Opening {page_name}."
-            )
-
-            return context.response
-
-        # =========================================================
-        # VOICE ROUTE
-        # =========================================================
-
-        if context.decision.route == "VOICE":
-
-            response = getattr(
-                context.decision,
-                "response",
-                None,
-            )
-
-            if not response:
-                response = (
-                    "Voice settings updated."
-                )
-
-            context.response = response
-
-            return response
-
-        # =========================================================
-        # BUILTIN ROUTE
-        # =========================================================
-
-        if context.decision.route == "BUILTIN":
-
-            command = None
-
-            if context.commands:
-
-                last_item = context.commands[-1]
-
-                if isinstance(
-                    last_item,
-                    dict,
-                ):
-                    command = last_item.get(
-                        "command"
-                    )
+            command = item.get("command")
 
             if command is None:
-                context.response = None
-                return None
+                continue
 
-            response = self.brain.execute_builtin(
-                context.decision.intent,
-                command.original,
+            decision = self._find_decision(
+                context,
+                command,
             )
 
-            context.response = response
+            if decision is None:
+                continue
 
-            return response
+            route = getattr(
+                decision,
+                "route",
+                None,
+            )
 
-        # =========================================================
-        # NORMAL PLANNER / DESKTOP EXECUTION
-        # =========================================================
+            if route != "BUILTIN":
+                continue
 
-        return self.brain.execution_manager.execute(
-            context
+            response = self.brain.execute_builtin(
+                command.intent,
+                command,
+            )
+
+            if response:
+
+                command_index = item.get(
+                    "command_index",
+                    index,
+                )
+
+                context.set_command_result(
+                    command_index,
+                    response,
+                )
+
+                print(
+                    "COMMAND RESULT:",
+                    command_index,
+                    "->",
+                    response,
+                )
+
+        # =====================================================
+        # PLANNER / GRAPH EXECUTION
+        # =====================================================
+        
+        if context.tasks:
+        
+            # Execute the graph.
+            self.brain.execution_manager.execute(
+                context
+            )
+        
+            # IMPORTANT:
+            # Do not use the combined graph response as the final
+            # request response. Read individual Task results
+            # instead so command order is preserved.
+            self._assign_planner_results(
+                context
+            )
+
+        # =====================================================
+        # AI COMMANDS
+        # =====================================================
+
+        if context.response:
+
+            ai_index = (
+                self._find_ai_command_index(
+                    context
+                )
+            )
+
+            if ai_index is not None:
+
+                context.set_command_result(
+                    ai_index,
+                    context.response,
+                )
+
+        # =====================================================
+        # FINAL DEBUG
+        # =====================================================
+
+        print(
+            "=" * 50
         )
+
+        print(
+            "COMMAND RESULTS"
+        )
+
+        for key in sorted(
+            context.command_results
+        ):
+
+            print(
+                key,
+                "->",
+                context.command_results[key],
+            )
+
+        print(
+            "=" * 50
+        )
+
+    # =========================================================
+    # GRAPH RESULTS
+    # =========================================================
+
+    @staticmethod
+    def _assign_planner_results(
+        context,
+    ):
+
+        for task in context.tasks:
+
+            command_index = getattr(
+                task,
+                "command_index",
+                None,
+            )
+
+            if command_index is None:
+                continue
+
+            if not task.success:
+                continue
+
+            if task.result is None:
+                continue
+
+            result = str(
+                task.result
+            ).strip()
+
+            if not result:
+                continue
+
+            # Convert low-level task output into the same
+            # human-facing response used by GraphRunner.
+            response = ExecutionStage._format_task_result(
+                task
+            )
+
+            if response:
+
+                context.set_command_result(
+                    command_index,
+                    response,
+                )
+
+    # =========================================================
+    # FORMAT TASK RESULT
+    # =========================================================
+
+    @staticmethod
+    def _format_task_result(task):
+
+        action = str(
+            task.action
+            or ""
+        ).strip()
+
+        target = str(
+            task.target
+            or ""
+        ).strip()
+
+        result = (
+            str(task.result)
+            .strip()
+        )
+
+        # -----------------------------------------------------
+        # OPEN
+        # -----------------------------------------------------
+
+        if action == "open":
+
+            return f"Opened {target}."
+
+        # -----------------------------------------------------
+        # CLOSE
+        # -----------------------------------------------------
+
+        if action == "close":
+
+            return f"Closed {target}."
+
+        # -----------------------------------------------------
+        # SEARCH UI
+        # -----------------------------------------------------
+
+        if action == "search_ui":
+
+            if result:
+                return result
+
+            return f"Searched for '{target}'."
+
+        # -----------------------------------------------------
+        # SEARCH
+        # -----------------------------------------------------
+
+        if action == "search":
+
+            if result:
+                return result
+
+            return f"Searched for '{target}'."
+
+        # -----------------------------------------------------
+        # YOUTUBE
+        # -----------------------------------------------------
+
+        if action == "youtube_search":
+
+            if result:
+                return result
+
+            return f"Searched YouTube for '{target}'."
+
+        # -----------------------------------------------------
+        # KEYBOARD
+        # -----------------------------------------------------
+
+        if action == "keyboard_press":
+
+            return f"Pressed {target}."
+
+        if action == "keyboard_hotkey":
+
+            return f"Pressed {target}."
+
+        # -----------------------------------------------------
+        # UI
+        # -----------------------------------------------------
+
+        if action == "ui_click_descriptor":
+
+            return f"Clicked {target}."
+
+        if action in {
+            "ui_type_descriptor",
+            "ui_type",
+            "ui_type_at",
+        }:
+
+            return (
+                result
+                or "Text entered successfully."
+            )
+
+        # -----------------------------------------------------
+        # DEFAULT
+        # -----------------------------------------------------
+
+        return (
+            result
+            or "Task completed successfully."
+        )
+
+    # =========================================================
+    # AI COMMAND INDEX
+    # =========================================================
+
+    @staticmethod
+    def _find_ai_command_index(
+        context,
+    ):
+
+        for index, item in enumerate(
+            context.commands
+        ):
+
+            command = item.get(
+                "command"
+            )
+
+            if command is None:
+                continue
+
+            decision = (
+                ExecutionStage._find_decision(
+                    context,
+                    command,
+                )
+            )
+
+            if decision is None:
+                continue
+
+            if getattr(
+                decision,
+                "route",
+                None,
+            ) == "AI":
+
+                return item.get(
+                    "command_index",
+                    index,
+                )
+
+        return None
+
+    # =========================================================
+    # DECISION LOOKUP
+    # =========================================================
+
+    @staticmethod
+    def _find_decision(
+        context,
+        command,
+    ):
+
+        for item in context.decisions:
+
+            item_command = item.get(
+                "command"
+            )
+
+            if item_command is command:
+
+                return item.get(
+                    "decision"
+                )
+
+            if (
+                item_command is not None
+                and getattr(
+                    item_command,
+                    "original",
+                    None,
+                )
+                == getattr(
+                    command,
+                    "original",
+                    None
+                )
+            ):
+
+                return item.get(
+                    "decision"
+                )
+
+        return None

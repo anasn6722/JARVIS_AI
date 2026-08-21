@@ -16,16 +16,34 @@ class ResponseStage:
         # DEFAULT RESPONSE
         # =====================================================
 
+        # =====================================================
+        # ORDERED COMMAND RESULTS
+        # =====================================================
+        
+        ordered_results = (
+            context.ordered_command_results()
+        )
+        
+        if ordered_results:
+        
+            context.response = "\n".join(
+                ordered_results
+            )
+        
+        # =====================================================
+        # DEFAULT RESPONSE
+        # =====================================================
+        
         if not context.response:
-
+        
             if context.verification_errors:
-
+            
                 context.response = (
                     "I couldn't complete the request."
                 )
-
+        
             else:
-
+            
                 context.response = (
                     "The request completed, "
                     "but no response was produced."

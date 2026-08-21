@@ -98,6 +98,7 @@ class CommandStage:
             "command": command_data,
             "goal": goal,
             "original_text": text,
+            "command_index": command_index,
             "agent": "unassigned",
             "agent_result": None,
         }

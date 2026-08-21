@@ -1,4 +1,3 @@
-
 import re
 from typing import ClassVar
 
@@ -332,7 +331,7 @@ class IntentClassifier:
         "my favorite language": "favorite_language",
 
         # Identity
-        "who am i": "identity",
+        "who am i": "name",
 
         # Favorites
         "what do i like": "favorites",
@@ -957,7 +956,14 @@ class IntentClassifier:
         # GET NAME
         # =====================================================
 
-        if "what is my name" in text:
+        if text in (
+            "what is my name",
+            "tell me my name",
+            "what's my name",
+            "who am i",
+            "do you know my name",
+            "do you remember my name",
+        ):
             return {
                 "destination": "BRAIN",
                 "intent": "get_name",

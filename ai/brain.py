@@ -23,225 +23,45 @@ class Brain:
 
         
     def process(self, command: str) -> str:
-        
-        commands = self.command_splitter.split(
-            command
-        )
-    
-        if not commands:
+
+        if not command or not command.strip():
             return ""
     
         # =========================================================
-        # SINGLE COMMAND
+        # ONE PIPELINE FOR THE ENTIRE USER REQUEST
+        # =========================================================
+        #
+        # CommandStage is responsible for:
+        #
+        #   command splitting
+        #   command parsing
+        #   agent routing
+        #
+        # PlanningStage is responsible for:
+        #
+        #   task creation
+        #   cross-command dependencies
+        #   graph construction
+        #
+        # GraphRunner is responsible for:
+        #
+        #   sequential / parallel execution
+        #
+        # Keeping one PipelineContext is essential because all
+        # commands must share the same workflow graph.
         # =========================================================
     
-        if len(commands) == 1:
-        
-            context = PipelineContext(
-                commands[0]
-            )
-    
-            self.pipeline.run(
-                context
-            )
-    
-            return (
-                context.response
-                or ""
-            )
-    
-        # =========================================================
-        # MULTI-COMMAND MODE
-        # =========================================================
-    
-        print("=" * 60)
-        print("BRAIN MULTI-COMMAND MODE")
-        print(
-            "Commands:",
-            commands,
+        context = PipelineContext(
+            command.strip()
         )
-        print("=" * 60)
     
-        # ---------------------------------------------------------
-        # Parse commands first.
-        # ---------------------------------------------------------
+        self.pipeline.run(
+            context
+        )
     
-        parsed = []
-    
-        for index, text in enumerate(
-            commands
-        ):
-    
-            command_data, goal = (
-                self.command_manager.process(
-                    text
-                )
-            )
-    
-            command_data = (
-                self.reference_resolver.resolve(
-                    command_data
-                )
-            )
-    
-            parsed.append(
-                {
-                    "index": index,
-                    "text": text,
-                    "command": command_data,
-                    "goal": goal,
-                }
-            )
-    
-        # ---------------------------------------------------------
-        # Determine dependencies.
-        #
-        # We currently use conservative rules. Desktop/search
-        # commands remain sequential when one clearly depends on
-        # an earlier desktop command.
-        # ---------------------------------------------------------
-    
-        independent = []
-        dependent = []
-    
-        for item in parsed:
-        
-            text = item["text"].lower()
-    
-            dependency_words = (
-                "it",
-                "that",
-                "this",
-                "then",
-                "after that",
-                "previous",
-                "last",
-                "same",
-            )
-    
-            if any(
-                word in text
-                for word in dependency_words
-            ):
-    
-                dependent.append(
-                    item
-                )
-    
-                continue
-            
-            # Search commands may depend on a preceding
-            # application-opening command.
-            if (
-                item["command"].intent
-                in {
-                    "search_ui",
-                    "ui_find",
-                    "ui_click",
-                    "ui_click_descriptor",
-                    "ui_type",
-                    "ui_type_descriptor",
-                }
-            ):
-    
-                dependent.append(
-                    item
-                )
-    
-                continue
-            
-            independent.append(
-                item
-            )
-    
-        # =========================================================
-        # AGENT ROUTING FOR INDEPENDENT COMMANDS
-        # =========================================================
-    
-        agent_results = []
-    
-        if independent:
-        
-            independent_commands = [
-                item["command"]
-                for item in independent
-            ]
-    
-            agent_results = (
-                self.agent_router.route_many(
-                    independent_commands,
-                    brain=self,
-                )
-            )
-    
-            print(
-                "Independent agents dispatched:",
-                len(agent_results),
-            )
-    
-        # =========================================================
-        # RESPONSES
-        # =========================================================
-    
-        responses = []
-    
-        # ---------------------------------------------------------
-        # Execute dependent commands through the existing pipeline.
-        # This preserves desktop/UI dependencies.
-        # ---------------------------------------------------------
-    
-        for item in parsed:
-        
-            if item in dependent:
-            
-                context = PipelineContext(
-                    item["text"]
-                )
-    
-                self.pipeline.run(
-                    context
-                )
-    
-                if context.response:
-                
-                    responses.append(
-                        context.response
-                    )
-    
-        # ---------------------------------------------------------
-        # Independent agent results.
-        #
-        # At this stage agents may only be delegating to the
-        # existing pipeline, so only use actual returned responses.
-        # ---------------------------------------------------------
-    
-        for result in agent_results:
-        
-            agent_result = result.get(
-                "result"
-            )
-    
-            if agent_result is None:
-                continue
-            
-            response = getattr(
-                agent_result,
-                "response",
-                "",
-            )
-    
-            if response:
-            
-                responses.append(
-                    response
-                )
-    
-        # =========================================================
-        # FINAL RESPONSE
-        # =========================================================
-    
-        return "\n".join(
-            responses
+        return (
+            context.response
+            or ""
         )     
 
     def handle_hello(self, command):

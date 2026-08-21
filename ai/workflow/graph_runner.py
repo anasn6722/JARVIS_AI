@@ -1,4 +1,6 @@
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
+from threading import Lock
 
 from ai.memory.execution.execution_record import ExecutionRecord
 from ai.workflow.workflow_context import WorkflowContext
@@ -8,7 +10,47 @@ from desktop_automation.planner.task_context import TaskContext
 
 
 class GraphRunner:
-    """Execute tasks according to their graph dependencies."""
+    """Execute tasks according to graph dependencies."""
+
+    # ============================================================
+    # ACTION SAFETY
+    # ============================================================
+
+    # These actions can affect desktop focus, visible UI state,
+    # keyboard/mouse state, or shared UI references.
+    SERIAL_ACTIONS = {
+        "open",
+        "close",
+        "close_last",
+        "focus_window",
+        "minimize_window",
+        "maximize_window",
+        "restore_window",
+        "minimize_active_window",
+        "maximize_active_window",
+        "restore_active_window",
+        "mouse_move",
+        "mouse_click",
+        "mouse_double_click",
+        "mouse_right_click",
+        "mouse_middle_click",
+        "mouse_scroll",
+        "keyboard_type",
+        "keyboard_press",
+        "keyboard_hotkey",
+        "ui_find",
+        "ui_click",
+        "ui_find_descriptor",
+        "ui_click_descriptor",
+        "ui_type_descriptor",
+        "ui_focus",
+        "ui_click_at",
+        "ui_describe",
+        "ui_type",
+        "search_ui",
+    }
+
+    MAX_PARALLEL_WORKERS = 4
 
     def __init__(
         self,
@@ -22,8 +64,12 @@ class GraphRunner:
         self.retry_manager = retry_manager
         self.execution_memory = execution_memory
 
-        # Context shared by tasks during one graph execution.
+        # Shared task context for one graph.
         self.task_context = TaskContext()
+
+        # Protect shared TaskContext writes when safe tasks execute
+        # concurrently.
+        self._context_lock = Lock()
 
     # ============================================================
     # RUN GRAPH
@@ -46,7 +92,6 @@ class GraphRunner:
                 node.task.target,
             )
 
-        # Start every graph with a clean task context.
         self.task_context.clear()
 
         context = WorkflowContext(
@@ -57,10 +102,6 @@ class GraphRunner:
         )
 
         context.status = WorkflowStatus.RUNNING
-
-        # ========================================================
-        # WORKFLOW START EVENT
-        # ========================================================
 
         self.events.publish(
             WorkflowEvent(
@@ -88,7 +129,142 @@ class GraphRunner:
                 )
                 break
 
+            parallel_nodes = []
+            serial_nodes = []
+
             for node in ready:
+
+                if self._is_parallel_safe(
+                    node
+                ):
+                    parallel_nodes.append(node)
+                else:
+                    serial_nodes.append(node)
+
+            # ====================================================
+            # PARALLEL SAFE NODES
+            # ====================================================
+
+            if parallel_nodes:
+
+                print(
+                    "=" * 60
+                )
+
+                print(
+                    "PARALLEL EXECUTION"
+                )
+
+                print(
+                    "Tasks:",
+                    len(parallel_nodes),
+                )
+
+                for node in parallel_nodes:
+
+                    print(
+                        "Parallel:",
+                        node.task.action,
+                        node.task.target,
+                    )
+
+                    self.events.publish(
+                        WorkflowEvent(
+                            name="TASK_STARTED",
+                            task=node.task,
+                            data=context,
+                        )
+                    )
+
+                worker_count = min(
+                    self.MAX_PARALLEL_WORKERS,
+                    len(parallel_nodes),
+                )
+
+                with ThreadPoolExecutor(
+                    max_workers=worker_count,
+                    thread_name_prefix="jarvis-task",
+                ) as executor:
+
+                    futures = {
+                        executor.submit(
+                            self.execute_node,
+                            node,
+                            goal_id,
+                        ): node
+                        for node in parallel_nodes
+                    }
+
+                    for future in as_completed(
+                        futures
+                    ):
+
+                        node = futures[
+                            future
+                        ]
+
+                        try:
+                            future.result()
+
+                        except Exception as error:
+
+                            node.failed = True
+                            node.running = False
+                            node.task.success = False
+                            node.task.completed = False
+                            node.task.error = str(
+                                error
+                            )
+
+                            print(
+                                "Parallel task exception:",
+                                error,
+                            )
+
+                        if node.completed:
+
+                            context.completed.append(
+                                node.task
+                            )
+
+                            self.events.publish(
+                                WorkflowEvent(
+                                    name="TASK_COMPLETED",
+                                    task=node.task,
+                                    data=context,
+                                )
+                            )
+
+                        elif node.failed:
+
+                            context.failed.append(
+                                node.task
+                            )
+
+                            context.result.errors.append(
+                                node.task.error
+                            )
+
+                            self.events.publish(
+                                WorkflowEvent(
+                                    name="TASK_FAILED",
+                                    task=node.task,
+                                    data=context,
+                                )
+                            )
+
+                print(
+                    "=" * 60
+                )
+
+            # ====================================================
+            # SERIAL DESKTOP / UI NODES
+            # ====================================================
+
+            for node in serial_nodes:
+
+                if node.completed:
+                    continue
 
                 print(
                     "Executing:",
@@ -171,7 +347,7 @@ class GraphRunner:
             )
 
         # ========================================================
-        # CHECK WHETHER GRAPH ACTUALLY COMPLETED
+        # CHECK COMPLETION
         # ========================================================
 
         if not graph.completed():
@@ -213,6 +389,44 @@ class GraphRunner:
         return self.build_graph_result(
             graph
         )
+
+    # ============================================================
+    # PARALLEL SAFETY
+    # ============================================================
+
+    @classmethod
+    def _is_parallel_safe(cls, node):
+        """
+        Determine whether a task can safely run concurrently.
+
+        Desktop/UI operations remain serialized because they may
+        change focus, mouse position, keyboard state, browser
+        state, or $LAST_UI.
+        """
+
+        action = str(
+            node.task.action
+            or ""
+        ).strip().lower()
+
+        if not action:
+            return False
+
+        if action in cls.SERIAL_ACTIONS:
+            return False
+
+        # Any UI-prefixed action is treated as unsafe by default.
+        if action.startswith("ui_"):
+            return False
+
+        # Mouse/keyboard actions are always serialized.
+        if (
+            action.startswith("mouse_")
+            or action.startswith("keyboard_")
+        ):
+            return False
+
+        return True
 
     # ============================================================
     # EXECUTE NODE
@@ -302,11 +516,17 @@ class GraphRunner:
                     )
                 ):
 
-                    success, message = raw_result
+                    success, message = (
+                        raw_result
+                    )
 
-                    node.task.success = success
+                    node.task.success = (
+                        success
+                    )
 
-                    node.task.result = message
+                    node.task.result = (
+                        message
+                    )
 
                 else:
 
@@ -340,64 +560,62 @@ class GraphRunner:
                     )
 
                     # =============================================
-                    # TASK CONTEXT
+                    # SHARED TASK CONTEXT
                     # =============================================
 
-                    self.task_context.set(
-                        "last_result",
-                        node.task.result,
-                    )
-
-                    self.task_context.set(
-                        "last_action",
-                        node.task.action,
-                    )
-
-                    self.task_context.set(
-                        "last_target",
-                        node.task.target,
-                    )
-
-                    self.task_context.set(
-                        f"task:{node.task.id}",
-                        node.task.result,
-                    )
-
-                    self.task_context.set(
-                        f"result:{node.task.action}",
-                        node.task.result,
-                    )
-
-                    # =============================================
-                    # LAST UI DESCRIPTOR
-                    # =============================================
-
-                    if (
-                        node.task.action
-                        in {
-                            "ui_find_descriptor",
-                            "ui_describe",
-                        }
-                        and isinstance(
-                            node.task.result,
-                            dict,
-                        )
-                    ):
+                    with self._context_lock:
 
                         self.task_context.set(
-                            "last_ui",
+                            "last_result",
                             node.task.result,
                         )
+
+                        self.task_context.set(
+                            "last_action",
+                            node.task.action,
+                        )
+
+                        self.task_context.set(
+                            "last_target",
+                            node.task.target,
+                        )
+
+                        self.task_context.set(
+                            f"task:{node.task.id}",
+                            node.task.result,
+                        )
+
+                        self.task_context.set(
+                            f"result:{node.task.action}",
+                            node.task.result,
+                        )
+
+                        if (
+                            node.task.action
+                            in {
+                                "ui_find_descriptor",
+                                "ui_describe",
+                            }
+                            and isinstance(
+                                node.task.result,
+                                dict,
+                            )
+                        ):
+
+                            self.task_context.set(
+                                "last_ui",
+                                node.task.result,
+                            )
+
+                            print(
+                                "LAST UI:",
+                                node.task.result,
+                            )
 
                         print(
-                            "LAST UI:",
-                            node.task.result,
+                            "TASK CONTEXT:",
+                            self.task_context.snapshot(),
                         )
-
-                    print(
-                        "TASK CONTEXT:",
-                        self.task_context.snapshot(),
-                    )
 
                     # =============================================
                     # EXECUTION MEMORY
@@ -582,36 +800,38 @@ class GraphRunner:
         graph,
     ):
         """Build a human-readable response from task results."""
-    
+
         responses = []
-    
+
         for node in graph.nodes.values():
-        
+
             task = node.task
-    
+
             if node.failed:
-            
+
                 responses.append(
                     f"Failed: {task.error}"
                 )
-    
+
                 continue
-            
+
             if task.result is None:
                 continue
-            
+
             # =====================================================
             # UI FIND
             # =====================================================
-    
+
             if task.action in {
                 "ui_find_descriptor",
                 "ui_describe",
             }:
+
                 if isinstance(
                     task.result,
                     dict,
                 ):
+
                     name = (
                         task.result.get(
                             "name"
@@ -619,184 +839,211 @@ class GraphRunner:
                         or task.target
                         or "UI element"
                     )
-    
+
                     responses.append(
                         f"Found {name}."
                     )
-    
+
                     continue
-                
+
             # =====================================================
             # UI CLICK
             # =====================================================
-    
+
             if task.action == "ui_click_descriptor":
-            
+
                 target_name = None
-    
+
                 if isinstance(
                     task.result,
                     str,
                 ):
-                    target_name = task.result
-    
-                if isinstance(
-                    task.target,
-                    str,
-                ) and target_name is None:
-                    target_name = task.target
-    
-                # `$LAST_UI` means the actual target is stored
-                # in the task context, so use the previous
-                # descriptor when possible.
-                if task.target == "$LAST_UI":
-                
-                    descriptor = self.task_context.get(
-                        "last_ui"
+
+                    target_name = (
+                        task.result
                     )
-    
+
+                if (
+                    isinstance(
+                        task.target,
+                        str,
+                    )
+                    and target_name is None
+                ):
+
+                    target_name = (
+                        task.target
+                    )
+
+                if task.target == "$LAST_UI":
+
+                    with self._context_lock:
+
+                        descriptor = (
+                            self.task_context.get(
+                                "last_ui"
+                            )
+                        )
+
                     if isinstance(
                         descriptor,
                         dict,
                     ):
+
                         target_name = (
                             descriptor.get(
                                 "name"
                             )
                             or "UI element"
                         )
-    
+
                 if target_name:
-                
-                    # Avoid returning low-level tool text such as
-                    # "Clicked at (79, 26)."
+
                     if str(
                         target_name
                     ).startswith(
                         "Clicked at"
                     ):
-                        descriptor = self.task_context.get(
-                            "last_ui"
-                        )
-    
+
+                        with self._context_lock:
+
+                            descriptor = (
+                                self.task_context.get(
+                                    "last_ui"
+                                )
+                            )
+
                         if isinstance(
                             descriptor,
                             dict,
                         ):
+
                             target_name = (
                                 descriptor.get(
                                     "name"
                                 )
                                 or "UI element"
                             )
+
                         else:
-                            target_name = "UI element"
-    
+
+                            target_name = (
+                                "UI element"
+                            )
+
                     responses.append(
                         f"Clicked {target_name}."
                     )
-    
+
                     continue
-                
+
             # =====================================================
             # TYPING
             # =====================================================
-    
+
             if task.action in {
                 "ui_type_descriptor",
                 "ui_type",
                 "ui_type_at",
             }:
-    
+
                 result_text = str(
                     task.result
                 )
-    
+
                 if result_text.startswith(
                     "Typed "
                 ):
+
                     responses.append(
                         result_text
                     )
+
                 else:
+
                     responses.append(
                         "Text entered successfully."
                     )
-    
+
                 continue
-            
+
             # =====================================================
             # KEYBOARD
             # =====================================================
-    
+
             if task.action == "keyboard_press":
-            
+
                 responses.append(
                     f"Pressed {task.target}."
                 )
-    
+
                 continue
-            
+
             if task.action == "keyboard_hotkey":
-            
+
                 responses.append(
                     f"Pressed {task.target}."
                 )
-    
+
                 continue
-            
+
             # =====================================================
             # OPEN / CLOSE
             # =====================================================
-    
+
             if task.action == "open":
-            
+
                 responses.append(
                     f"Opened {task.target}."
                 )
-    
+
                 continue
-            
+
             if task.action == "close":
-            
+
                 responses.append(
                     f"Closed {task.target}."
                 )
-    
+
                 continue
-            
+
             # =====================================================
             # DEFAULT
             # =====================================================
-    
+
             if isinstance(
                 task.result,
                 dict,
             ):
-    
+
                 name = task.result.get(
                     "name"
                 )
-    
+
                 if name:
+
                     responses.append(
                         str(name)
                     )
+
                 else:
+
                     responses.append(
                         "Task completed successfully."
                     )
-    
+
             else:
-            
+
                 responses.append(
                     str(task.result)
                 )
-    
+
         if not responses:
-        
-            return "Task completed successfully."
-    
+
+            return (
+                "Task completed successfully."
+            )
+
         return "\n".join(
             responses
         )
@@ -805,9 +1052,12 @@ class GraphRunner:
     # CONTEXT TARGET RESOLUTION
     # ============================================================
 
-    def _resolve_target(self, target):
+    def _resolve_target(
+        self,
+        target,
+    ):
         """
-        Resolve context references in a task target.
+        Resolve context references.
 
         Supported references:
 
@@ -839,9 +1089,11 @@ class GraphRunner:
 
         if value == "$LAST_RESULT":
 
-            return self.task_context.get(
-                "last_result"
-            )
+            with self._context_lock:
+
+                return self.task_context.get(
+                    "last_result"
+                )
 
         # ========================================================
         # LAST UI + TEXT
@@ -855,11 +1107,13 @@ class GraphRunner:
                 len("$LAST_UI||"):
             ].strip()
 
-            descriptor = (
-                self.task_context.get(
-                    "last_ui"
+            with self._context_lock:
+
+                descriptor = (
+                    self.task_context.get(
+                        "last_ui"
+                    )
                 )
-            )
 
             if descriptor is None:
                 return None
@@ -870,14 +1124,16 @@ class GraphRunner:
             }
 
         # ========================================================
-        # LAST UI DESCRIPTOR
+        # LAST UI
         # ========================================================
 
         if value == "$LAST_UI":
 
-            return self.task_context.get(
-                "last_ui"
-            )
+            with self._context_lock:
+
+                return self.task_context.get(
+                    "last_ui"
+                )
 
         # ========================================================
         # LAST ACTION
@@ -885,9 +1141,11 @@ class GraphRunner:
 
         if value == "$LAST_ACTION":
 
-            return self.task_context.get(
-                "last_action"
-            )
+            with self._context_lock:
+
+                return self.task_context.get(
+                    "last_action"
+                )
 
         # ========================================================
         # LAST TARGET
@@ -895,12 +1153,14 @@ class GraphRunner:
 
         if value == "$LAST_TARGET":
 
-            return self.task_context.get(
-                "last_target"
-            )
+            with self._context_lock:
+
+                return self.task_context.get(
+                    "last_target"
+                )
 
         # ========================================================
-        # ACTION-SPECIFIC RESULT
+        # ACTION RESULT
         # ========================================================
 
         if value.startswith(
@@ -914,10 +1174,10 @@ class GraphRunner:
             if not action:
                 return None
 
-            return self.task_context.get(
-                f"result:{action}"
-            )
+            with self._context_lock:
 
-        # Unknown reference:
-        # leave it untouched so the tool can handle it.
+                return self.task_context.get(
+                    f"result:{action}"
+                )
+
         return target
