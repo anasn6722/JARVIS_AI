@@ -13,7 +13,6 @@ class ExecutionStage:
             return
 
         # Always start a fresh aggregation for this pipeline.
-        context.command_results = {}
 
         # =====================================================
         # BUILTIN COMMANDS
@@ -77,33 +76,11 @@ class ExecutionStage:
             self.brain.execution_manager.execute(
                 context
             )
-        
-            # IMPORTANT:
-            # Do not use the combined graph response as the final
-            # request response. Read individual Task results
-            # instead so command order is preserved.
+
             self._assign_planner_results(
                 context
             )
 
-        # =====================================================
-        # AI COMMANDS
-        # =====================================================
-
-        if context.response:
-
-            ai_index = (
-                self._find_ai_command_index(
-                    context
-                )
-            )
-
-            if ai_index is not None:
-
-                context.set_command_result(
-                    ai_index,
-                    context.response,
-                )
 
         # =====================================================
         # FINAL DEBUG
