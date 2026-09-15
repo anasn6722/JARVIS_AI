@@ -20,6 +20,7 @@ class ReasoningEngine:
         "close",
         "search",
         "youtube_search",
+        "search_result",
 
         # Desktop windows
         "focus_window",
@@ -38,6 +39,7 @@ class ReasoningEngine:
         "keyboard_type",
         "keyboard_press",
         "keyboard_hotkey",
+
         # Semantic UI
         "ui_find",
         "ui_click",
@@ -45,7 +47,25 @@ class ReasoningEngine:
         "ui_click_at",
         "ui_describe",
         "ui_type",
+        "ui_find_descriptor",
+        "ui_click_descriptor",
+        "ui_type_descriptor",
         "search_ui",
+        "open_search_result",
+
+        # Filesystem
+        "path_exists",
+        "list_directory",
+        "create_folder",
+        "create_file",
+        "read_file",
+        "file_info",
+        "copy",
+        "move",
+        "rename",
+        "search_files",
+        "open_path",
+        "open_in_explorer",
     }
 
     def __init__(self, brain):

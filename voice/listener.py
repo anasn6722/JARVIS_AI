@@ -12,10 +12,13 @@ from config.states import AssistantState
 from core import app_state
 from core.logger import logger
 from voice.language_manager import language_manager
+from voice.profile_manager import VoiceProfileManager
+from voice.speaker_auth import SpeakerAuth
+from voice.voice_identity import VoiceIdentity
 
 
 class Listener:
-    """Capture microphone input and recognize speech."""
+    """Capture microphone input, authenticate the OWNER, and recognize speech."""
 
     def __init__(self):
         self.recognizer = sr.Recognizer()
@@ -32,6 +35,43 @@ class Listener:
         self.last_time = 0.0
 
         self.input_level = 0
+
+        # =========================================================
+        # SPEAKER AUTHENTICATION / OWNER IDENTITY
+        # =========================================================
+
+        # Keep the existing SpeakerAuth object available.
+        # It provides the SpeechBrain model and embedding generation.
+        self.speaker_auth = SpeakerAuth(
+            threshold=0.28
+        )
+
+        # Profile-based identity system.
+        self.profile_manager = VoiceProfileManager()
+
+        self.voice_identity = VoiceIdentity(
+            self.profile_manager,
+            threshold=0.28,
+        )
+
+        # OWNER-ONLY MODE
+        #
+        # For now, only the OWNER profile is allowed to use JARVIS.
+        # Even if an AUTHORIZED profile is later present, this
+        # listener will still reject it until OWNER-ONLY mode is
+        # explicitly changed.
+        self.owner_only = True
+
+        self.voice_authorized = False
+
+        self.last_voice_score = 0.0
+        self.last_voice_identity = "UNKNOWN"
+        self.last_voice_user_id = None
+        self.last_voice_display_name = None
+
+        # =========================================================
+        # LANGUAGE
+        # =========================================================
 
         self.last_recognition_language = (
             language_manager.get_primary_language()
@@ -50,6 +90,13 @@ class Listener:
 
         wake_mode=False:
             Use configured multilingual recognition behavior.
+
+        Security:
+            Speaker identity is checked immediately after
+            microphone capture and BEFORE speech recognition.
+
+            In OWNER-ONLY mode, only the OWNER profile can
+            continue to STT.
         """
 
         try:
@@ -100,9 +147,197 @@ class Listener:
                     )
                 )
 
+            # =====================================================
+            # OWNER VOICE IDENTITY
+            # =====================================================
+
+            logger.info(
+                "🔐 Verifying OWNER voice..."
+            )
+
             # -----------------------------------------------------
+            # OWNER PROFILE CHECK
+            # -----------------------------------------------------
+
+            owner_profile = (
+                self.profile_manager.get_profile(
+                    "OWNER"
+                )
+            )
+
+            if not self.profile_manager.validate_profile(
+                owner_profile
+            ):
+
+                self.voice_authorized = False
+                self.last_voice_score = 0.0
+                self.last_voice_identity = "UNKNOWN"
+                self.last_voice_user_id = None
+                self.last_voice_display_name = None
+
+                logger.error(
+                    "❌ OWNER profile missing or invalid. "
+                    "Voice command rejected."
+                )
+
+                return ""
+
+            # -----------------------------------------------------
+            # CREATE SPEAKER EMBEDDING
+            # -----------------------------------------------------
+
+            try:
+
+                candidate_embedding = (
+                    self.speaker_auth.embedding_from_audio(
+                        audio
+                    )
+                )
+
+            except Exception as error:
+
+                self.voice_authorized = False
+                self.last_voice_score = 0.0
+                self.last_voice_identity = "UNKNOWN"
+                self.last_voice_user_id = None
+                self.last_voice_display_name = None
+
+                logger.exception(
+                    "Speaker embedding failed: %s",
+                    error,
+                )
+
+                return ""
+
+            if candidate_embedding is None:
+
+                self.voice_authorized = False
+                self.last_voice_score = 0.0
+                self.last_voice_identity = "UNKNOWN"
+                self.last_voice_user_id = None
+                self.last_voice_display_name = None
+
+                logger.warning(
+                    "🚫 Could not create speaker embedding."
+                )
+
+                return ""
+
+            # -----------------------------------------------------
+            # IDENTIFY SPEAKER
+            # -----------------------------------------------------
+
+            try:
+
+                identity_result = (
+                    self.voice_identity.identify(
+                        candidate_embedding
+                    )
+                )
+
+            except Exception as error:
+
+                self.voice_authorized = False
+                self.last_voice_score = 0.0
+                self.last_voice_identity = "UNKNOWN"
+                self.last_voice_user_id = None
+                self.last_voice_display_name = None
+
+                logger.exception(
+                    "Voice identity matching failed: %s",
+                    error,
+                )
+
+                return ""
+
+            # -----------------------------------------------------
+            # STORE IDENTITY RESULT
+            # -----------------------------------------------------
+
+            identity = str(
+                identity_result.get(
+                    "identity",
+                    "UNKNOWN",
+                )
+            ).upper()
+
+            user_id = (
+                identity_result.get(
+                    "user_id"
+                )
+            )
+
+            display_name = (
+                identity_result.get(
+                    "display_name"
+                )
+            )
+
+            score = float(
+                identity_result.get(
+                    "score",
+                    0.0,
+                )
+            )
+
+            threshold = float(
+                identity_result.get(
+                    "threshold",
+                    self.voice_identity.threshold,
+                )
+            )
+
+            self.last_voice_score = score
+            self.last_voice_identity = identity
+            self.last_voice_user_id = user_id
+            self.last_voice_display_name = display_name
+
+            # =====================================================
+            # OWNER-ONLY DECISION
+            # =====================================================
+
+            if (
+                self.owner_only
+                and identity == "OWNER"
+            ):
+
+                self.voice_authorized = True
+
+                logger.info(
+                    "✅ OWNER VOICE VERIFIED | "
+                    "name=%s score=%.4f threshold=%.4f",
+                    display_name or "Owner",
+                    score,
+                    threshold,
+                )
+
+            else:
+
+                self.voice_authorized = False
+
+                # Normalize anything that isn't OWNER into UNKNOWN
+                # for the external listener state.
+                if identity != "OWNER":
+                    self.last_voice_identity = "UNKNOWN"
+
+                logger.warning(
+                    "🚫 VOICE REJECTED | "
+                    "identity=%s score=%.4f threshold=%.4f",
+                    identity,
+                    score,
+                    threshold,
+                )
+
+                logger.info(
+                    "🔒 OWNER-ONLY MODE: "
+                    "command blocked before speech recognition."
+                )
+
+                return ""
+
+            # =====================================================
             # RECOGNITION
-            # -----------------------------------------------------
+            # =====================================================
 
             logger.info(
                 "🧠 Recognizing..."
@@ -113,6 +348,7 @@ class Listener:
                 wake_mode=wake_mode,
             )
 
+            # Release the AudioData reference after recognition.
             audio = None
 
             if not result:
@@ -125,9 +361,9 @@ class Listener:
             if not text:
                 return ""
 
-            # -----------------------------------------------------
+            # =====================================================
             # UPDATE DETECTED LANGUAGE
-            # -----------------------------------------------------
+            # =====================================================
 
             language_manager.set_detected_language(
                 language
@@ -142,9 +378,9 @@ class Listener:
                 language,
             )
 
-            # -----------------------------------------------------
+            # =====================================================
             # DUPLICATE PROTECTION
-            # -----------------------------------------------------
+            # =====================================================
 
             now = time.time()
 
@@ -166,6 +402,10 @@ class Listener:
             self.last_text = text
             self.last_time = now
 
+            # =====================================================
+            # FINAL RESULT
+            # =====================================================
+
             logger.info(
                 "Recognized [%s]: %s",
                 language,
@@ -179,6 +419,7 @@ class Listener:
         # =========================================================
 
         except sr.WaitTimeoutError:
+
             return ""
 
         # =========================================================
@@ -186,6 +427,7 @@ class Listener:
         # =========================================================
 
         except sr.UnknownValueError:
+
             return ""
 
         # =========================================================
@@ -313,250 +555,52 @@ class Listener:
             )
 
         # =========================================================
-        # AUTOMATIC LANGUAGE MODE
+        # STRICT SINGLE-LANGUAGE MODE
         # =========================================================
 
-        codes = (
-            self._get_unique_recognition_codes()
-        )
-
-        if not codes:
-            codes = [
-                language_manager.recognition_code()
-            ]
-
-        primary_code = (
-            language_manager.recognition_code()
-        )
-
-        ordered_codes = []
-
-        # Primary language first.
-        if primary_code in codes:
-            ordered_codes.append(
-                primary_code
-            )
-
-        for code in codes:
-
-            if code not in ordered_codes:
-                ordered_codes.append(
-                    code
-                )
-
-        candidates = []
-
-        for code in ordered_codes:
-
-            try:
-
-                candidate = (
-                    self._recognize_with_details(
-                        audio,
-                        code,
-                    )
-                )
-
-                if candidate is None:
-                    continue
-
-                text = candidate.get(
-                    "text",
-                    "",
-                ).strip()
-
-                if not text:
-                    continue
-
-                confidence = candidate.get(
-                    "confidence"
-                )
-
-                candidates.append(
-                    {
-                        "text": text,
-                        "code": code,
-                        "confidence": confidence,
-                    }
-                )
-
-                logger.info(
-                    "Recognition candidate [%s]: %s",
-                    code,
-                    text,
-                )
-
-            except sr.UnknownValueError:
-                continue
-
-            except sr.RequestError:
-                raise
-
-            except Exception as error:
-
-                logger.warning(
-                    "Recognition failed for %s: %s",
-                    code,
-                    error,
-                )
-
-        if not candidates:
-            return None
-
-        # =========================================================
-        # LANGUAGE-AWARE CANDIDATE SCORING
-        # =========================================================
-
-        primary_language = (
+        language = (
             language_manager.get_primary_language()
         )
 
-        scored_candidates = []
-
-        for candidate in candidates:
-
-            text = candidate["text"]
-            code = candidate["code"]
-
-            score = 0.0
-
-            # -------------------------------------------------
-            # SCRIPT-BASED LANGUAGE MATCH
-            # -------------------------------------------------
-
-            script = self._detect_script(
-                text
-            )
-
-            if script == "latin":
-
-                if code == "en-US":
-                    score += 70
-
-                elif code == "ur-PK":
-
-                    # Roman Urdu uses Latin script.
-                    if primary_language == "Roman Urdu":
-                        score += 65
-                    else:
-                        score += 10
-
-            elif script == "urdu":
-
-                if code == "ur-PK":
-                    score += 70
-                else:
-                    score -= 30
-
-            elif script == "gurmukhi":
-
-                if code == "pa-IN":
-                    score += 70
-                else:
-                    score -= 30
-
-            elif script == "devanagari":
-
-                if code == "hi-IN":
-                    score += 70
-                else:
-                    score -= 30
-
-            # -------------------------------------------------
-            # PRIMARY LANGUAGE
-            # -------------------------------------------------
-
-            if (
-                primary_language == "English"
-                and code == "en-US"
-            ):
-                score += 30
-
-            elif (
-                primary_language in {
-                    "Urdu",
-                    "Roman Urdu",
-                }
-                and code == "ur-PK"
-            ):
-                score += 30
-
-            elif (
-                primary_language == "Punjabi"
-                and code == "pa-IN"
-            ):
-                score += 30
-
-            elif (
-                primary_language == "Hindi"
-                and code == "hi-IN"
-            ):
-                score += 30
-
-            # -------------------------------------------------
-            # BACKEND CONFIDENCE
-            #
-            # Use confidence only as a small tie-breaker.
-            # It should NOT dominate script detection.
-            # -------------------------------------------------
-
-            confidence = candidate.get(
-                "confidence"
-            )
-
-            if isinstance(
-                confidence,
-                (int, float),
-            ):
-                score += min(
-                    float(confidence) * 10,
-                    10,
-                )
-
-            candidate["score"] = score
-
-            scored_candidates.append(
-                candidate
-            )
-
-            logger.info(
-                "Candidate score [%s]: %.2f | %s",
-                code,
-                score,
-                text,
-            )
-
-        # ---------------------------------------------------------
-        # SELECT BEST CANDIDATE
-        # ---------------------------------------------------------
-
-        best = max(
-            scored_candidates,
-            key=lambda item: item["score"],
+        code = (
+            language_manager.recognition_code()
         )
-
-        language = (
-            language_manager.language_for_code(
-                best["code"]
-            )
-        )
-
-        # Roman Urdu uses Urdu recognition.
-        if (
-            primary_language == "Roman Urdu"
-            and best["code"] == "ur-PK"
-        ):
-            language = "Roman Urdu"
 
         logger.info(
-            "Selected candidate [%s] score=%.2f: %s",
-            best["code"],
-            best["score"],
-            best["text"],
+            "Strict recognition language: %s (%s)",
+            language,
+            code,
+        )
+
+        try:
+            text = self._recognize_with_code(
+                audio,
+                code,
+            )
+
+        except sr.UnknownValueError:
+            logger.info(
+                "Speech was not recognized as %s.",
+                language,
+            )
+            return None
+
+        if not text:
+            return None
+
+        text = text.strip()
+
+        if not text:
+            return None
+
+        logger.info(
+            "Strict recognition result [%s]: %s",
+            language,
+            text,
         )
 
         return (
-            best["text"],
+            text,
             language,
         )
 
@@ -583,6 +627,7 @@ class Listener:
                 <= codepoint
                 <= 0x007A
             ):
+
                 latin += 1
 
             # Arabic / Urdu.
@@ -591,6 +636,7 @@ class Listener:
                 <= codepoint
                 <= 0x06FF
             ):
+
                 urdu += 1
 
             # Gurmukhi / Punjabi.
@@ -599,6 +645,7 @@ class Listener:
                 <= codepoint
                 <= 0x0A7F
             ):
+
                 gurmukhi += 1
 
             # Devanagari / Hindi.
@@ -607,6 +654,7 @@ class Listener:
                 <= codepoint
                 <= 0x097F
             ):
+
                 devanagari += 1
 
         counts = {
@@ -622,6 +670,7 @@ class Listener:
         )
 
         if count == 0:
+
             return "unknown"
 
         return script
@@ -664,6 +713,7 @@ class Listener:
         )
 
         if not response:
+
             return None
 
         if isinstance(
@@ -677,6 +727,7 @@ class Listener:
             )
 
             if not alternatives:
+
                 return None
 
             best = alternatives[0]
@@ -712,7 +763,8 @@ class Listener:
         """Get unique enabled speech-recognition codes."""
 
         codes = (
-            language_manager.enabled_recognition_codes()
+            language_manager
+            .enabled_recognition_codes()
         )
 
         unique = []
@@ -720,7 +772,10 @@ class Listener:
         for code in codes:
 
             if code not in unique:
-                unique.append(code)
+
+                unique.append(
+                    code
+                )
 
         return unique
 
@@ -735,6 +790,7 @@ class Listener:
         raw = audio.get_raw_data()
 
         if not raw:
+
             return 0
 
         width = audio.sample_width
@@ -749,6 +805,7 @@ class Listener:
                 )
 
                 if not samples:
+
                     return 0
 
                 values = [
@@ -769,6 +826,7 @@ class Listener:
                 )
 
                 if not samples:
+
                     return 0
 
                 values = samples
@@ -785,18 +843,23 @@ class Listener:
                 )
 
                 if not samples:
+
                     return 0
 
                 values = samples
                 max_amplitude = 2147483648
 
             else:
+
                 return 0
 
-            mean_square = sum(
-                sample * sample
-                for sample in values
-            ) / len(values)
+            mean_square = (
+                sum(
+                    sample * sample
+                    for sample in values
+                )
+                / len(values)
+            )
 
             rms = math.sqrt(
                 mean_square
@@ -821,4 +884,5 @@ class Listener:
             )
 
         except Exception:
+
             return 0

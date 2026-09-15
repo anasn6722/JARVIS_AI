@@ -1,4 +1,4 @@
-import time
+﻿import time
 from queue import Queue
 
 from config.states import AssistantState
@@ -83,4 +83,4 @@ class SpeechManager:
                 time.time()
             )
 
-        self._start_next()  
+        self._start_next()

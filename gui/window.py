@@ -791,8 +791,8 @@ class MainWindow(QMainWindow):
         """Stop voice resources before closing."""
 
         if hasattr(
-            self.chat_page,
-            "voice_manager",
+            self,
+            "chat_page",
         ):
             self.chat_page.voice_manager.stop()
 

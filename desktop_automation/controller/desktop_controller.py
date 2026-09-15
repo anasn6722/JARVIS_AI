@@ -1236,6 +1236,188 @@ class DesktopController:
             f"Searched for '{query}'."
         )
 
+    def open_search_result(self, target):
+        """
+        Open a search result from the currently visible search page.
+    
+        Supported targets:
+            first
+            second
+            third
+            1
+            2
+            3
+        """
+    
+        if target is None:
+            return False, "Search result target is required."
+    
+        value = str(target).strip().lower()
+    
+        index_map = {
+            "first": 0,
+            "1": 0,
+            "second": 1,
+            "2": 1,
+            "third": 2,
+            "3": 2,
+        }
+    
+        if value not in index_map:
+            return (
+                False,
+                f"Unsupported search result: {target}",
+            )
+    
+        result_index = index_map[value]
+    
+        # ---------------------------------------------------------
+        # Inspect the current desktop UI
+        # ---------------------------------------------------------
+    
+        elements = self.ui_inspector.inspect_all(
+            descendants=True,
+            limit=150,
+        )
+    
+        if not elements:
+            return (
+                False,
+                "No visible UI elements were found.",
+            )
+    
+        # ---------------------------------------------------------
+        # Find likely clickable search results
+        # ---------------------------------------------------------
+    
+        candidates = []
+    
+        for element in elements:
+        
+            if not isinstance(element, dict):
+                continue
+            
+            name = str(
+                element.get("name", "")
+            ).strip()
+    
+            control_type = str(
+                element.get("control_type", "")
+            ).strip().lower()
+    
+            class_name = str(
+                element.get("class_name", "")
+            ).strip().lower()
+    
+            if not name:
+                continue
+            
+            # Ignore obvious browser chrome/navigation controls.
+            lower_name = name.lower()
+    
+            if lower_name in {
+                "back",
+                "forward",
+                "reload",
+                "refresh",
+                "close",
+                "minimize",
+                "maximize",
+                "address and search bar",
+            }:
+                continue
+            
+            # Prefer hyperlink-like elements.
+            is_link = (
+                "hyperlink" in control_type
+                or "link" in control_type
+                or "hyperlink" in class_name
+                or "link" in class_name
+            )
+    
+            if is_link:
+                candidates.append(element)
+    
+        # ---------------------------------------------------------
+        # Fallback: clickable named elements
+        # ---------------------------------------------------------
+    
+        if not candidates:
+        
+            for element in elements:
+            
+                if not isinstance(element, dict):
+                    continue
+                
+                name = str(
+                    element.get("name", "")
+                ).strip()
+    
+                if not name:
+                    continue
+                
+                control_type = str(
+                    element.get("control_type", "")
+                ).strip().lower()
+    
+                if (
+                    "button" in control_type
+                    or "hyperlink" in control_type
+                    or "link" in control_type
+                ):
+                    candidates.append(element)
+    
+        # ---------------------------------------------------------
+        # Validate index
+        # ---------------------------------------------------------
+    
+        if result_index >= len(candidates):
+        
+            return (
+                False,
+                f"Search result {value} was not found.",
+            )
+    
+        selected = candidates[result_index]
+    
+        # ---------------------------------------------------------
+        # Click selected element
+        # ---------------------------------------------------------
+    
+        try:
+        
+            element = self.ui_inspector.search(
+                name=selected.get("name")
+            )
+    
+            if element is None:
+                return (
+                    False,
+                    f"Could not resolve search result: "
+                    f"{selected.get('name')}",
+                )
+    
+            success, message = (
+                self.ui_actions.click_element(
+                    element
+                )
+            )
+    
+            if not success:
+                return False, message
+    
+            return (
+                True,
+                f"Opened {value} search result.",
+            )
+    
+        except Exception as error:
+        
+            return (
+                False,
+                f"Could not open search result: {error}",
+            )
+
     # =========================================================
     # CLOSE
     # =========================================================

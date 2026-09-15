@@ -1,9 +1,18 @@
+from __future__ import annotations
+
 from automation.config.apps import APPS
 from automation.config.websites import WEBSITES
 
 
 class AppHandler:
-    """Handles application and website opening/closing."""
+    """
+    Handles application and website automation.
+
+    Application resolution is delegated to the shared
+    ApplicationResolver so registered applications,
+    Windows applications, shell targets, aliases, and
+    dynamically discovered applications follow one path.
+    """
 
     def __init__(self, brain):
         self.brain = brain
@@ -13,19 +22,15 @@ class AppHandler:
     # =========================================================
 
     def open(self, command):
-        """Open one or more applications or websites."""
+        """
+        Open one or more applications or websites.
 
-        if isinstance(command, str):
-            targets = [command.lower().strip()]
+        Supported inputs:
+            - command string
+            - Command object with entities
+        """
 
-        else:
-            targets = list(
-                command.entities.get("apps", [])
-            )
-
-            targets.extend(
-                command.entities.get("websites", [])
-            )
+        targets = self._extract_targets(command)
 
         if not targets:
             return (
@@ -33,44 +38,11 @@ class AppHandler:
                 "I couldn't find anything to open.",
             )
 
-        responses = []
+        responses: list[str] = []
         overall_success = True
 
         for target in targets:
-
-            target = target.lower().strip()
-
-            # -------------------------------------------------
-            # Website
-            # -------------------------------------------------
-
-            if target in WEBSITES:
-
-                success, message = self._open_website(
-                    target
-                )
-
-            # -------------------------------------------------
-            # Registered application
-            # -------------------------------------------------
-
-            elif target in APPS:
-
-                success, message = self._open_application(
-                    target
-                )
-
-            # -------------------------------------------------
-            # Automatic application detection
-            # -------------------------------------------------
-
-            else:
-
-                success, message = (
-                    self._open_unknown_application(
-                        target
-                    )
-                )
+            success, message = self._open_target(target)
 
             responses.append(message)
 
@@ -83,24 +55,80 @@ class AppHandler:
         )
 
     # =========================================================
+    # TARGET EXTRACTION
+    # =========================================================
+
+    def _extract_targets(self, command) -> list[str]:
+        """
+        Convert a command/string into normalized targets.
+        """
+
+        if isinstance(command, str):
+            value = command.strip()
+
+            if not value:
+                return []
+
+            return [value]
+
+        targets: list[str] = []
+
+        try:
+            entities = command.entities
+        except AttributeError:
+            entities = {}
+
+        apps = entities.get("apps", [])
+        websites = entities.get("websites", [])
+
+        targets.extend(apps)
+        targets.extend(websites)
+
+        return [
+            str(target).strip()
+            for target in targets
+            if str(target).strip()
+        ]
+
+    # =========================================================
+    # OPEN TARGET
+    # =========================================================
+
+    def _open_target(self, target: str):
+        """
+        Decide whether target is a website or application.
+        """
+
+        target = target.strip()
+
+        normalized = target.lower()
+
+        # -----------------------------------------------------
+        # WEBSITE
+        # -----------------------------------------------------
+
+        if normalized in WEBSITES:
+            return self._open_website(normalized)
+
+        # -----------------------------------------------------
+        # APPLICATION
+        # -----------------------------------------------------
+
+        return self._open_application(target)
+
+    # =========================================================
     # OPEN WEBSITE
     # =========================================================
 
-    def _open_website(self, website):
+    def _open_website(self, website: str):
         """Open a registered website."""
 
         try:
-            self.brain.web.open_url(
-                WEBSITES[website]
-            )
+            url = WEBSITES[website]
 
-            self.brain.conversation_memory.remember_website(
-                website
-            )
+            self.brain.web.open_url(url)
 
-            self.brain.context.update(
-                website=website,
-            )
+            self._remember_website(website)
 
             return (
                 True,
@@ -108,110 +136,75 @@ class AppHandler:
             )
 
         except Exception as error:
-
             return (
                 False,
                 f"Couldn't open {website.title()}: {error}",
             )
 
     # =========================================================
-    # OPEN REGISTERED APPLICATION
+    # OPEN APPLICATION
     # =========================================================
 
-    def _open_application(self, app):
-        """Open an application registered in APPS."""
+    def _open_application(self, target: str):
+        """
+        Open an application using ApplicationResolver.
+
+        Registered APPS remain supported, but their configured
+        executable is resolved/launched through the same resolver
+        path as dynamically discovered applications.
+        """
+
+        # -----------------------------------------------------
+        # Resolve configured application
+        # -----------------------------------------------------
+
+        application_request = target
+
+        registered = APPS.get(
+            target.lower().strip()
+        )
+
+        if registered:
+            application_request = registered.get(
+                "open",
+                target,
+            )
+
+        # -----------------------------------------------------
+        # Use shared resolver
+        # -----------------------------------------------------
 
         try:
-            success = self.brain.system.open_program(
-                APPS[app]["open"]
+            resolver = self.brain.application_resolver
+
+            success, message = resolver.launch(
+                application_request
+            )
+
+        except AttributeError:
+            return (
+                False,
+                "Application resolver is not available.",
             )
 
         except Exception as error:
-
             return (
                 False,
-                f"Couldn't open {app.title()}: {error}",
+                f"Couldn't open {target.title()}: {error}",
             )
 
         if not success:
-
             return (
                 False,
-                f"Couldn't open {app.title()}.",
+                message,
             )
 
-        self.brain.conversation_memory.remember_app(
-            app
-        )
+        # -----------------------------------------------------
+        # Memory / context
+        # -----------------------------------------------------
 
-        self.brain.session.last_app = app
-
-        self.brain.context.update(
-            app=app,
-        )
-
-        return (
-            True,
-            f"Opened {app.title()}.",
-        )
-
-    # =========================================================
-    # OPEN UNKNOWN APPLICATION
-    # =========================================================
-
-    def _open_unknown_application(self, target):
-        """Resolve and open an application not in APPS."""
-
-        try:
-            executable = (
-                self.brain.application_resolver.resolve(
-                    target
-                )
-            )
-
-        except Exception as error:
-
-            return (
-                False,
-                f"Couldn't resolve {target}: {error}",
-            )
-
-        if not executable:
-
-            return (
-                False,
-                f"I couldn't find an installed application "
-                f"called {target}.",
-            )
-
-        try:
-            success = self.brain.system.open_program(
-                executable
-            )
-
-        except Exception as error:
-
-            return (
-                False,
-                f"I found {target}, but couldn't open it: "
-                f"{error}",
-            )
-
-        if not success:
-
-            return (
-                False,
-                f"I found {target}, but couldn't open it.",
-            )
-
-        self.brain.conversation_memory.remember_app(
+        self._remember_app(
             target
-        )
-
-        self.brain.session.last_app = target
-
-        self.brain.context.update(
-            app=target,
         )
 
         return (
@@ -224,71 +217,211 @@ class AppHandler:
     # =========================================================
 
     def close(self, app):
-        """Close a registered application."""
+        """
+        Close an application.
 
-        app = app.lower().strip()
+        Strategy:
+            1. Use configured process from APPS.
+            2. Resolve executable dynamically.
+            3. Derive process name from executable.
+            4. Use SystemController close_program.
+        """
 
-        program = APPS.get(app)
-
-        if not program:
-
+        if not app:
             return (
                 False,
-                f"I don't know how to close {app}.",
+                "No application was specified.",
             )
 
+        target = str(app).strip()
+
+        if not target:
+            return (
+                False,
+                "No application was specified.",
+            )
+
+        normalized = target.lower()
+
+        # -----------------------------------------------------
+        # 1. Registered application
+        # -----------------------------------------------------
+
+        registered = APPS.get(normalized)
+
+        if registered:
+            process_name = registered.get("process")
+
+            if process_name:
+                return self._close_process(
+                    target,
+                    process_name,
+                )
+
+        # -----------------------------------------------------
+        # 2. Dynamic resolution
+        # -----------------------------------------------------
+
         try:
-            success = self.brain.system.close_program(
-                program["process"]
+            resolved = (
+                self.brain.application_resolver.resolve(
+                    target
+                )
             )
 
         except Exception as error:
-
             return (
                 False,
-                f"Couldn't close {app.title()}: {error}",
+                f"Couldn't resolve {target}: {error}",
+            )
+
+        if not resolved:
+            return (
+                False,
+                f"I couldn't find an application called "
+                f"{target}.",
+            )
+
+        # -----------------------------------------------------
+        # 3. URI / shell targets cannot be process names
+        # -----------------------------------------------------
+
+        if (
+            resolved.startswith("shell:")
+            or resolved.startswith("ms-settings:")
+            or resolved.endswith(":")
+        ):
+            return (
+                False,
+                f"{target.title()} is a Windows shell/settings "
+                f"target and does not have a directly closable "
+                f"application process.",
+            )
+
+        # -----------------------------------------------------
+        # 4. Determine process name
+        # -----------------------------------------------------
+
+        process_name = self._process_name_from_resolved(
+            resolved
+        )
+
+        if not process_name:
+            return (
+                False,
+                f"I found {target}, but couldn't determine "
+                f"its process.",
+            )
+
+        return self._close_process(
+            target,
+            process_name,
+        )
+
+    # =========================================================
+    # CLOSE PROCESS
+    # =========================================================
+
+    def _close_process(
+        self,
+        target: str,
+        process_name: str,
+    ):
+        """Close a process through the existing system layer."""
+
+        try:
+            success = (
+                self.brain.system.close_program(
+                    process_name
+                )
+            )
+
+        except Exception as error:
+            return (
+                False,
+                f"Couldn't close {target.title()}: {error}",
             )
 
         if not success:
-
             return (
                 False,
-                f"Couldn't close {app.title()}.",
+                f"Couldn't close {target.title()}.",
             )
+
+        # Update memory when possible.
+        try:
+            self.brain.conversation_memory.forget_app(
+                target
+            )
+        except Exception:
+            pass
 
         return (
             True,
-            f"Closed {app.title()}.",
+            f"Closed {target.title()}.",
         )
+
+    # =========================================================
+    # PROCESS NAME
+    # =========================================================
+
+    @staticmethod
+    def _process_name_from_resolved(
+        resolved: str,
+    ) -> str | None:
+        """
+        Convert an executable path/target into a process name.
+        """
+
+        value = str(resolved).strip()
+
+        if not value:
+            return None
+
+        # Normal executable
+        if value.lower().endswith(".exe"):
+            filename = value.replace("\\", "/").split("/")[-1]
+
+            if filename:
+                return filename
+
+        # Shortcut
+        if value.lower().endswith(".lnk"):
+            return None
+
+        # MSC / CPL targets usually launch through MMC/control,
+        # therefore don't guess their process.
+        if value.lower().endswith(
+            (".msc", ".cpl")
+        ):
+            return None
+
+        return None
 
     # =========================================================
     # CLOSE LAST
     # =========================================================
 
     def close_last(self, argument=None):
-        """Close the most recently referenced application or website."""
+        """
+        Close the most recently referenced application or website.
+        """
 
         reference = None
 
-        if hasattr(
-            self.brain.conversation_memory,
-            "last_reference",
-        ):
+        try:
             reference = (
                 self.brain.conversation_memory.last_reference()
             )
+        except Exception:
+            reference = None
 
         print(
             "🧠 CLOSE LAST REFERENCE:",
             reference,
         )
 
-        # -----------------------------------------------------
-        # No reference
-        # -----------------------------------------------------
-
         if not reference:
-
             return (
                 False,
                 "There is no previously opened "
@@ -297,50 +430,92 @@ class AppHandler:
 
         reference_type, reference_value = reference
 
-        # =====================================================
+        # -----------------------------------------------------
         # APPLICATION
-        # =====================================================
+        # -----------------------------------------------------
 
         if reference_type == "app":
-
             return self.close(
                 reference_value
             )
 
-        # =====================================================
+        # -----------------------------------------------------
         # WEBSITE
-        # =====================================================
+        # -----------------------------------------------------
 
         if reference_type == "website":
+            browser = self._resolve_last_browser()
 
-            # Websites run inside a browser, so close Chrome
-            # for now.
-
-            browser = "chrome"
-
-            success, message = self.close(
+            return self.close(
                 browser
             )
-
-            if success:
-
-                return (
-                    True,
-                    f"Closed {reference_value.title()} "
-                    f"by closing Chrome.",
-                )
-
-            return (
-                False,
-                message,
-            )
-
-        # =====================================================
-        # UNKNOWN
-        # =====================================================
 
         return (
             False,
             "I don't know how to close "
             "the last reference.",
         )
+
+    # =========================================================
+    # LAST BROWSER
+    # =========================================================
+
+    def _resolve_last_browser(self) -> str:
+        """
+        Determine a browser to close for a website reference.
+
+        Chrome remains the default for backward compatibility.
+        """
+
+        for candidate in (
+            "chrome",
+            "edge",
+            "firefox",
+        ):
+            if candidate.lower() in APPS:
+                return candidate
+
+        return "chrome"
+
+    # =========================================================
+    # MEMORY — APPLICATION
+    # =========================================================
+
+    def _remember_app(self, app: str) -> None:
+        try:
+            self.brain.conversation_memory.remember_app(
+                app
+            )
+        except Exception:
+            pass
+
+        try:
+            self.brain.session.last_app = app
+        except Exception:
+            pass
+
+        try:
+            self.brain.context.update(
+                app=app
+            )
+        except Exception:
+            pass
+
+    # =========================================================
+    # MEMORY — WEBSITE
+    # =========================================================
+
+    def _remember_website(self, website: str) -> None:
+        try:
+            self.brain.conversation_memory.remember_website(
+                website
+            )
+        except Exception:
+            pass
+
+        try:
+            self.brain.context.update(
+                website=website
+            )
+        except Exception:
+            pass

@@ -1,4 +1,7 @@
 import asyncio
+import hashlib
+import os
+import time
 from io import BytesIO
 
 import av
@@ -28,8 +31,14 @@ class Speaker:
         Microsoft Edge TTS
 
     Punjabi:
-        Urdu neural voice fallback until a native Punjabi
-        voice is available.
+        Urdu neural voice fallback.
+
+    Performance improvements:
+        - In-memory TTS cache
+        - Disk TTS cache
+        - Faster Edge speech rate
+        - Separate generation/playback timing
+        - Avoid unnecessary Edge requests
     """
 
     EDGE_VOICES = {
@@ -43,17 +52,62 @@ class Speaker:
         "English",
     }
 
+    # ---------------------------------------------------------
+    # EDGE SETTINGS
+    # ---------------------------------------------------------
+
+    EDGE_RATE = "+15%"
+
+    # Keep cache in project directory.
+    CACHE_DIR = os.path.join(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(__file__)
+            )
+        ),
+        "cache",
+        "tts",
+    )
+
+    # ---------------------------------------------------------
+    # INIT
+    # ---------------------------------------------------------
+
+    def __init__(self):
+
+        self._audio_cache = {}
+
+        os.makedirs(
+            self.CACHE_DIR,
+            exist_ok=True,
+        )
+
+        print(
+            "TTS cache:",
+            self.CACHE_DIR,
+        )
+
+    # =========================================================
+    # PUBLIC SPEAK
+    # =========================================================
+
     def speak(
         self,
         text,
         language=None,
     ):
+
         if not text:
             return
 
-        # ---------------------------------------------------------
+        text = str(text).strip()
+
+        if not text:
+            return
+
+        # -----------------------------------------------------
         # RESPONSE LANGUAGE
-        # ---------------------------------------------------------
+        # -----------------------------------------------------
 
         if language is None:
 
@@ -67,9 +121,9 @@ class Speaker:
             language,
         )
 
-        # ---------------------------------------------------------
+        # -----------------------------------------------------
         # ENGLISH → SAPI5
-        # ---------------------------------------------------------
+        # -----------------------------------------------------
 
         if language in self.SAPI_LANGUAGES:
 
@@ -89,7 +143,6 @@ class Speaker:
                     error,
                 )
 
-                # Fall back to Edge English if possible.
                 try:
 
                     self._speak_edge(
@@ -108,23 +161,23 @@ class Speaker:
 
                 return
 
-        # ---------------------------------------------------------
-        # MULTILINGUAL EDGE TTS
-        # ---------------------------------------------------------
+        # -----------------------------------------------------
+        # EDGE
+        # -----------------------------------------------------
 
         edge_voice = (
             self.EDGE_VOICES.get(
                 language
             )
         )
-        
+
         if not edge_voice:
-        
+
             print(
                 "No compatible TTS voice configured for:",
                 language,
             )
-        
+
             return
 
         try:
@@ -141,7 +194,7 @@ class Speaker:
                 error,
             )
 
-            # Final fallback to SAPI.
+            # Final fallback.
             try:
 
                 self._speak_sapi(
@@ -165,6 +218,9 @@ class Speaker:
         text,
         language,
     ):
+
+        start_time = time.perf_counter()
+
         print(
             "Creating SAPI5 engine..."
         )
@@ -191,9 +247,9 @@ class Speaker:
             )
         )
 
-        # ---------------------------------------------------------
-        # SEARCH MATCHING VOICE
-        # ---------------------------------------------------------
+        # -----------------------------------------------------
+        # FIND LANGUAGE MATCH
+        # -----------------------------------------------------
 
         for voice in voices:
 
@@ -235,34 +291,16 @@ class Speaker:
 
                 normalized_code = (
                     code.lower()
-                    .replace(
-                        "-",
-                        "",
-                    )
-                    .replace(
-                        "_",
-                        "",
-                    )
-                    .replace(
-                        " ",
-                        "",
-                    )
+                    .replace("-", "")
+                    .replace("_", "")
+                    .replace(" ", "")
                 )
 
                 normalized_voice_data = (
                     voice_data
-                    .replace(
-                        "-",
-                        "",
-                    )
-                    .replace(
-                        "_",
-                        "",
-                    )
-                    .replace(
-                        " ",
-                        "",
-                    )
+                    .replace("-", "")
+                    .replace("_", "")
+                    .replace(" ", "")
                 )
 
                 if (
@@ -298,9 +336,9 @@ class Speaker:
             if selected_voice:
                 break
 
-        # ---------------------------------------------------------
+        # -----------------------------------------------------
         # FALLBACK
-        # ---------------------------------------------------------
+        # -----------------------------------------------------
 
         if (
             selected_voice is None
@@ -313,9 +351,9 @@ class Speaker:
                 "No language-matched SAPI voice found."
             )
 
-        # ---------------------------------------------------------
+        # -----------------------------------------------------
         # APPLY
-        # ---------------------------------------------------------
+        # -----------------------------------------------------
 
         if selected_voice is not None:
 
@@ -352,8 +390,13 @@ class Speaker:
 
         engine.stop()
 
+        elapsed = (
+            time.perf_counter()
+            - start_time
+        )
+
         print(
-            "SAPI5 finished."
+            f"SAPI5 finished in {elapsed:.2f}s."
         )
 
     # =========================================================
@@ -365,22 +408,161 @@ class Speaker:
         text,
         voice,
     ):
+
+        total_start = time.perf_counter()
+
         print(
             "Creating Edge TTS:",
             voice,
         )
 
-        audio_data = asyncio.run(
-            self._generate_edge_audio(
-                text,
-                voice,
+        cache_key = self._cache_key(
+            text,
+            voice,
+        )
+
+        # =====================================================
+        # MEMORY CACHE
+        # =====================================================
+
+        audio_data = (
+            self._audio_cache.get(
+                cache_key
             )
         )
 
-        if not audio_data:
-            raise RuntimeError(
-                "Edge TTS returned no audio."
+        if audio_data:
+
+            print(
+                "Using in-memory TTS cache."
             )
+
+        # =====================================================
+        # DISK CACHE
+        # =====================================================
+
+        if not audio_data:
+
+            cache_file = (
+                self._cache_file(
+                    cache_key
+                )
+            )
+
+            if os.path.exists(
+                cache_file
+            ):
+
+                try:
+
+                    with open(
+                        cache_file,
+                        "rb",
+                    ) as file:
+
+                        audio_data = (
+                            file.read()
+                        )
+
+                    if audio_data:
+
+                        print(
+                            "Using disk TTS cache:",
+                            cache_file,
+                        )
+
+                        self._audio_cache[
+                            cache_key
+                        ] = audio_data
+
+                except Exception as error:
+
+                    print(
+                        "TTS cache read failed:",
+                        error,
+                    )
+
+        # =====================================================
+        # GENERATE EDGE AUDIO
+        # =====================================================
+
+        if not audio_data:
+
+            generation_start = (
+                time.perf_counter()
+            )
+
+            audio_data = asyncio.run(
+                self._generate_edge_audio(
+                    text,
+                    voice,
+                )
+            )
+
+            generation_time = (
+                time.perf_counter()
+                - generation_start
+            )
+
+            print(
+                f"Edge generation: "
+                f"{generation_time:.2f}s"
+            )
+
+            if not audio_data:
+
+                raise RuntimeError(
+                    "Edge TTS returned no audio."
+                )
+
+            # -------------------------------------------------
+            # MEMORY CACHE
+            # -------------------------------------------------
+
+            self._audio_cache[
+                cache_key
+            ] = audio_data
+
+            # -------------------------------------------------
+            # DISK CACHE
+            # -------------------------------------------------
+
+            cache_file = (
+                self._cache_file(
+                    cache_key
+                )
+            )
+
+            try:
+
+                with open(
+                    cache_file,
+                    "wb",
+                ) as file:
+
+                    file.write(
+                        audio_data
+                    )
+
+                print(
+                    "Saved TTS cache:",
+                    cache_file,
+                )
+
+            except Exception as error:
+
+                print(
+                    "TTS cache write failed:",
+                    error,
+                )
+
+        # =====================================================
+        # DECODE
+        # =====================================================
+
+        decode_start = (
+            time.perf_counter()
+        )
 
         samples, sample_rate = (
             self._decode_mp3(
@@ -388,14 +570,33 @@ class Speaker:
             )
         )
 
+        decode_time = (
+            time.perf_counter()
+            - decode_start
+        )
+
+        print(
+            f"Edge decode: "
+            f"{decode_time:.2f}s"
+        )
+
         if samples.size == 0:
+
             raise RuntimeError(
                 "Decoded Edge TTS audio is empty."
             )
 
+        # =====================================================
+        # PLAY
+        # =====================================================
+
         print(
             "Playing Edge TTS:",
             voice,
+        )
+
+        playback_start = (
+            time.perf_counter()
         )
 
         sd.play(
@@ -404,6 +605,26 @@ class Speaker:
         )
 
         sd.wait()
+
+        playback_time = (
+            time.perf_counter()
+            - playback_start
+        )
+
+        total_time = (
+            time.perf_counter()
+            - total_start
+        )
+
+        print(
+            f"Edge playback: "
+            f"{playback_time:.2f}s"
+        )
+
+        print(
+            f"Edge TTS total: "
+            f"{total_time:.2f}s"
+        )
 
         print(
             "Edge TTS finished."
@@ -418,10 +639,12 @@ class Speaker:
         text,
         voice,
     ):
+
         communicate = (
             edge_tts.Communicate(
                 text,
                 voice,
+                rate="+15%",
             )
         )
 
@@ -441,12 +664,47 @@ class Speaker:
                 )
 
                 if data:
+
                     chunks.append(
                         data
                     )
 
         return b"".join(
             chunks
+        )
+
+    # =========================================================
+    # CACHE KEY
+    # =========================================================
+
+    @staticmethod
+    def _cache_key(
+        text,
+        voice,
+    ):
+
+        value = (
+            f"{voice}|{text}|rate=+15%"
+        )
+
+        return hashlib.sha256(
+            value.encode(
+                "utf-8"
+            )
+        ).hexdigest()
+
+    # =========================================================
+    # CACHE FILE
+    # =========================================================
+
+    def _cache_file(
+        self,
+        cache_key,
+    ):
+
+        return os.path.join(
+            self.CACHE_DIR,
+            f"{cache_key}.mp3",
         )
 
     # =========================================================
@@ -457,6 +715,7 @@ class Speaker:
     def _decode_mp3(
         audio_data,
     ):
+
         container = av.open(
             BytesIO(
                 audio_data
@@ -481,7 +740,9 @@ class Speaker:
                     or sample_rate
                 )
 
-                array = frame.to_ndarray()
+                array = (
+                    frame.to_ndarray()
+                )
 
                 frames.append(
                     array
@@ -506,18 +767,15 @@ class Speaker:
             axis=1,
         )
 
-        # ---------------------------------------------------------
-        # Convert:
-        # (channels, samples)
-        # →
-        # (samples, channels)
-        # ---------------------------------------------------------
+        # -----------------------------------------------------
+        # CHANNELS → SAMPLES
+        # -----------------------------------------------------
 
         audio = audio.T
 
-        # ---------------------------------------------------------
-        # Normalize integer PCM.
-        # ---------------------------------------------------------
+        # -----------------------------------------------------
+        # INTEGER PCM → FLOAT
+        # -----------------------------------------------------
 
         if np.issubdtype(
             audio.dtype,
@@ -542,13 +800,15 @@ class Speaker:
 
         else:
 
-            audio = audio.astype(
-                np.float32
+            audio = (
+                audio.astype(
+                    np.float32
+                )
             )
 
-        # ---------------------------------------------------------
-        # Mono cleanup.
-        # ---------------------------------------------------------
+        # -----------------------------------------------------
+        # MONO
+        # -----------------------------------------------------
 
         if audio.ndim == 1:
 

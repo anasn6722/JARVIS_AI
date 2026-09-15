@@ -1,4 +1,4 @@
-from PySide6.QtCore import QThread
+﻿from PySide6.QtCore import QThread
 
 from voice.speaker import Speaker
 

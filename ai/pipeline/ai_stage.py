@@ -20,20 +20,13 @@ class AIStage:
         ai_commands = []
 
         # =====================================================
-        # FIND ALL AI COMMANDS
+        # FIND REAL AI COMMANDS ONLY
         # =====================================================
 
-        for index, item in enumerate(
-            context.decisions
-        ):
+        for index, item in enumerate(context.decisions):
 
-            decision = item.get(
-                "decision"
-            )
-
-            command = item.get(
-                "command"
-            )
+            decision = item.get("decision")
+            command = item.get("command")
 
             if decision is None:
                 continue
@@ -41,11 +34,82 @@ class AIStage:
             if command is None:
                 continue
 
-            if getattr(
+            intent = getattr(
+                decision,
+                "intent",
+                "",
+            )
+
+            route = getattr(
                 decision,
                 "route",
                 None,
-            ) != "AI":
+            )
+
+            # -------------------------------------------------
+            # NEVER SEND CONTROL COMMANDS TO GEMINI
+            # -------------------------------------------------
+
+            if intent in (
+                "voice_language",
+                "open",
+                "close",
+                "close_last",
+                "list_windows",
+                "active_window",
+                "find_window",
+                "focus_window",
+                "close_window",
+                "minimize_window",
+                "maximize_window",
+                "restore_window",
+                "minimize_active_window",
+                "maximize_active_window",
+                "restore_active_window",
+                "mouse_position",
+                "mouse_move",
+                "mouse_click",
+                "mouse_double_click",
+                "mouse_right_click",
+                "mouse_middle_click",
+                "mouse_scroll",
+                "keyboard_type",
+                "keyboard_press",
+                "keyboard_hotkey",
+                "ui_find",
+                "ui_click",
+                "ui_find_descriptor",
+                "ui_click_descriptor",
+                "ui_type_descriptor",
+                "ui_focus",
+                "ui_click_at",
+                "ui_describe",
+                "ui_type",
+                "search_ui",
+                "open_search_result",
+                "path_exists",
+                "list_directory",
+                "file_info",
+                "create_folder",
+                "create_file",
+                "copy",
+                "move",
+                "rename",
+                "search_files",
+                "open_path",
+                "open_in_explorer",
+                "search",
+                "youtube_search",
+                "time",
+                "identity",
+            ):
+                print(
+                    f"AI BYPASS: intent='{intent}' "
+                    f"will not be sent to Gemini."
+                )
+                continue
+
+            if route != "AI":
                 continue
 
             ai_commands.append(
@@ -69,7 +133,7 @@ class AIStage:
             return
 
         # =====================================================
-        # PROCESS EACH AI COMMAND
+        # PROCESS REAL AI COMMANDS
         # =====================================================
 
         history = (
@@ -90,45 +154,29 @@ class AIStage:
                 )
             )
 
-            print(
-                "=" * 50
-            )
-
+            print("=" * 50)
             print(
                 "AI COMMAND:",
                 command.original,
             )
-
             print(
                 "COMMAND INDEX:",
                 command_index,
             )
-
             print(
                 "DECISION:",
                 decision,
             )
+            print("=" * 50)
 
             # -------------------------------------------------
-            # Knowledge Search
+            # KNOWLEDGE SEARCH
             # -------------------------------------------------
 
-            print(
-                "=" * 50
-            )
-
-            print(
-                "KNOWLEDGE SEARCH"
-            )
-
-            print(
-                "QUERY:",
-                command.original,
-            )
-
-            print(
-                "=" * 50
-            )
+            print("=" * 50)
+            print("KNOWLEDGE SEARCH")
+            print("QUERY:", command.original)
+            print("=" * 50)
 
             knowledge = (
                 self.brain.knowledge_manager.search(
@@ -138,32 +186,21 @@ class AIStage:
 
             if knowledge.success:
 
-                print(
-                    "=" * 50
-                )
-
-                print(
-                    "KNOWLEDGE FOUND"
-                )
-
+                print("=" * 50)
+                print("KNOWLEDGE FOUND")
                 print(
                     "SOURCE:",
                     knowledge.source,
                 )
-
                 print(
                     "CONFIDENCE:",
                     knowledge.confidence,
                 )
-
                 print(
                     "CONTENT:",
                     knowledge.content,
                 )
-
-                print(
-                    "=" * 50
-                )
+                print("=" * 50)
 
                 prompt = f"""
 User Question:
@@ -181,57 +218,46 @@ Do not invent facts that are not supported by the knowledge.
 
             else:
 
-                print(
-                    "=" * 50
-                )
-
-                print(
-                    "NO KNOWLEDGE FOUND"
-                )
-
+                print("=" * 50)
+                print("NO KNOWLEDGE FOUND")
                 print(
                     "ERROR:",
                     knowledge.error,
                 )
-
-                print(
-                    "=" * 50
-                )
+                print("=" * 50)
 
                 prompt = command.original
 
             # -------------------------------------------------
-            # Response Language
+            # RESPONSE LANGUAGE
             # -------------------------------------------------
 
             response_language = (
                 self._response_language()
             )
 
-            prompt = (
-                f"""
+            prompt = f"""
 Respond in {response_language}.
 
 User request:
 {prompt}
 """
-            )
 
             # -------------------------------------------------
             # LLM
             # -------------------------------------------------
 
+            print("=" * 50)
+            print("CALLING LLM")
             print(
-                "=" * 50
+                "REASON:",
+                "Genuine AI/chat request",
             )
-
             print(
-                "CALLING LLM"
+                "LANGUAGE:",
+                response_language,
             )
-
-            print(
-                "=" * 50
-            )
+            print("=" * 50)
 
             response = self.brain.llm.ask(
                 prompt=prompt,
@@ -248,24 +274,13 @@ User request:
                 response
             ).strip()
 
-            print(
-                "=" * 50
-            )
-
-            print(
-                "LLM RESPONSE"
-            )
-
-            print(
-                response
-            )
-
-            print(
-                "=" * 50
-            )
+            print("=" * 50)
+            print("LLM RESPONSE")
+            print(response)
+            print("=" * 50)
 
             # =================================================
-            # STORE RESULT BY ORIGINAL COMMAND INDEX
+            # STORE RESULT
             # =================================================
 
             context.set_command_result(
@@ -281,12 +296,9 @@ User request:
             )
 
         # =====================================================
-        # DO NOT USE context.response FOR AI AGGREGATION
+        # RESPONSESTAGE HANDLES FINAL RESPONSE
         # =====================================================
-        #
-        # ResponseStage will build the final response from
-        # context.command_results in original command order.
-        #
+
         context.response = None
 
     # =========================================================

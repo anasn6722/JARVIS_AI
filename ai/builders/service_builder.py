@@ -77,9 +77,9 @@ class ServiceBuilder:
         # Core
         # =====================================================
 
+        brain.application_resolver = ApplicationResolver()
         brain.system = SystemController()
         brain.web = WebController()
-        brain.application_resolver = ApplicationResolver()
         brain.database = Database()
 
         # =====================================================

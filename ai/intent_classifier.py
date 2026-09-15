@@ -207,6 +207,8 @@ class IntentClassifier:
         "press command",
     )
 
+    
+        
     # =====================================================
     # SEMANTIC UI CONTROL
     # =====================================================
@@ -646,6 +648,28 @@ class IntentClassifier:
             }
 
         # =====================================================
+        # FILESYSTEM SEARCH
+        # =====================================================
+
+        filesystem_search_phrases = (
+            "find files ",
+            "find all files ",
+            "find all ",
+            "find my files ",
+            "search files ",
+            "search my files ",
+            "search for files ",
+        )
+
+        if text.startswith(
+            filesystem_search_phrases
+        ) and " files" in text:
+            return {
+                "destination": "BRAIN",
+                "intent": "search_files",
+            }
+        
+        # =====================================================
         # SEMANTIC UI CONTROL
         # =====================================================
 
@@ -826,6 +850,29 @@ class IntentClassifier:
                     "page": page,
                 }
 
+
+        # =====================================================
+        # SEARCH RESULT REFERENCE
+        # =====================================================
+
+        SEARCH_RESULT_PHRASES = (
+            "open the first result",
+            "open first result",
+            "open the first one",
+            "open first",
+            "open the second result",
+            "open second result",
+            "open second",
+            "open the third result",
+            "open third result",
+            "open third",
+        )
+
+        if text in SEARCH_RESULT_PHRASES:
+            return {
+                "destination": "BRAIN",
+                "intent": "search_result",
+            }
         # =====================================================
         # APPLICATIONS
         # =====================================================
@@ -1161,21 +1208,6 @@ class IntentClassifier:
                 "intent": "get_preference",
             }
 
-        # =====================================================
-        # SEARCH RESULT REFERENCE
-        # =====================================================
-
-        if text in (
-            "open the first one",
-            "open first result",
-            "open first",
-            "open second",
-            "open third",
-        ):
-            return {
-                "destination": "BRAIN",
-                "intent": "search_result",
-            }
 
 
         # =====================================================

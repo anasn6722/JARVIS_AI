@@ -37,8 +37,8 @@ class PlanningStage:
                 command
             )
 
-
             tasks = tasks or []
+
             for task in tasks:
                 task.command_index = command_index
 
@@ -101,9 +101,7 @@ class PlanningStage:
         """
         Add dependencies between separate user commands.
 
-        We only add dependencies when there is a strong reason.
-
-        Example:
+        Examples:
 
             open chrome
             search python classes
@@ -111,12 +109,24 @@ class PlanningStage:
         becomes:
 
             open chrome
-            search python classes -> depends on open chrome
+                ↓
+            search python classes
 
-        But:
+        And:
 
-            get my name
-            get current time
+            search python classes
+            open the first result
+
+        becomes:
+
+            search python classes
+                ↓
+            open_search_result(first)
+
+        Independent commands such as:
+
+            tell me a joke
+            what time is it
 
         remain independent.
         """
@@ -125,10 +135,16 @@ class PlanningStage:
             return
 
         # ---------------------------------------------------------
-        # Track the most recent application/website open task.
+        # Most recent application / website open task.
         # ---------------------------------------------------------
 
         latest_open_task = None
+
+        # ---------------------------------------------------------
+        # Most recent search task.
+        # ---------------------------------------------------------
+
+        latest_search_task = None
 
         # ---------------------------------------------------------
         # Process commands in original order.
@@ -175,7 +191,6 @@ class PlanningStage:
                         if task.action == "search_ui":
 
                             first_search_task = task
-
                             break
 
                     if (
@@ -195,6 +210,56 @@ class PlanningStage:
                             latest_open_task.id,
                         )
 
+                # ---------------------------------------------
+                # Remember the latest search for later
+                # search-result references.
+                # ---------------------------------------------
+
+                for task in tasks:
+
+                    if task.action == "search_ui":
+
+                        latest_search_task = task
+                        break
+
+            # =====================================================
+            # SEARCH RESULT REFERENCE
+            # =====================================================
+
+            elif command_intent == "search_result":
+
+                result_task = None
+
+                for task in tasks:
+
+                    if task.action == "open_search_result":
+
+                        result_task = task
+                        break
+
+                # ---------------------------------------------
+                # A search-result reference must follow the
+                # most recent search task.
+                # ---------------------------------------------
+
+                if (
+                    result_task is not None
+                    and latest_search_task is not None
+                    and latest_search_task.id
+                    not in result_task.depends_on
+                ):
+
+                    result_task.depends_on.append(
+                        latest_search_task.id
+                    )
+
+                    print(
+                        "SEARCH RESULT DEPENDENCY:",
+                        result_task.id,
+                        "->",
+                        latest_search_task.id,
+                    )
+
             # =====================================================
             # RECORD OPEN TASKS
             # =====================================================
@@ -208,13 +273,6 @@ class PlanningStage:
             # =====================================================
             # EXPLICIT SAME-DESKTOP DEPENDENCIES
             # =====================================================
-
-            # These actions should follow an earlier desktop
-            # action when they explicitly operate on its result.
-            #
-            # Most of these dependencies are already produced
-            # inside DesktopTaskComposer. This block is only a
-            # cross-command safety net.
 
             if command is not None:
 

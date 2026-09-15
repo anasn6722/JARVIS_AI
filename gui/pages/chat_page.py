@@ -1,3 +1,4 @@
+import random
 import time
 
 from PySide6.QtCore import (
@@ -39,6 +40,14 @@ class ChatPage(QWidget):
         self.brain_thread = None
         self.brain_worker = None
         self.processing = False
+        self.wake_acknowledgements = (
+            "Certainly, sir.",
+            "At your service.",
+            "Right away.",
+            "Yes, sir?",
+            "How can I assist?",
+            "I'm listening.",
+        )
 
         app_state.state_machine.change(
             AssistantState.SLEEPING
@@ -708,8 +717,12 @@ class ChatPage(QWidget):
             time.time()
         )
 
+        acknowledgement = random.choice(
+            self.wake_acknowledgements
+        )
+
         speech_manager.say(
-            "Yes?"
+            acknowledgement
         )
 
         if command:
